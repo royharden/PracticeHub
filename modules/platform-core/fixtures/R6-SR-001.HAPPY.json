@@ -1,0 +1,59 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-001",
+  "class": "HAPPY",
+  "description": "Two location facts captured for one regulated-action context: booking capture plus visit-start re-confirmation in the same state; the basis derives from the visit-start fact and resolves without defaults.",
+  "facts": [
+    {
+      "tenantId": "northwind-synthetic",
+      "captureId": "cap-fix-1001-booking",
+      "contextRef": "synthetic-visit-1001",
+      "stage": "booking",
+      "stateCode": "NV",
+      "capturedAt": "2026-01-05T09:00:00Z",
+      "source": "synthetic-portal-booking",
+      "synthetic": true
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "captureId": "cap-fix-1001-visit-start",
+      "contextRef": "synthetic-visit-1001",
+      "stage": "visit-start",
+      "stateCode": "NV",
+      "capturedAt": "2026-01-12T14:30:00Z",
+      "source": "synthetic-visit-checkin",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "booking and visit-start agree: no divergence, both facts retained",
+      "kind": "divergence",
+      "expect": {
+        "diverged": false,
+        "bookingState": "NV",
+        "visitStartState": "NV",
+        "retainedCount": 2
+      }
+    },
+    {
+      "name": "the basis carries both location facts (provider state + patient visit-start state)",
+      "kind": "basis",
+      "providerState": "NV",
+      "expect": { "basis": { "providerState": "NV", "patientState": "NV" } }
+    },
+    {
+      "name": "resolution from captured facts applies the statutory rules without defaults",
+      "kind": "resolve",
+      "providerState": "NV",
+      "topic": "recording-consent",
+      "expect": {
+        "resolution": {
+          "obligations": ["all-party-consent"],
+          "defaultsApplied": false,
+          "missingPacks": []
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@practicehub/local-tools",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint src --max-warnings=0",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "doctor": "pnpm build && node dist/cli.js doctor",
+    "up": "pnpm build && node dist/cli.js up",
+    "migrate": "pnpm build && node dist/cli.js migrate",
+    "seed": "pnpm build && node dist/cli.js seed",
+    "test:local": "pnpm build && node dist/cli.js test",
+    "down": "pnpm build && node dist/cli.js down",
+    "reset": "pnpm build && node dist/cli.js reset"
+  }
+}

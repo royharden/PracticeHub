@@ -1,0 +1,77 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-001",
+  "class": "FAILURE",
+  "description": "Failure paths: an unknown patient location resolves through the safe defaults (hard-block posture, never permissive); a malformed state code is rejected at capture; facts from different contexts never mix into one divergence view.",
+  "facts": [
+    {
+      "tenantId": "northwind-synthetic",
+      "captureId": "cap-fix-1003-booking",
+      "contextRef": "synthetic-visit-1003",
+      "stage": "booking",
+      "stateCode": null,
+      "capturedAt": "2026-01-07T08:15:00Z",
+      "source": "synthetic-phone-intake",
+      "synthetic": true
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "captureId": "cap-fix-1003-badstate",
+      "contextRef": "synthetic-visit-1003",
+      "stage": "booking",
+      "stateCode": "Nevada",
+      "capturedAt": "2026-01-07T08:20:00Z",
+      "source": "synthetic-phone-intake",
+      "synthetic": true
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "captureId": "cap-fix-1004-booking",
+      "contextRef": "synthetic-visit-1004",
+      "stage": "booking",
+      "stateCode": "FL",
+      "capturedAt": "2026-01-07T09:00:00Z",
+      "source": "synthetic-portal-booking",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "an unknown patient location yields an unknown basis, never a guessed state",
+      "kind": "basis",
+      "factIndexes": [0],
+      "providerState": "NV",
+      "expect": { "basis": { "providerState": "NV", "patientState": null } }
+    },
+    {
+      "name": "unknown patient location fails safe: telehealth hard-blocks until the state is verified",
+      "kind": "resolve",
+      "factIndexes": [0],
+      "providerState": "NV",
+      "topic": "telehealth-licensure",
+      "expect": {
+        "resolution": {
+          "obligationsInclude": [
+            "hard-block-unlicensed",
+            "jurisdiction-unverified-hard-block",
+            "patient-presence-state-licensure"
+          ],
+          "defaultsApplied": true,
+          "missingPacks": []
+        }
+      }
+    },
+    {
+      "name": "a malformed state code is rejected at capture, never stored as truth",
+      "kind": "fact-invalid",
+      "factIndexes": [1],
+      "expectError": "two-letter state code"
+    },
+    {
+      "name": "facts from different contexts never merge into one divergence view",
+      "kind": "fact-invalid",
+      "factIndexes": [0, 2],
+      "expectError": "per context"
+    }
+  ]
+}

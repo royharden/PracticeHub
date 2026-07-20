@@ -1,0 +1,78 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-001",
+  "class": "RECOVERY",
+  "description": "Recovery: a late correction is APPENDED as a new visit-start fact — the corrected fact governs, every prior fact (including the wrong one) stays retained with its timestamp, and the resolution recomputes from the corrected basis.",
+  "facts": [
+    {
+      "tenantId": "northwind-synthetic",
+      "captureId": "cap-fix-1005-booking",
+      "contextRef": "synthetic-visit-1005",
+      "stage": "booking",
+      "stateCode": "NV",
+      "capturedAt": "2026-01-08T09:00:00Z",
+      "source": "synthetic-portal-booking",
+      "synthetic": true
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "captureId": "cap-fix-1005-visit-start",
+      "contextRef": "synthetic-visit-1005",
+      "stage": "visit-start",
+      "stateCode": "NV",
+      "capturedAt": "2026-01-15T14:00:00Z",
+      "source": "synthetic-visit-checkin",
+      "synthetic": true
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "captureId": "cap-fix-1005-correction",
+      "contextRef": "synthetic-visit-1005",
+      "stage": "visit-start",
+      "stateCode": "FL",
+      "capturedAt": "2026-01-15T14:20:00Z",
+      "source": "synthetic-staff-correction",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "before the correction, the NV visit-start governs",
+      "kind": "resolve",
+      "factIndexes": [0, 1],
+      "providerState": "NV",
+      "topic": "records-consent",
+      "expect": {
+        "resolution": { "obligations": ["hipaa-authorization"], "defaultsApplied": false }
+      }
+    },
+    {
+      "name": "the appended correction governs and every prior fact stays retained",
+      "kind": "divergence",
+      "expect": {
+        "diverged": true,
+        "bookingState": "NV",
+        "visitStartState": "FL",
+        "retainedCount": 3
+      }
+    },
+    {
+      "name": "the corrected basis carries the FL patient state",
+      "kind": "basis",
+      "providerState": "NV",
+      "expect": { "basis": { "providerState": "NV", "patientState": "FL" } }
+    },
+    {
+      "name": "the resolution recomputes from the corrected fact (FL written consent joins)",
+      "kind": "resolve",
+      "providerState": "NV",
+      "topic": "records-consent",
+      "expect": {
+        "resolution": {
+          "obligations": ["hipaa-authorization", "written-consent"],
+          "defaultsApplied": false
+        }
+      }
+    }
+  ]
+}

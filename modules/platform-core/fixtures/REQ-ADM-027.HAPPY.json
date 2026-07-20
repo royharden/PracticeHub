@@ -1,0 +1,45 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-027",
+  "class": "HAPPY",
+  "description": "A per-location accepting-new-patients default is configured with a machine-readable policy state and resolves for any payer/provider at that location.",
+  "entries": [
+    {
+      "tenantId": "northwind-synthetic",
+      "legalEntityId": "northwind-health-nv",
+      "locationId": "northwind-nv-henderson",
+      "namespace": "policy",
+      "key": "accepting-new-patients:payer=*:provider=*",
+      "value": { "policy": "open", "reason": "default-open" },
+      "phiClass": "none",
+      "counselOwned": false,
+      "revision": 1,
+      "changedBy": "synthetic-practice-manager-001"
+    }
+  ],
+  "writeCases": [
+    {
+      "name": "location-scoped policy entry with both scope ids and actor attribution is writable",
+      "entryIndex": 0
+    }
+  ],
+  "cases": [
+    {
+      "name": "location default resolves for an arbitrary payer and provider",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv",
+        "locationId": "northwind-nv-henderson"
+      },
+      "payerId": "synthetic-aetna",
+      "providerId": "synthetic-dr-kim",
+      "expect": {
+        "status": "accepted",
+        "policy": "open",
+        "accepting": true,
+        "reason": "default-open",
+        "matchedKey": "accepting-new-patients:payer=*:provider=*"
+      }
+    }
+  ]
+}

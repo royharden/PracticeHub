@@ -1,0 +1,56 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-027",
+  "class": "RECOVERY",
+  "description": "A misconfigured panel-closed is corrected by superseding revision: the highest revision wins, the prior revision stays retained for audit, and each revision carries its own actor attribution (REQ-ADM-027 AC-3).",
+  "entries": [
+    {
+      "tenantId": "northwind-synthetic",
+      "legalEntityId": "northwind-health-fl",
+      "locationId": "northwind-fl-coral-gables",
+      "namespace": "policy",
+      "key": "accepting-new-patients:payer=*:provider=*",
+      "value": { "policy": "panel-closed", "reason": "misconfigured-closed" },
+      "phiClass": "none",
+      "counselOwned": false,
+      "revision": 1,
+      "changedBy": "synthetic-practice-manager-001"
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "legalEntityId": "northwind-health-fl",
+      "locationId": "northwind-fl-coral-gables",
+      "namespace": "policy",
+      "key": "accepting-new-patients:payer=*:provider=*",
+      "value": { "policy": "open", "reason": "corrected-open" },
+      "phiClass": "none",
+      "counselOwned": false,
+      "revision": 2,
+      "changedBy": "synthetic-practice-manager-002"
+    }
+  ],
+  "cases": [
+    {
+      "name": "the corrected revision resolves after supersession; prior revision and per-revision attribution are retained",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-fl",
+        "locationId": "northwind-fl-coral-gables"
+      },
+      "payerId": "synthetic-cigna",
+      "providerId": "synthetic-dr-osei",
+      "expect": {
+        "status": "accepted",
+        "policy": "open",
+        "accepting": true,
+        "reason": "corrected-open",
+        "matchedKey": "accepting-new-patients:payer=*:provider=*"
+      },
+      "expectRetainedRevisions": 2,
+      "expectRevisionAttribution": [
+        { "revision": 1, "changedBy": "synthetic-practice-manager-001" },
+        { "revision": 2, "changedBy": "synthetic-practice-manager-002" }
+      ]
+    }
+  ]
+}

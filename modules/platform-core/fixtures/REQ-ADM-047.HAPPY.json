@@ -1,0 +1,39 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-047",
+  "class": "HAPPY",
+  "description": "The acceptance-policy lookup returns a four-state decision (accepted here) for an exact payer x provider match at a location.",
+  "entries": [
+    {
+      "tenantId": "northwind-synthetic",
+      "legalEntityId": "northwind-health-nv",
+      "locationId": "northwind-nv-henderson",
+      "namespace": "policy",
+      "key": "accepting-new-patients:payer=synthetic-medicare:provider=synthetic-dr-lee",
+      "value": { "policy": "open", "reason": "provider-exception" },
+      "phiClass": "none",
+      "counselOwned": false,
+      "revision": 1,
+      "changedBy": "synthetic-practice-manager-001"
+    }
+  ],
+  "cases": [
+    {
+      "name": "exact payer x provider lookup resolves to accepted",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv",
+        "locationId": "northwind-nv-henderson"
+      },
+      "payerId": "synthetic-medicare",
+      "providerId": "synthetic-dr-lee",
+      "expect": {
+        "status": "accepted",
+        "policy": "open",
+        "accepting": true,
+        "reason": "provider-exception",
+        "matchedKey": "accepting-new-patients:payer=synthetic-medicare:provider=synthetic-dr-lee"
+      }
+    }
+  ]
+}

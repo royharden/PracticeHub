@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "tenants": [
+    {
+      "id": "northwind-synthetic",
+      "capability": "platform.bootstrap",
+      "state": "simulated"
+    },
+    {
+      "id": "riverbend-synthetic",
+      "capability": "platform.bootstrap",
+      "state": "disabled"
+    }
+  ]
+}

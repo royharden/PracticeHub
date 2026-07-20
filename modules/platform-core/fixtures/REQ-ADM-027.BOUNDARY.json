@@ -1,0 +1,155 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-027",
+  "class": "BOUNDARY",
+  "description": "Specificity boundary plus the policy-state vocabulary edge: a provider-level exception beats a payer-level panel-closed, which beats the location default; waitlist and existing-patients-only are machine-readable states that resolve as panel-closed for new patients with the config state carried on the decision.",
+  "entries": [
+    {
+      "tenantId": "northwind-synthetic",
+      "legalEntityId": "northwind-health-nv",
+      "locationId": "northwind-nv-henderson",
+      "namespace": "policy",
+      "key": "accepting-new-patients:payer=*:provider=*",
+      "value": { "policy": "open", "reason": "default-open" },
+      "phiClass": "none",
+      "counselOwned": false,
+      "revision": 1,
+      "changedBy": "synthetic-practice-manager-001"
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "legalEntityId": "northwind-health-nv",
+      "locationId": "northwind-nv-henderson",
+      "namespace": "policy",
+      "key": "accepting-new-patients:payer=synthetic-medicare:provider=*",
+      "value": { "policy": "panel-closed", "reason": "medicare-panel-full" },
+      "phiClass": "none",
+      "counselOwned": false,
+      "revision": 1,
+      "changedBy": "synthetic-practice-manager-001"
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "legalEntityId": "northwind-health-nv",
+      "locationId": "northwind-nv-henderson",
+      "namespace": "policy",
+      "key": "accepting-new-patients:payer=synthetic-medicare:provider=synthetic-dr-lee",
+      "value": { "policy": "open", "reason": "provider-exception" },
+      "phiClass": "none",
+      "counselOwned": false,
+      "revision": 1,
+      "changedBy": "synthetic-practice-manager-001"
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "legalEntityId": "northwind-health-nv",
+      "locationId": "northwind-nv-henderson",
+      "namespace": "policy",
+      "key": "accepting-new-patients:payer=synthetic-cigna:provider=*",
+      "value": { "policy": "waitlist", "reason": "waitlist-available" },
+      "phiClass": "none",
+      "counselOwned": false,
+      "revision": 1,
+      "changedBy": "synthetic-practice-manager-001"
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "legalEntityId": "northwind-health-nv",
+      "locationId": "northwind-nv-henderson",
+      "namespace": "policy",
+      "key": "accepting-new-patients:payer=synthetic-humana:provider=*",
+      "value": { "policy": "existing-patients-only", "reason": "established-patients-only" },
+      "phiClass": "none",
+      "counselOwned": false,
+      "revision": 1,
+      "changedBy": "synthetic-practice-manager-001"
+    }
+  ],
+  "cases": [
+    {
+      "name": "provider exception beats the payer-level panel-closed",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv",
+        "locationId": "northwind-nv-henderson"
+      },
+      "payerId": "synthetic-medicare",
+      "providerId": "synthetic-dr-lee",
+      "expect": {
+        "status": "accepted",
+        "policy": "open",
+        "accepting": true,
+        "reason": "provider-exception",
+        "matchedKey": "accepting-new-patients:payer=synthetic-medicare:provider=synthetic-dr-lee"
+      }
+    },
+    {
+      "name": "payer-level panel-closed beats the location default for other providers",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv",
+        "locationId": "northwind-nv-henderson"
+      },
+      "payerId": "synthetic-medicare",
+      "providerId": "synthetic-dr-kim",
+      "expect": {
+        "status": "panel-closed",
+        "policy": "panel-closed",
+        "accepting": false,
+        "reason": "medicare-panel-full",
+        "matchedKey": "accepting-new-patients:payer=synthetic-medicare:provider=*"
+      }
+    },
+    {
+      "name": "unconfigured payers still get the location default",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv",
+        "locationId": "northwind-nv-henderson"
+      },
+      "payerId": "synthetic-bcbs",
+      "providerId": "synthetic-dr-lee",
+      "expect": {
+        "status": "accepted",
+        "policy": "open",
+        "accepting": true,
+        "reason": "default-open",
+        "matchedKey": "accepting-new-patients:payer=*:provider=*"
+      }
+    },
+    {
+      "name": "a waitlist policy resolves as panel-closed with the waitlist state machine-readable",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv",
+        "locationId": "northwind-nv-henderson"
+      },
+      "payerId": "synthetic-cigna",
+      "providerId": "synthetic-dr-kim",
+      "expect": {
+        "status": "panel-closed",
+        "policy": "waitlist",
+        "accepting": false,
+        "reason": "waitlist-available",
+        "matchedKey": "accepting-new-patients:payer=synthetic-cigna:provider=*"
+      }
+    },
+    {
+      "name": "an existing-patients-only policy resolves as panel-closed with the state machine-readable",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv",
+        "locationId": "northwind-nv-henderson"
+      },
+      "payerId": "synthetic-humana",
+      "providerId": "synthetic-dr-kim",
+      "expect": {
+        "status": "panel-closed",
+        "policy": "existing-patients-only",
+        "accepting": false,
+        "reason": "established-patients-only",
+        "matchedKey": "accepting-new-patients:payer=synthetic-humana:provider=*"
+      }
+    }
+  ]
+}

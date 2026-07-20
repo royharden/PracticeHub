@@ -1,0 +1,126 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-047",
+  "class": "BOUNDARY",
+  "description": "Fallback and plan-scoping boundaries: an unknown provider falls back to the payer wildcard; an unknown payer falls back to the location default; two plans under one payer are configured as plan-scoped payer ids and resolve to different answers, never collapsed into a payer-level answer (REQ-ADM-047 exception 2).",
+  "entries": [
+    {
+      "tenantId": "northwind-synthetic",
+      "legalEntityId": "northwind-health-nv",
+      "locationId": "northwind-nv-henderson",
+      "namespace": "policy",
+      "key": "accepting-new-patients:payer=synthetic-medicare:provider=*",
+      "value": { "policy": "panel-closed", "reason": "medicare-panel-full" },
+      "phiClass": "none",
+      "counselOwned": false,
+      "revision": 1,
+      "changedBy": "synthetic-practice-manager-001"
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "legalEntityId": "northwind-health-nv",
+      "locationId": "northwind-nv-henderson",
+      "namespace": "policy",
+      "key": "accepting-new-patients:payer=*:provider=*",
+      "value": { "policy": "open", "reason": "default-open" },
+      "phiClass": "none",
+      "counselOwned": false,
+      "revision": 1,
+      "changedBy": "synthetic-practice-manager-001"
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "legalEntityId": "northwind-health-nv",
+      "locationId": "northwind-nv-henderson",
+      "namespace": "policy",
+      "key": "accepting-new-patients:payer=synthetic-aetna-gold-plan:provider=*",
+      "value": { "policy": "open", "reason": "gold-plan-contracted" },
+      "phiClass": "none",
+      "counselOwned": false,
+      "revision": 1,
+      "changedBy": "synthetic-practice-manager-001"
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "legalEntityId": "northwind-health-nv",
+      "locationId": "northwind-nv-henderson",
+      "namespace": "policy",
+      "key": "accepting-new-patients:payer=synthetic-aetna-basic-plan:provider=*",
+      "value": { "policy": "not-accepted", "reason": "basic-plan-not-contracted" },
+      "phiClass": "none",
+      "counselOwned": false,
+      "revision": 1,
+      "changedBy": "synthetic-practice-manager-001"
+    }
+  ],
+  "cases": [
+    {
+      "name": "unknown provider falls back to the payer wildcard",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv",
+        "locationId": "northwind-nv-henderson"
+      },
+      "payerId": "synthetic-medicare",
+      "providerId": "synthetic-dr-unknown",
+      "expect": {
+        "status": "panel-closed",
+        "policy": "panel-closed",
+        "accepting": false,
+        "reason": "medicare-panel-full",
+        "matchedKey": "accepting-new-patients:payer=synthetic-medicare:provider=*"
+      }
+    },
+    {
+      "name": "unknown payer falls back to the location default",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv",
+        "locationId": "northwind-nv-henderson"
+      },
+      "payerId": "synthetic-newpayer",
+      "providerId": "synthetic-dr-lee",
+      "expect": {
+        "status": "accepted",
+        "policy": "open",
+        "accepting": true,
+        "reason": "default-open",
+        "matchedKey": "accepting-new-patients:payer=*:provider=*"
+      }
+    },
+    {
+      "name": "plan non-collapse: the gold plan of one payer resolves to accepted",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv",
+        "locationId": "northwind-nv-henderson"
+      },
+      "payerId": "synthetic-aetna-gold-plan",
+      "providerId": "synthetic-dr-kim",
+      "expect": {
+        "status": "accepted",
+        "policy": "open",
+        "accepting": true,
+        "reason": "gold-plan-contracted",
+        "matchedKey": "accepting-new-patients:payer=synthetic-aetna-gold-plan:provider=*"
+      }
+    },
+    {
+      "name": "plan non-collapse: the basic plan of the same payer resolves to not-accepted",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv",
+        "locationId": "northwind-nv-henderson"
+      },
+      "payerId": "synthetic-aetna-basic-plan",
+      "providerId": "synthetic-dr-kim",
+      "expect": {
+        "status": "not-accepted",
+        "policy": "not-accepted",
+        "accepting": false,
+        "reason": "basic-plan-not-contracted",
+        "matchedKey": "accepting-new-patients:payer=synthetic-aetna-basic-plan:provider=*"
+      }
+    }
+  ]
+}

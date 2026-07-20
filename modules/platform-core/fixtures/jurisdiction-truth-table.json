@@ -1,0 +1,3900 @@
+{
+  "synthetic": true,
+  "packsVersion": "jurisdictionPacksV1 (all packs v1, draft)",
+  "note": "FROZEN regression baseline for the strictest-law cascade (WP-011 verification gate). Regenerate ONLY as a deliberate, change-controlled act after a rule-pack change (command in docs/contracts/jurisdiction-resolver.md), then review the cell diff. CA is the deliberately-unpacked fifth-state probe (NFR-14).",
+  "cells": {
+    "recording-consent|NV|NV": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "recording-consent|NV|FL": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "recording-consent|NV|IL": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "recording-consent|NV|MN": {
+      "obligations": ["all-party-consent", "one-party-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "recording-consent|NV|CA": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "recording-consent|NV|unknown": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "recording-consent|FL|NV": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "recording-consent|FL|FL": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "recording-consent|FL|IL": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "recording-consent|FL|MN": {
+      "obligations": ["all-party-consent", "one-party-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "recording-consent|FL|CA": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "recording-consent|FL|unknown": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "recording-consent|IL|NV": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "recording-consent|IL|FL": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "recording-consent|IL|IL": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "recording-consent|IL|MN": {
+      "obligations": ["all-party-consent", "one-party-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "recording-consent|IL|CA": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "recording-consent|IL|unknown": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "recording-consent|MN|NV": {
+      "obligations": ["all-party-consent", "one-party-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "recording-consent|MN|FL": {
+      "obligations": ["all-party-consent", "one-party-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "recording-consent|MN|IL": {
+      "obligations": ["all-party-consent", "one-party-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "recording-consent|MN|MN": {
+      "obligations": ["all-party-consent", "one-party-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "recording-consent|MN|CA": {
+      "obligations": ["all-party-consent", "one-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "recording-consent|MN|unknown": {
+      "obligations": ["all-party-consent", "one-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "recording-consent|CA|NV": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "recording-consent|CA|FL": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "recording-consent|CA|IL": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "recording-consent|CA|MN": {
+      "obligations": ["all-party-consent", "one-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "recording-consent|CA|CA": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "recording-consent|CA|unknown": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "recording-consent|unknown|NV": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "recording-consent|unknown|FL": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "recording-consent|unknown|IL": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "recording-consent|unknown|MN": {
+      "obligations": ["all-party-consent", "one-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "recording-consent|unknown|CA": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "recording-consent|unknown|unknown": {
+      "obligations": ["all-party-consent"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "chd-rights|NV|NV": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "chd-rights|NV|FL": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "chd-rights|NV|IL": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "chd-rights|NV|MN": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "chd-rights|NV|CA": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "chd-rights|NV|unknown": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "chd-rights|FL|NV": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "chd-rights|FL|FL": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "chd-rights|FL|IL": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "chd-rights|FL|MN": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "chd-rights|FL|CA": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "chd-rights|FL|unknown": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "chd-rights|IL|NV": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "chd-rights|IL|FL": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "chd-rights|IL|IL": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "chd-rights|IL|MN": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "chd-rights|IL|CA": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "chd-rights|IL|unknown": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "chd-rights|MN|NV": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "chd-rights|MN|FL": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "chd-rights|MN|IL": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "chd-rights|MN|MN": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "chd-rights|MN|CA": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "chd-rights|MN|unknown": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "chd-rights|CA|NV": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "chd-rights|CA|FL": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "chd-rights|CA|IL": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "chd-rights|CA|MN": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "chd-rights|CA|CA": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "chd-rights|CA|unknown": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "chd-rights|unknown|NV": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "chd-rights|unknown|FL": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "chd-rights|unknown|IL": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "chd-rights|unknown|MN": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "chd-rights|unknown|CA": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "chd-rights|unknown|unknown": {
+      "obligations": [
+        "chd-geofence-ban",
+        "chd-opt-in",
+        "chd-privacy-policy",
+        "chd-sale-separate-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "genetic-authorization|NV|NV": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "genetic-authorization|NV|FL": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "genetic-authorization|NV|IL": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "genetic-authorization|NV|MN": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "genetic-authorization|NV|CA": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "genetic-authorization|NV|unknown": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "genetic-authorization|FL|NV": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "genetic-authorization|FL|FL": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "genetic-authorization|FL|IL": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "genetic-authorization|FL|MN": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "genetic-authorization|FL|CA": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "genetic-authorization|FL|unknown": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "genetic-authorization|IL|NV": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "genetic-authorization|IL|FL": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "genetic-authorization|IL|IL": {
+      "obligations": ["employer-carve-out", "genetic-partition", "gipa-written-authorization"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "genetic-authorization|IL|MN": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "genetic-authorization|IL|CA": {
+      "obligations": ["employer-carve-out", "genetic-partition", "gipa-written-authorization"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "genetic-authorization|IL|unknown": {
+      "obligations": ["employer-carve-out", "genetic-partition", "gipa-written-authorization"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "genetic-authorization|MN|NV": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "genetic-authorization|MN|FL": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "genetic-authorization|MN|IL": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "genetic-authorization|MN|MN": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "genetic-authorization|MN|CA": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "genetic-authorization|MN|unknown": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "genetic-authorization|CA|NV": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "genetic-authorization|CA|FL": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "genetic-authorization|CA|IL": {
+      "obligations": ["employer-carve-out", "genetic-partition", "gipa-written-authorization"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "genetic-authorization|CA|MN": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "genetic-authorization|CA|CA": {
+      "obligations": ["employer-carve-out", "genetic-partition", "gipa-written-authorization"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "genetic-authorization|CA|unknown": {
+      "obligations": ["employer-carve-out", "genetic-partition", "gipa-written-authorization"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "genetic-authorization|unknown|NV": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "genetic-authorization|unknown|FL": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "genetic-authorization|unknown|IL": {
+      "obligations": ["employer-carve-out", "genetic-partition", "gipa-written-authorization"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "genetic-authorization|unknown|MN": {
+      "obligations": [
+        "employer-carve-out",
+        "genetic-informed-consent",
+        "genetic-partition",
+        "gipa-written-authorization"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "genetic-authorization|unknown|CA": {
+      "obligations": ["employer-carve-out", "genetic-partition", "gipa-written-authorization"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "genetic-authorization|unknown|unknown": {
+      "obligations": ["employer-carve-out", "genetic-partition", "gipa-written-authorization"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "records-consent|NV|NV": {
+      "obligations": ["hipaa-authorization"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "records-consent|NV|FL": {
+      "obligations": ["hipaa-authorization", "written-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "records-consent|NV|IL": {
+      "obligations": ["hipaa-authorization", "mh-heightened-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "records-consent|NV|MN": {
+      "obligations": ["consent-expiry", "hipaa-authorization", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "records-consent|NV|CA": {
+      "obligations": ["consent-expiry", "hipaa-authorization", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "records-consent|NV|unknown": {
+      "obligations": ["consent-expiry", "hipaa-authorization", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "records-consent|FL|NV": {
+      "obligations": ["hipaa-authorization", "written-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "records-consent|FL|FL": {
+      "obligations": ["written-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "records-consent|FL|IL": {
+      "obligations": ["hipaa-authorization", "mh-heightened-consent", "written-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "records-consent|FL|MN": {
+      "obligations": ["consent-expiry", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "records-consent|FL|CA": {
+      "obligations": ["consent-expiry", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "records-consent|FL|unknown": {
+      "obligations": ["consent-expiry", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "records-consent|IL|NV": {
+      "obligations": ["hipaa-authorization", "mh-heightened-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "records-consent|IL|FL": {
+      "obligations": ["hipaa-authorization", "mh-heightened-consent", "written-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "records-consent|IL|IL": {
+      "obligations": ["hipaa-authorization", "mh-heightened-consent"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "records-consent|IL|MN": {
+      "obligations": [
+        "consent-expiry",
+        "hipaa-authorization",
+        "mh-heightened-consent",
+        "written-consent"
+      ],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "records-consent|IL|CA": {
+      "obligations": [
+        "consent-expiry",
+        "hipaa-authorization",
+        "mh-heightened-consent",
+        "written-consent"
+      ],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "records-consent|IL|unknown": {
+      "obligations": [
+        "consent-expiry",
+        "hipaa-authorization",
+        "mh-heightened-consent",
+        "written-consent"
+      ],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "records-consent|MN|NV": {
+      "obligations": ["consent-expiry", "hipaa-authorization", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "records-consent|MN|FL": {
+      "obligations": ["consent-expiry", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "records-consent|MN|IL": {
+      "obligations": [
+        "consent-expiry",
+        "hipaa-authorization",
+        "mh-heightened-consent",
+        "written-consent"
+      ],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "records-consent|MN|MN": {
+      "obligations": ["consent-expiry", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "records-consent|MN|CA": {
+      "obligations": ["consent-expiry", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "records-consent|MN|unknown": {
+      "obligations": ["consent-expiry", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "records-consent|CA|NV": {
+      "obligations": ["consent-expiry", "hipaa-authorization", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "records-consent|CA|FL": {
+      "obligations": ["consent-expiry", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "records-consent|CA|IL": {
+      "obligations": [
+        "consent-expiry",
+        "hipaa-authorization",
+        "mh-heightened-consent",
+        "written-consent"
+      ],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "records-consent|CA|MN": {
+      "obligations": ["consent-expiry", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "records-consent|CA|CA": {
+      "obligations": ["consent-expiry", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "records-consent|CA|unknown": {
+      "obligations": ["consent-expiry", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "records-consent|unknown|NV": {
+      "obligations": ["consent-expiry", "hipaa-authorization", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "records-consent|unknown|FL": {
+      "obligations": ["consent-expiry", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "records-consent|unknown|IL": {
+      "obligations": [
+        "consent-expiry",
+        "hipaa-authorization",
+        "mh-heightened-consent",
+        "written-consent"
+      ],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "records-consent|unknown|MN": {
+      "obligations": ["consent-expiry", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "records-consent|unknown|CA": {
+      "obligations": ["consent-expiry", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "records-consent|unknown|unknown": {
+      "obligations": ["consent-expiry", "written-consent"],
+      "scalars": {
+        "consent-expiry-days": 365
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|NV|NV": {
+      "obligations": ["epcs-two-factor", "erx-mandate", "pdmp-check", "prescriber-state-rules"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|NV|FL": {
+      "obligations": ["epcs-two-factor", "erx-mandate", "pdmp-check", "prescriber-state-rules"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|NV|IL": {
+      "obligations": ["epcs-two-factor", "erx-mandate", "pdmp-check", "prescriber-state-rules"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|NV|MN": {
+      "obligations": ["epcs-two-factor", "erx-mandate", "pdmp-check", "prescriber-state-rules"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|NV|CA": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "erx-epcs-pdmp|NV|unknown": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|FL|NV": {
+      "obligations": ["epcs-two-factor", "erx-mandate", "pdmp-check", "prescriber-state-rules"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|FL|FL": {
+      "obligations": ["epcs-two-factor", "erx-mandate", "pdmp-check", "prescriber-state-rules"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|FL|IL": {
+      "obligations": ["epcs-two-factor", "erx-mandate", "pdmp-check", "prescriber-state-rules"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|FL|MN": {
+      "obligations": ["epcs-two-factor", "erx-mandate", "pdmp-check", "prescriber-state-rules"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|FL|CA": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "erx-epcs-pdmp|FL|unknown": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|IL|NV": {
+      "obligations": ["epcs-two-factor", "erx-mandate", "pdmp-check", "prescriber-state-rules"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|IL|FL": {
+      "obligations": ["epcs-two-factor", "erx-mandate", "pdmp-check", "prescriber-state-rules"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|IL|IL": {
+      "obligations": ["epcs-two-factor", "erx-mandate", "pdmp-check", "prescriber-state-rules"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|IL|MN": {
+      "obligations": ["epcs-two-factor", "erx-mandate", "pdmp-check", "prescriber-state-rules"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|IL|CA": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "erx-epcs-pdmp|IL|unknown": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|MN|NV": {
+      "obligations": ["epcs-two-factor", "erx-mandate", "pdmp-check", "prescriber-state-rules"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|MN|FL": {
+      "obligations": ["epcs-two-factor", "erx-mandate", "pdmp-check", "prescriber-state-rules"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|MN|IL": {
+      "obligations": ["epcs-two-factor", "erx-mandate", "pdmp-check", "prescriber-state-rules"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|MN|MN": {
+      "obligations": ["epcs-two-factor", "erx-mandate", "pdmp-check", "prescriber-state-rules"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|MN|CA": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "erx-epcs-pdmp|MN|unknown": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|CA|NV": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "erx-epcs-pdmp|CA|FL": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "erx-epcs-pdmp|CA|IL": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "erx-epcs-pdmp|CA|MN": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "erx-epcs-pdmp|CA|CA": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "erx-epcs-pdmp|CA|unknown": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "erx-epcs-pdmp|unknown|NV": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|unknown|FL": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|unknown|IL": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|unknown|MN": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "erx-epcs-pdmp|unknown|CA": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "erx-epcs-pdmp|unknown|unknown": {
+      "obligations": [
+        "epcs-two-factor",
+        "erx-mandate",
+        "jurisdiction-unverified-hard-block",
+        "pdmp-check",
+        "prescriber-state-rules"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "telehealth-licensure|NV|NV": {
+      "obligations": ["hard-block-unlicensed", "patient-presence-state-licensure"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "telehealth-licensure|NV|FL": {
+      "obligations": ["hard-block-unlicensed", "patient-presence-state-licensure"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "telehealth-licensure|NV|IL": {
+      "obligations": ["hard-block-unlicensed", "patient-presence-state-licensure"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "telehealth-licensure|NV|MN": {
+      "obligations": ["hard-block-unlicensed", "patient-presence-state-licensure"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "telehealth-licensure|NV|CA": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "telehealth-licensure|NV|unknown": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "telehealth-licensure|FL|NV": {
+      "obligations": ["hard-block-unlicensed", "patient-presence-state-licensure"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "telehealth-licensure|FL|FL": {
+      "obligations": ["hard-block-unlicensed", "patient-presence-state-licensure"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "telehealth-licensure|FL|IL": {
+      "obligations": ["hard-block-unlicensed", "patient-presence-state-licensure"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "telehealth-licensure|FL|MN": {
+      "obligations": ["hard-block-unlicensed", "patient-presence-state-licensure"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "telehealth-licensure|FL|CA": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "telehealth-licensure|FL|unknown": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "telehealth-licensure|IL|NV": {
+      "obligations": ["hard-block-unlicensed", "patient-presence-state-licensure"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "telehealth-licensure|IL|FL": {
+      "obligations": ["hard-block-unlicensed", "patient-presence-state-licensure"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "telehealth-licensure|IL|IL": {
+      "obligations": ["hard-block-unlicensed", "patient-presence-state-licensure"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "telehealth-licensure|IL|MN": {
+      "obligations": ["hard-block-unlicensed", "patient-presence-state-licensure"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "telehealth-licensure|IL|CA": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "telehealth-licensure|IL|unknown": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "telehealth-licensure|MN|NV": {
+      "obligations": ["hard-block-unlicensed", "patient-presence-state-licensure"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "telehealth-licensure|MN|FL": {
+      "obligations": ["hard-block-unlicensed", "patient-presence-state-licensure"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "telehealth-licensure|MN|IL": {
+      "obligations": ["hard-block-unlicensed", "patient-presence-state-licensure"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "telehealth-licensure|MN|MN": {
+      "obligations": ["hard-block-unlicensed", "patient-presence-state-licensure"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "telehealth-licensure|MN|CA": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "telehealth-licensure|MN|unknown": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "telehealth-licensure|CA|NV": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "telehealth-licensure|CA|FL": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "telehealth-licensure|CA|IL": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "telehealth-licensure|CA|MN": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "telehealth-licensure|CA|CA": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "telehealth-licensure|CA|unknown": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "telehealth-licensure|unknown|NV": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "telehealth-licensure|unknown|FL": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "telehealth-licensure|unknown|IL": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "telehealth-licensure|unknown|MN": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "telehealth-licensure|unknown|CA": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "telehealth-licensure|unknown|unknown": {
+      "obligations": [
+        "hard-block-unlicensed",
+        "jurisdiction-unverified-hard-block",
+        "patient-presence-state-licensure"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "auto-renewal|NV|NV": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "auto-renewal|NV|FL": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "auto-renewal|NV|IL": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "auto-renewal|NV|MN": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "auto-renewal|NV|CA": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "auto-renewal|NV|unknown": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "auto-renewal|FL|NV": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "auto-renewal|FL|FL": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "auto-renewal|FL|IL": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "auto-renewal|FL|MN": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "auto-renewal|FL|CA": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "auto-renewal|FL|unknown": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "auto-renewal|IL|NV": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "auto-renewal|IL|FL": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "auto-renewal|IL|IL": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "auto-renewal|IL|MN": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "auto-renewal|IL|CA": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "auto-renewal|IL|unknown": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "auto-renewal|MN|NV": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "auto-renewal|MN|FL": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "auto-renewal|MN|IL": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "auto-renewal|MN|MN": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "auto-renewal|MN|CA": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "auto-renewal|MN|unknown": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "auto-renewal|CA|NV": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "auto-renewal|CA|FL": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "auto-renewal|CA|IL": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "auto-renewal|CA|MN": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "auto-renewal|CA|CA": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "auto-renewal|CA|unknown": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "auto-renewal|unknown|NV": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "auto-renewal|unknown|FL": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "auto-renewal|unknown|IL": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "auto-renewal|unknown|MN": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "auto-renewal|unknown|CA": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "auto-renewal|unknown|unknown": {
+      "obligations": [
+        "affirmative-consent-disclosure",
+        "one-step-cancellation",
+        "renewal-reminder",
+        "strictest-state-standard"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "retention|NV|NV": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 5
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "retention|NV|FL": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 5
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "retention|NV|IL": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "retention|NV|MN": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 7
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "retention|NV|CA": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "retention|NV|unknown": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "retention|FL|NV": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 5
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "retention|FL|FL": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 5
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "retention|FL|IL": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "retention|FL|MN": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 7
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "retention|FL|CA": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "retention|FL|unknown": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "retention|IL|NV": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "retention|IL|FL": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "retention|IL|IL": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "retention|IL|MN": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "retention|IL|CA": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "retention|IL|unknown": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "retention|MN|NV": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 7
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "retention|MN|FL": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 7
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "retention|MN|IL": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "retention|MN|MN": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 7
+      },
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "retention|MN|CA": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "retention|MN|unknown": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "retention|CA|NV": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "retention|CA|FL": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "retention|CA|IL": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "retention|CA|MN": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "retention|CA|CA": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "retention|CA|unknown": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "retention|unknown|NV": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "retention|unknown|FL": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "retention|unknown|IL": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "retention|unknown|MN": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "retention|unknown|CA": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "retention|unknown|unknown": {
+      "obligations": [
+        "legal-hold-override",
+        "minor-extended-retention",
+        "per-state-retention-clock"
+      ],
+      "scalars": {
+        "retention-years-adult": 10
+      },
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "biometrics|NV|NV": {
+      "obligations": ["biometric-consent", "no-biometric-enrollment-default"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "biometrics|NV|FL": {
+      "obligations": ["biometric-consent", "no-biometric-enrollment-default"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "biometrics|NV|IL": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "biometrics|NV|MN": {
+      "obligations": ["biometric-consent", "no-biometric-enrollment-default"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "biometrics|NV|CA": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "biometrics|NV|unknown": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "biometrics|FL|NV": {
+      "obligations": ["biometric-consent", "no-biometric-enrollment-default"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "biometrics|FL|FL": {
+      "obligations": ["biometric-consent", "no-biometric-enrollment-default"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "biometrics|FL|IL": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "biometrics|FL|MN": {
+      "obligations": ["biometric-consent", "no-biometric-enrollment-default"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "biometrics|FL|CA": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "biometrics|FL|unknown": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "biometrics|IL|NV": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "biometrics|IL|FL": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "biometrics|IL|IL": {
+      "obligations": [
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "biometrics|IL|MN": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "biometrics|IL|CA": {
+      "obligations": [
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "biometrics|IL|unknown": {
+      "obligations": [
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "biometrics|MN|NV": {
+      "obligations": ["biometric-consent", "no-biometric-enrollment-default"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "biometrics|MN|FL": {
+      "obligations": ["biometric-consent", "no-biometric-enrollment-default"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "biometrics|MN|IL": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "biometrics|MN|MN": {
+      "obligations": ["biometric-consent", "no-biometric-enrollment-default"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "biometrics|MN|CA": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "biometrics|MN|unknown": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "biometrics|CA|NV": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "biometrics|CA|FL": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "biometrics|CA|IL": {
+      "obligations": [
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "biometrics|CA|MN": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "biometrics|CA|CA": {
+      "obligations": [
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "biometrics|CA|unknown": {
+      "obligations": [
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "biometrics|unknown|NV": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "biometrics|unknown|FL": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "biometrics|unknown|IL": {
+      "obligations": [
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "biometrics|unknown|MN": {
+      "obligations": [
+        "biometric-consent",
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "biometrics|unknown|CA": {
+      "obligations": [
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "biometrics|unknown|unknown": {
+      "obligations": [
+        "bipa-written-release",
+        "no-biometric-enrollment-default",
+        "retention-destruction-schedule"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "ai-disclosure|NV|NV": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "ai-disclosure|NV|FL": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "ai-disclosure|NV|IL": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "ai-disclosure|NV|MN": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "ai-disclosure|NV|CA": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "ai-disclosure|NV|unknown": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "ai-disclosure|FL|NV": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "ai-disclosure|FL|FL": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "ai-disclosure|FL|IL": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "ai-disclosure|FL|MN": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "ai-disclosure|FL|CA": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "ai-disclosure|FL|unknown": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "ai-disclosure|IL|NV": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "ai-disclosure|IL|FL": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "ai-disclosure|IL|IL": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "ai-disclosure|IL|MN": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "ai-disclosure|IL|CA": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "ai-disclosure|IL|unknown": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "ai-disclosure|MN|NV": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "ai-disclosure|MN|FL": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "ai-disclosure|MN|IL": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "ai-disclosure|MN|MN": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "ai-disclosure|MN|CA": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "ai-disclosure|MN|unknown": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "ai-disclosure|CA|NV": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "ai-disclosure|CA|FL": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "ai-disclosure|CA|IL": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "ai-disclosure|CA|MN": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "ai-disclosure|CA|CA": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "ai-disclosure|CA|unknown": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "ai-disclosure|unknown|NV": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "ai-disclosure|unknown|FL": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "ai-disclosure|unknown|IL": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "ai-disclosure|unknown|MN": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "ai-disclosure|unknown|CA": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "ai-disclosure|unknown|unknown": {
+      "obligations": [
+        "ai-disclosure",
+        "crisis-protocol",
+        "human-oversight",
+        "no-ai-therapy-representation"
+      ],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "cpom|NV|NV": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "cpom|NV|FL": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "cpom|NV|IL": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "cpom|NV|MN": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "cpom|NV|CA": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "cpom|NV|unknown": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "cpom|FL|NV": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "cpom|FL|FL": {
+      "obligations": ["counsel-structure-review"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "cpom|FL|IL": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "cpom|FL|MN": {
+      "obligations": ["counsel-structure-review"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "cpom|FL|CA": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "cpom|FL|unknown": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "cpom|IL|NV": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "cpom|IL|FL": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "cpom|IL|IL": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "cpom|IL|MN": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "cpom|IL|CA": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "cpom|IL|unknown": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "cpom|MN|NV": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "cpom|MN|FL": {
+      "obligations": ["counsel-structure-review"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "cpom|MN|IL": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "cpom|MN|MN": {
+      "obligations": ["counsel-structure-review"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "cpom|MN|CA": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "cpom|MN|unknown": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "cpom|CA|NV": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "cpom|CA|FL": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "cpom|CA|IL": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "cpom|CA|MN": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "cpom|CA|CA": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "cpom|CA|unknown": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "cpom|unknown|NV": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "cpom|unknown|FL": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "cpom|unknown|IL": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "cpom|unknown|MN": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "cpom|unknown|CA": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "cpom|unknown|unknown": {
+      "obligations": ["counsel-structure-review", "pc-mso-split"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "minors-part2|NV|NV": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "minors-part2|NV|FL": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "minors-part2|NV|IL": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "minors-part2|NV|MN": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "minors-part2|NV|CA": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "minors-part2|NV|unknown": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "minors-part2|FL|NV": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "minors-part2|FL|FL": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "minors-part2|FL|IL": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "minors-part2|FL|MN": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "minors-part2|FL|CA": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "minors-part2|FL|unknown": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "minors-part2|IL|NV": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "minors-part2|IL|FL": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "minors-part2|IL|IL": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "minors-part2|IL|MN": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "minors-part2|IL|CA": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "minors-part2|IL|unknown": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "minors-part2|MN|NV": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "minors-part2|MN|FL": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "minors-part2|MN|IL": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "minors-part2|MN|MN": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": false,
+      "missingPacks": []
+    },
+    "minors-part2|MN|CA": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "minors-part2|MN|unknown": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "minors-part2|CA|NV": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "minors-part2|CA|FL": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "minors-part2|CA|IL": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "minors-part2|CA|MN": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "minors-part2|CA|CA": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "minors-part2|CA|unknown": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "minors-part2|unknown|NV": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "minors-part2|unknown|FL": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "minors-part2|unknown|IL": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "minors-part2|unknown|MN": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    },
+    "minors-part2|unknown|CA": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": ["CA"]
+    },
+    "minors-part2|unknown|unknown": {
+      "obligations": ["part2-segmentation-ready", "strictest-minor-confidentiality"],
+      "scalars": {},
+      "defaultsApplied": true,
+      "missingPacks": []
+    }
+  }
+}

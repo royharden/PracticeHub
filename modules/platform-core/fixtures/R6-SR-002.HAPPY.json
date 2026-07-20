@@ -1,0 +1,62 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-002",
+  "class": "HAPPY",
+  "description": "Strictest-law cascade over the two location facts: known state pairs resolve the union of both states' obligations plus the platform floor, per topic, with provenance (R6-SR-002; ADR-005 Decision 5).",
+  "packs": "v1",
+  "cases": [
+    {
+      "name": "NV provider x FL patient: recording resolves all-party consent",
+      "basis": { "providerState": "NV", "patientState": "FL" },
+      "topic": "recording-consent",
+      "expect": {
+        "obligations": ["all-party-consent"],
+        "scalars": {},
+        "defaultsApplied": false,
+        "missingPacks": [],
+        "counselReviewPending": true
+      }
+    },
+    {
+      "name": "NV provider x MN patient: records-consent unions HIPAA baseline with MHRA written consent + expiry",
+      "basis": { "providerState": "NV", "patientState": "MN" },
+      "topic": "records-consent",
+      "expect": {
+        "obligations": ["consent-expiry", "hipaa-authorization", "written-consent"],
+        "scalars": { "consent-expiry-days": 365 },
+        "defaultsApplied": false,
+        "missingPacks": []
+      }
+    },
+    {
+      "name": "IL provider x IL patient: AI disclosure carries WOPR oversight plus the floor's crisis protocol",
+      "basis": { "providerState": "IL", "patientState": "IL" },
+      "topic": "ai-disclosure",
+      "expect": {
+        "obligations": [
+          "ai-disclosure",
+          "crisis-protocol",
+          "human-oversight",
+          "no-ai-therapy-representation"
+        ],
+        "defaultsApplied": false,
+        "missingPacks": []
+      }
+    },
+    {
+      "name": "NV provider x NV patient: CHD resolves the SB 370 set (opt-in, sale authorization, geofence ban, privacy policy)",
+      "basis": { "providerState": "NV", "patientState": "NV" },
+      "topic": "chd-rights",
+      "expect": {
+        "obligations": [
+          "chd-geofence-ban",
+          "chd-opt-in",
+          "chd-privacy-policy",
+          "chd-sale-separate-authorization"
+        ],
+        "defaultsApplied": false,
+        "missingPacks": []
+      }
+    }
+  ]
+}

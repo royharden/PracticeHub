@@ -1,0 +1,20 @@
+issuer: http://127.0.0.1:5556/dex
+storage:
+  type: sqlite3
+  config:
+    file: /tmp/dex.db
+web:
+  http: 0.0.0.0:5556
+oauth2:
+  skipApprovalScreen: true
+connectors:
+  - type: mockCallback
+    id: synthetic-mock
+    name: Synthetic Mock Identity
+staticClients:
+  - id: practicehub-local
+    name: PracticeHub Synthetic Local
+    public: true
+    redirectURIs:
+      - http://127.0.0.1:53000/auth/callback
+enablePasswordDB: false

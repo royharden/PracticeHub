@@ -1,0 +1,69 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-047",
+  "class": "RECOVERY",
+  "description": "After a location moves to a different legal entity, stale entity-scoped policies stop matching and the lookup resolves to needs-verification (non-permissive) until a re-scoped policy is written; the re-scoped policy then resolves.",
+  "entries": [
+    {
+      "tenantId": "northwind-synthetic",
+      "legalEntityId": "northwind-health-nv",
+      "locationId": "northwind-nv-henderson",
+      "namespace": "policy",
+      "key": "accepting-new-patients:payer=*:provider=*",
+      "value": { "policy": "open", "reason": "pre-restructure-open" },
+      "phiClass": "none",
+      "counselOwned": false,
+      "revision": 1,
+      "changedBy": "synthetic-practice-manager-001"
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "legalEntityId": "northwind-health-fl",
+      "locationId": "northwind-nv-henderson",
+      "namespace": "policy",
+      "key": "accepting-new-patients:payer=*:provider=*",
+      "value": { "policy": "open", "reason": "re-scoped-open" },
+      "phiClass": "none",
+      "counselOwned": false,
+      "revision": 1,
+      "changedBy": "synthetic-practice-manager-002"
+    }
+  ],
+  "cases": [
+    {
+      "name": "stale pre-restructure policy no longer matches the new entity context; the lookup resolves to needs-verification without the re-scoped entry",
+      "entryIndexes": [0],
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-fl",
+        "locationId": "northwind-nv-henderson"
+      },
+      "payerId": "synthetic-aetna",
+      "providerId": "synthetic-dr-kim",
+      "expect": {
+        "status": "needs-verification",
+        "policy": null,
+        "accepting": false,
+        "reason": "no-policy-configured",
+        "matchedKey": null
+      }
+    },
+    {
+      "name": "the re-scoped policy resolves under the new entity",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-fl",
+        "locationId": "northwind-nv-henderson"
+      },
+      "payerId": "synthetic-aetna",
+      "providerId": "synthetic-dr-kim",
+      "expect": {
+        "status": "accepted",
+        "policy": "open",
+        "accepting": true,
+        "reason": "re-scoped-open",
+        "matchedKey": "accepting-new-patients:payer=*:provider=*"
+      }
+    }
+  ]
+}

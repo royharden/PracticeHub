@@ -1,0 +1,13 @@
+packages:
+  - apps/*
+  - modules/*
+  - packages/*
+  - adapters/*
+  - sims/*
+  - tools/*
+
+# pnpm v11 project settings. Package data, metadata cache, and the virtual
+# store resolve under the OS-local pnpm store rather than this OneDrive tree.
+enableGlobalVirtualStore: true
+strictPeerDependencies: true
+saveExact: true

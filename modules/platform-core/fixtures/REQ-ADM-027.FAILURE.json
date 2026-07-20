@@ -1,0 +1,122 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-027",
+  "class": "FAILURE",
+  "description": "Invalid policy configuration fails closed: bad scope, PHI-classed value, counsel entry without change control, missing actor attribution, malformed policy value, and a policy state outside the vocabulary.",
+  "entries": [
+    {
+      "tenantId": "northwind-synthetic",
+      "legalEntityId": "northwind-health-nv",
+      "locationId": "northwind-nv-henderson",
+      "namespace": "policy",
+      "key": "accepting-new-patients:payer=*:provider=*",
+      "value": { "acceptingTypo": true },
+      "phiClass": "none",
+      "counselOwned": false,
+      "revision": 1,
+      "changedBy": "synthetic-practice-manager-001"
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "legalEntityId": "northwind-health-nv",
+      "locationId": "northwind-nv-henderson",
+      "namespace": "policy",
+      "key": "accepting-new-patients:payer=*:provider=*",
+      "value": { "policy": "maybe-later", "reason": "not-a-vocabulary-state" },
+      "phiClass": "none",
+      "counselOwned": false,
+      "revision": 1,
+      "changedBy": "synthetic-practice-manager-001"
+    }
+  ],
+  "writeCases": [
+    {
+      "name": "location scope without its legal entity is rejected",
+      "entry": {
+        "tenantId": "northwind-synthetic",
+        "locationId": "northwind-nv-henderson",
+        "namespace": "policy",
+        "key": "accepting-new-patients:payer=*:provider=*",
+        "value": { "policy": "open", "reason": "default-open" },
+        "phiClass": "none",
+        "counselOwned": false,
+        "revision": 1,
+        "changedBy": "synthetic-practice-manager-001"
+      },
+      "expectError": "without its legal entity"
+    },
+    {
+      "name": "policy value classed above the config ceiling is rejected",
+      "entry": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv",
+        "locationId": "northwind-nv-henderson",
+        "namespace": "policy",
+        "key": "accepting-new-patients:payer=*:provider=*",
+        "value": { "policy": "open", "reason": "default-open" },
+        "phiClass": "PHI",
+        "counselOwned": false,
+        "revision": 1,
+        "changedBy": "synthetic-practice-manager-001"
+      },
+      "expectError": "exceeds the config ceiling"
+    },
+    {
+      "name": "counsel-owned policy without a change-control reference is rejected",
+      "entry": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv",
+        "locationId": "northwind-nv-henderson",
+        "namespace": "policy",
+        "key": "accepting-new-patients:payer=*:provider=*",
+        "value": { "policy": "panel-closed", "reason": "counsel-hold" },
+        "phiClass": "none",
+        "counselOwned": true,
+        "revision": 1,
+        "changedBy": "synthetic-practice-manager-001"
+      },
+      "expectError": "change-control"
+    },
+    {
+      "name": "a policy write without actor attribution is rejected (REQ-ADM-027 AC-3)",
+      "entry": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv",
+        "locationId": "northwind-nv-henderson",
+        "namespace": "policy",
+        "key": "accepting-new-patients:payer=*:provider=*",
+        "value": { "policy": "open", "reason": "default-open" },
+        "phiClass": "none",
+        "counselOwned": false,
+        "revision": 1
+      },
+      "expectError": "change actor reference"
+    }
+  ],
+  "cases": [
+    {
+      "name": "a malformed policy value is an error, not a silent allow",
+      "entryIndexes": [0],
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv",
+        "locationId": "northwind-nv-henderson"
+      },
+      "payerId": "synthetic-aetna",
+      "providerId": "synthetic-dr-kim",
+      "expectError": "malformed value"
+    },
+    {
+      "name": "a policy state outside the vocabulary is an error, not a silent allow",
+      "entryIndexes": [1],
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv",
+        "locationId": "northwind-nv-henderson"
+      },
+      "payerId": "synthetic-aetna",
+      "providerId": "synthetic-dr-kim",
+      "expectError": "malformed value"
+    }
+  ]
+}

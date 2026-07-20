@@ -1,0 +1,318 @@
+import { spawnSync, type SpawnSyncOptions } from 'node:child_process';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+const composeArgs = [
+  'compose',
+  '--project-name',
+  'practicehub',
+  '--file',
+  join(repoRoot, 'compose.yaml'),
+];
+
+function invocation(command: string, args: readonly string[]): { command: string; args: string[] } {
+  if (command === 'pnpm') {
+    const corepackCli = join(
+      dirname(process.execPath),
+      'node_modules',
+      'corepack',
+      'dist',
+      'pnpm.js',
+    );
+    if (existsSync(corepackCli)) {
+      return { command: process.execPath, args: [corepackCli, ...args] };
+    }
+  }
+  return {
+    command: process.platform === 'win32' && command !== 'docker' ? `${command}.cmd` : command,
+    args: [...args],
+  };
+}
+
+function run(command: string, args: readonly string[], options: SpawnSyncOptions = {}): string {
+  const resolved = invocation(command, args);
+  const result = spawnSync(resolved.command, resolved.args, {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    env: process.env,
+    stdio: options.stdio ?? 'pipe',
+    ...(options.input !== undefined ? { input: options.input } : {}),
+  });
+  if (result.status !== 0) {
+    const stderr = typeof result.stderr === 'string' ? result.stderr : '';
+    throw new Error(`${command} ${args.join(' ')} failed: ${stderr.trim()}`);
+  }
+  return typeof result.stdout === 'string' ? result.stdout.trim() : '';
+}
+
+function compose(args: readonly string[], stdio: SpawnSyncOptions['stdio'] = 'inherit'): string {
+  return run('docker', [...composeArgs, ...args], { stdio });
+}
+
+function psqlStdin(sql: string): void {
+  run(
+    'docker',
+    [
+      ...composeArgs,
+      'exec',
+      '--no-TTY',
+      'app-postgres',
+      'psql',
+      '--username',
+      'practicehub',
+      '--dbname',
+      'practicehub',
+      '--quiet',
+      '--set=ON_ERROR_STOP=1',
+      '--file',
+      '-',
+    ],
+    { input: sql },
+  );
+}
+
+/** Module migrations in path order, excluding rollback files (WP-010 pattern). */
+function moduleMigrationFiles(): string[] {
+  const modulesDir = join(repoRoot, 'modules');
+  const files: string[] = [];
+  for (const entry of readdirSync(modulesDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) {
+      continue;
+    }
+    const migrationsDir = join(modulesDir, entry.name, 'migrations');
+    if (!existsSync(migrationsDir)) {
+      continue;
+    }
+    for (const file of readdirSync(migrationsDir).sort()) {
+      if (file.endsWith('.sql') && !file.endsWith('.rollback.sql')) {
+        files.push(join(migrationsDir, file));
+      }
+    }
+  }
+  return files.sort();
+}
+
+function migrate(): void {
+  for (const file of moduleMigrationFiles()) {
+    psqlStdin(readFileSync(file, 'utf8'));
+    console.log(`migrated ${relative(repoRoot, file).split(sep).join('/')}`);
+  }
+}
+
+function doctor(): void {
+  const expectedNode = 'v24.18.0';
+  if (process.version !== expectedNode) {
+    throw new Error(`Node ${expectedNode} is required; received ${process.version}`);
+  }
+  const pnpmVersion = run('pnpm', ['--version']);
+  if (pnpmVersion !== '11.9.0') {
+    throw new Error(`pnpm 11.9.0 is required; received ${pnpmVersion}`);
+  }
+  const store = run('pnpm', ['store', 'path']);
+  const storeParts = store.toLowerCase().split(/[\\/]+/);
+  if (
+    !isAbsolute(store) ||
+    store.toLowerCase().startsWith(repoRoot.toLowerCase()) ||
+    storeParts.includes('onedrive')
+  ) {
+    throw new Error(
+      `pnpm store must be an absolute path outside the repo and OneDrive; received ${store}`,
+    );
+  }
+  run('docker', ['compose', 'version']);
+  compose(['config', '--quiet'], 'pipe');
+  console.log(`node=${process.version} pnpm=${pnpmVersion} store=${store} compose=OK`);
+}
+
+function up(): void {
+  run('pnpm', ['--filter', '@practicehub/vendor-simulator', 'build'], { stdio: 'inherit' });
+  compose(['--profile', 'observability', 'up', '--detach', '--build', '--wait']);
+  migrate();
+}
+
+function seed(): void {
+  migrate();
+  compose([
+    'exec',
+    '--no-TTY',
+    'app-postgres',
+    'psql',
+    '--username',
+    'practicehub',
+    '--dbname',
+    'practicehub',
+    '--file',
+    '/docker-entrypoint-initdb.d/002-seed.sql',
+  ]);
+  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/003-tenancy-seed.sql'), 'utf8'));
+  console.log('seeded infra/postgres/seed/003-tenancy-seed.sql');
+  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/004-jurisdiction-seed.sql'), 'utf8'));
+  console.log('seeded infra/postgres/seed/004-jurisdiction-seed.sql');
+}
+
+function testLocal(): void {
+  const expected = new Set([
+    'app-postgres',
+    'dex',
+    'mailpit',
+    'medplum-app',
+    'medplum-postgres',
+    'medplum-redis',
+    'medplum-server',
+    'minio',
+    'otel-lgtm',
+    'vendor-simulator',
+  ]);
+  const services = new Map(
+    compose(['--profile', 'observability', 'ps', '--format', 'json'], 'pipe')
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .map((line) => {
+        const service = JSON.parse(line) as {
+          Health?: string;
+          Service: string;
+          State: string;
+        };
+        return [service.Service, service] as const;
+      }),
+  );
+  const missing = [...expected].filter((service) => !services.has(service));
+  if (missing.length > 0) {
+    throw new Error(`local stack missing services: ${missing.join(', ')}`);
+  }
+  const unhealthy = [...expected].filter((name) => {
+    const service = services.get(name);
+    return service?.State !== 'running' || service.Health !== 'healthy';
+  });
+  if (unhealthy.length > 0) {
+    throw new Error(`local stack has unhealthy services: ${unhealthy.join(', ')}`);
+  }
+
+  const tenantRows = compose(
+    [
+      'exec',
+      '--no-TTY',
+      'app-postgres',
+      'psql',
+      '--username',
+      'practicehub',
+      '--dbname',
+      'practicehub',
+      '--tuples-only',
+      '--no-align',
+      '--command',
+      "SELECT tenant_id || ':' || bootstrap_capability_state FROM platform_core.synthetic_tenant ORDER BY tenant_id;",
+    ],
+    'pipe',
+  )
+    .split(/\r?\n/)
+    .filter(Boolean);
+  const expectedTenantRows = ['northwind-synthetic:simulated', 'riverbend-synthetic:disabled'];
+  if (tenantRows.join('|') !== expectedTenantRows.join('|')) {
+    throw new Error(`synthetic tenant states differ: ${tenantRows.join(', ')}`);
+  }
+
+  const scalar = (query: string): string =>
+    compose(
+      [
+        'exec',
+        '--no-TTY',
+        'app-postgres',
+        'psql',
+        '--username',
+        'practicehub',
+        '--dbname',
+        'practicehub',
+        '--tuples-only',
+        '--no-align',
+        '--command',
+        query,
+      ],
+      'pipe',
+    ).trim();
+
+  // WP-010: RLS on every platform_core table (live coverage probe, T-06/T-07).
+  const unprotected = scalar(
+    'SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace ' +
+      "WHERE n.nspname = 'platform_core' AND c.relkind = 'r' " +
+      'AND (NOT c.relrowsecurity OR NOT c.relforcerowsecurity);',
+  );
+  if (unprotected !== '0') {
+    throw new Error(`platform_core has ${unprotected} table(s) without forced RLS`);
+  }
+
+  // WP-010/WP-011: synthetic watermark on every seeded platform_core row.
+  const unwatermarked = scalar(
+    'SELECT (SELECT count(*) FROM platform_core.tenant WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM platform_core.legal_entity WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM platform_core.location WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM platform_core.tenant_config WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM platform_core.jurisdiction_rule_pack WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM platform_core.jurisdiction_rule WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM platform_core.location_capture WHERE synthetic IS DISTINCT FROM true);',
+  );
+  if (unwatermarked !== '0') {
+    throw new Error(`platform_core holds ${unwatermarked} row(s) without the synthetic watermark`);
+  }
+
+  // WP-011: the jurisdiction registry is seeded and complete — the floor and
+  // unknown packs present, and every pack covering all 12 topics.
+  const missingRequiredPacks = scalar(
+    "SELECT count(*) FROM (VALUES ('floor'), ('unknown')) AS required(jurisdiction) " +
+      'WHERE NOT EXISTS (SELECT FROM platform_core.jurisdiction_rule_pack p ' +
+      'WHERE p.jurisdiction = required.jurisdiction);',
+  );
+  if (missingRequiredPacks !== '0') {
+    throw new Error('jurisdiction registry is missing the floor and/or unknown safe-default pack');
+  }
+  const incompletePacks = scalar(
+    'SELECT count(*) FROM platform_core.jurisdiction_rule_pack p ' +
+      'WHERE (SELECT count(*) FROM platform_core.jurisdiction_rule r ' +
+      'WHERE r.jurisdiction = p.jurisdiction AND r.pack_version = p.version) <> 12;',
+  );
+  if (incompletePacks !== '0') {
+    throw new Error(`${incompletePacks} jurisdiction pack(s) do not cover all 12 topics`);
+  }
+
+  // WP-010: the DB-level cross-tenant negative suite runs against the live stack.
+  run('pnpm', ['--filter', '@practicehub/platform-core', 'run', 'test:db'], {
+    stdio: 'inherit',
+  });
+
+  console.log(
+    `services_healthy=${services.size} tenants=${tenantRows.join(',')} ` +
+      'rls_coverage=OK watermark=OK jurisdiction_packs=OK cross_tenant_db_suite=OK ' +
+      'synthetic_stack=OK',
+  );
+}
+
+const action = process.argv[2];
+switch (action) {
+  case 'doctor':
+    doctor();
+    break;
+  case 'up':
+    up();
+    break;
+  case 'migrate':
+    migrate();
+    break;
+  case 'seed':
+    seed();
+    break;
+  case 'test':
+    testLocal();
+    break;
+  case 'down':
+    compose(['--profile', 'observability', 'down']);
+    break;
+  case 'reset':
+    compose(['--profile', 'observability', 'down', '--volumes', '--remove-orphans']);
+    up();
+    seed();
+    break;
+  default:
+    throw new Error(`Unsupported local action: ${action ?? '(missing)'}`);
+}

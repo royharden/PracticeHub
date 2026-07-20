@@ -1,0 +1,198 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-002",
+  "class": "RECOVERY",
+  "description": "Pack-version recovery semantics: the newest version governs; reverting a bad change is dropping the newest version, which restores the prior one (the package's 'pack versions revert' rollback); counsel sign-off evidence (EW-025) clears the counselReviewPending flag and is orthogonal to the unknown-location defaults.",
+  "packs": "inline",
+  "packsInline": [
+    {
+      "jurisdiction": "floor",
+      "version": 1,
+      "status": "counsel-signed",
+      "counselSignoffRef": "synthetic-counsel-jur-floor-001",
+      "changeControlRef": "synthetic-ccr-fixture-floor-001",
+      "synthetic": true,
+      "rules": [
+        { "topic": "recording-consent", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "chd-rights", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "genetic-authorization", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "records-consent", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "erx-epcs-pdmp", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "telehealth-licensure", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "auto-renewal", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "retention", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "biometrics", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "ai-disclosure", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "cpom", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "minors-part2", "obligations": [], "sourceRef": "synthetic-fixture" }
+      ]
+    },
+    {
+      "jurisdiction": "unknown",
+      "version": 1,
+      "status": "counsel-signed",
+      "counselSignoffRef": "synthetic-counsel-jur-unknown-001",
+      "changeControlRef": "synthetic-ccr-fixture-unknown-001",
+      "synthetic": true,
+      "rules": [
+        {
+          "topic": "recording-consent",
+          "obligations": ["all-party-consent"],
+          "sourceRef": "synthetic-fixture"
+        },
+        { "topic": "chd-rights", "obligations": ["chd-opt-in"], "sourceRef": "synthetic-fixture" },
+        {
+          "topic": "genetic-authorization",
+          "obligations": ["gipa-written-authorization"],
+          "sourceRef": "synthetic-fixture"
+        },
+        {
+          "topic": "records-consent",
+          "obligations": ["written-consent"],
+          "sourceRef": "synthetic-fixture"
+        },
+        {
+          "topic": "erx-epcs-pdmp",
+          "obligations": ["jurisdiction-unverified-hard-block"],
+          "sourceRef": "synthetic-fixture"
+        },
+        {
+          "topic": "telehealth-licensure",
+          "obligations": ["jurisdiction-unverified-hard-block"],
+          "sourceRef": "synthetic-fixture"
+        },
+        {
+          "topic": "auto-renewal",
+          "obligations": ["strictest-state-standard"],
+          "sourceRef": "synthetic-fixture"
+        },
+        {
+          "topic": "retention",
+          "obligations": ["per-state-retention-clock"],
+          "sourceRef": "synthetic-fixture"
+        },
+        {
+          "topic": "biometrics",
+          "obligations": ["no-biometric-enrollment-default"],
+          "sourceRef": "synthetic-fixture"
+        },
+        {
+          "topic": "ai-disclosure",
+          "obligations": ["ai-disclosure"],
+          "sourceRef": "synthetic-fixture"
+        },
+        {
+          "topic": "cpom",
+          "obligations": ["counsel-structure-review"],
+          "sourceRef": "synthetic-fixture"
+        },
+        {
+          "topic": "minors-part2",
+          "obligations": ["strictest-minor-confidentiality"],
+          "sourceRef": "synthetic-fixture"
+        }
+      ]
+    },
+    {
+      "jurisdiction": "NV",
+      "version": 1,
+      "status": "draft",
+      "changeControlRef": "synthetic-ccr-fixture-nv-001",
+      "synthetic": true,
+      "rules": [
+        {
+          "topic": "recording-consent",
+          "obligations": ["all-party-consent"],
+          "sourceRef": "synthetic-fixture"
+        },
+        { "topic": "chd-rights", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "genetic-authorization", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "records-consent", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "erx-epcs-pdmp", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "telehealth-licensure", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "auto-renewal", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "retention", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "biometrics", "obligations": [], "sourceRef": "synthetic-fixture" },
+        {
+          "topic": "ai-disclosure",
+          "obligations": ["ai-disclosure"],
+          "sourceRef": "synthetic-fixture"
+        },
+        { "topic": "cpom", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "minors-part2", "obligations": [], "sourceRef": "synthetic-fixture" }
+      ]
+    },
+    {
+      "jurisdiction": "NV",
+      "version": 2,
+      "status": "counsel-signed",
+      "counselSignoffRef": "synthetic-counsel-jur-nv-002",
+      "changeControlRef": "synthetic-ccr-fixture-nv-002",
+      "synthetic": true,
+      "rules": [
+        {
+          "topic": "recording-consent",
+          "obligations": ["all-party-consent"],
+          "sourceRef": "synthetic-fixture"
+        },
+        { "topic": "chd-rights", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "genetic-authorization", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "records-consent", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "erx-epcs-pdmp", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "telehealth-licensure", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "auto-renewal", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "retention", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "biometrics", "obligations": [], "sourceRef": "synthetic-fixture" },
+        {
+          "topic": "ai-disclosure",
+          "obligations": ["ai-disclosure", "no-ai-therapy-representation"],
+          "sourceRef": "synthetic-fixture"
+        },
+        { "topic": "cpom", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "minors-part2", "obligations": [], "sourceRef": "synthetic-fixture" }
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "name": "the newest pack version governs and carries its own provenance",
+      "basis": { "providerState": "NV", "patientState": "NV" },
+      "topic": "ai-disclosure",
+      "expect": {
+        "obligations": ["ai-disclosure", "no-ai-therapy-representation"],
+        "contributionVersions": { "provider": 2, "patient": 2 },
+        "counselReviewPending": false
+      }
+    },
+    {
+      "name": "reverting = dropping the newest version restores the prior version as active",
+      "packIndexes": [0, 1, 2],
+      "basis": { "providerState": "NV", "patientState": "NV" },
+      "topic": "ai-disclosure",
+      "expect": {
+        "obligations": ["ai-disclosure"],
+        "contributionVersions": { "provider": 1, "patient": 1 },
+        "counselReviewPending": true
+      }
+    },
+    {
+      "name": "counsel sign-off evidence on every contributing pack clears the review flag",
+      "basis": { "providerState": "NV", "patientState": "NV" },
+      "topic": "recording-consent",
+      "expect": {
+        "obligations": ["all-party-consent"],
+        "counselReviewPending": false
+      }
+    },
+    {
+      "name": "safe defaults still apply under signed packs — sign-off is orthogonal to unknown-location handling",
+      "basis": { "providerState": "NV", "patientState": null },
+      "topic": "recording-consent",
+      "expect": {
+        "obligations": ["all-party-consent"],
+        "defaultsApplied": true,
+        "counselReviewPending": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+# --- Build + local cruft ---
+node_modules/
+dist/
+coverage/
+.turbo/
+.cache/
+*.log
+.env
+.env.*
+!.env.example
+*.local
+*.local.*
+*.bak
+*.orig
+*.tmp
+*~
+.DS_Store
+Thumbs.db
+infra/runtime/
+
+# --- Private working material ---
+# Present on disk for local development; deliberately NOT tracked and never
+# published from this repo. This is the publication boundary: everything below
+# is the private corpus / planning / agent-harness / mirror machinery. A fresh
+# `git add -A` will not stage any of it.
+/.agents/
+/.claude/
+/.codex/
+/.cursor/
+/.grok/
+/.github/
+/.githooks/
+/.dockerignore
+/AGENTS.md
+/CLAUDE.md
+/ARCHITECTURE.md
+/LESSONS.md
+/docs/
+/planning/
+/publication/
+/tools/scripts/verify-publication.mjs
+/packages/testkit/fixtures/corpus-manifest.synthetic.json

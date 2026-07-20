@@ -1,0 +1,86 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-001",
+  "class": "BOUNDARY",
+  "description": "Divergence boundary: the visit-start state differs from booking — BOTH records are retained with their timestamps, the visit-start fact governs the basis, and a later re-confirmation supersedes for governance while every prior fact stays retained.",
+  "facts": [
+    {
+      "tenantId": "northwind-synthetic",
+      "captureId": "cap-fix-1002-booking",
+      "contextRef": "synthetic-visit-1002",
+      "stage": "booking",
+      "stateCode": "NV",
+      "capturedAt": "2026-01-05T09:00:00Z",
+      "source": "synthetic-portal-booking",
+      "synthetic": true
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "captureId": "cap-fix-1002-visit-start",
+      "contextRef": "synthetic-visit-1002",
+      "stage": "visit-start",
+      "stateCode": "IL",
+      "capturedAt": "2026-01-12T14:30:00Z",
+      "source": "synthetic-visit-checkin",
+      "synthetic": true
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "captureId": "cap-fix-1002-reconfirm",
+      "contextRef": "synthetic-visit-1002",
+      "stage": "visit-start",
+      "stateCode": "MN",
+      "capturedAt": "2026-01-12T15:10:00Z",
+      "source": "synthetic-visit-checkin",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "diverged booking vs visit-start: both facts retained with their timestamps",
+      "kind": "divergence",
+      "factIndexes": [0, 1],
+      "expect": {
+        "diverged": true,
+        "bookingState": "NV",
+        "visitStartState": "IL",
+        "retainedCount": 2
+      }
+    },
+    {
+      "name": "the visit-start fact governs the resolution basis",
+      "kind": "basis",
+      "factIndexes": [0, 1],
+      "providerState": "NV",
+      "expect": { "basis": { "providerState": "NV", "patientState": "IL" } }
+    },
+    {
+      "name": "a later re-confirmation governs while every prior fact stays retained",
+      "kind": "divergence",
+      "expect": {
+        "diverged": true,
+        "bookingState": "NV",
+        "visitStartState": "MN",
+        "retainedCount": 3
+      }
+    },
+    {
+      "name": "the diverged patient state drives the strictest resolution (IL retention clock)",
+      "kind": "resolve",
+      "factIndexes": [0, 1],
+      "providerState": "NV",
+      "topic": "retention",
+      "expect": {
+        "resolution": {
+          "obligations": [
+            "legal-hold-override",
+            "minor-extended-retention",
+            "per-state-retention-clock"
+          ],
+          "scalars": { "retention-years-adult": 10 },
+          "defaultsApplied": false
+        }
+      }
+    }
+  ]
+}

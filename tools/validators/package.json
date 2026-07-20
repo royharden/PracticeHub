@@ -1,0 +1,22 @@
+{
+  "name": "@practicehub/validators",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "build:with-deps": "pnpm --filter @practicehub/validators... run build",
+    "lint": "eslint src --max-warnings=0",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "verify:imports": "pnpm run build:with-deps && node dist/import-boundaries.js",
+    "verify:planning": "pnpm run build:with-deps && node dist/planning.js",
+    "verify:corpus": "pnpm run build:with-deps && node dist/corpus.js",
+    "verify:phi": "pnpm run build:with-deps && node dist/phi-fixtures.js",
+    "verify:secrets": "pnpm run build:with-deps && node dist/secrets.js",
+    "verify:config": "pnpm run build:with-deps && node dist/config-security.js"
+  },
+  "dependencies": {
+    "@practicehub/testkit": "workspace:*"
+  }
+}

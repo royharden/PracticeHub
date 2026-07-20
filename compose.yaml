@@ -1,0 +1,206 @@
+x-practicehub-security:
+  tls_floor: TLSv1.3
+  at_rest: synthetic-named-volume
+  data_policy: synthetic-only
+
+x-persistent-security-labels: &persistent-security-labels
+  - practicehub.security.at-rest=synthetic-named-volume
+  - practicehub.security.transport=loopback-only
+  - practicehub.security.data=synthetic-only
+
+services:
+  app-postgres:
+    image: postgres@sha256:57c72fd2a128e416c7fcc499958864df5301e940bca0a56f58fddf30ffc07777
+    environment:
+      POSTGRES_DB: practicehub
+      POSTGRES_USER: practicehub
+      POSTGRES_PASSWORD: practicehub_synthetic_local
+    labels: *persistent-security-labels
+    ports:
+      - '127.0.0.1:55432:5432'
+    volumes:
+      - app-postgres-data:/var/lib/postgresql/data
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U practicehub -d practicehub']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio:
+    image: minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    command: server /data --console-address ':9001'
+    environment:
+      MINIO_ROOT_USER: practicehub_synthetic
+      MINIO_ROOT_PASSWORD: practicehub_synthetic_local_only
+    labels: *persistent-security-labels
+    ports:
+      - '127.0.0.1:59000:9000'
+      - '127.0.0.1:59001:9001'
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  dex:
+    image: dexidp/dex@sha256:5d0656fce7d453c0e3b2706abf40c0d0ce5b371fb0b73b3cf714d05f35fa5f86
+    command: ['dex', 'serve', '/etc/dex/config.yaml']
+    ports:
+      - '127.0.0.1:5556:5556'
+    volumes:
+      - ./infra/dex/config.yaml:/etc/dex/config.yaml:ro
+    healthcheck:
+      test: ['CMD', 'dex', 'version']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit@sha256:6abc8e633df15eaf785cfcf38bae48e66f64beecdc03121e249d0f9ec15f0707
+    environment:
+      MP_DATABASE: /data/mailpit.db
+    ports:
+      - '127.0.0.1:51025:1025'
+      - '127.0.0.1:58080:8025'
+    volumes:
+      - mailpit-data:/data
+    healthcheck:
+      test: ['CMD', '/mailpit', 'readyz']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  vendor-simulator:
+    build:
+      context: .
+      dockerfile: sims/vendor-simulator/Dockerfile
+    environment:
+      PORT: '9090'
+      PRACTICEHUB_DATA_POLICY: synthetic-only
+    ports:
+      - '127.0.0.1:58090:9090'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          'fetch("http://localhost:9090/healthz").then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  medplum-postgres:
+    image: postgres@sha256:57c72fd2a128e416c7fcc499958864df5301e940bca0a56f58fddf30ffc07777
+    environment:
+      POSTGRES_DB: medplum
+      POSTGRES_USER: medplum
+      POSTGRES_PASSWORD: medplum_synthetic_local
+    labels: *persistent-security-labels
+    ports:
+      - '127.0.0.1:55433:5432'
+    volumes:
+      - medplum-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U medplum -d medplum']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  medplum-redis:
+    image: redis@sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99
+    command: ['redis-server', '--requirepass', 'medplum_synthetic_local']
+    labels: *persistent-security-labels
+    ports:
+      - '127.0.0.1:56379:6379'
+    volumes:
+      - medplum-redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', 'medplum_synthetic_local', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  medplum-server:
+    image: medplum/medplum-server@sha256:56b83a037985ae515472839effad59aa4b623eee74c57d194747c81e86123dd5
+    command: ['env']
+    depends_on:
+      medplum-postgres:
+        condition: service_healthy
+      medplum-redis:
+        condition: service_healthy
+    environment:
+      MEDPLUM_PORT: '8103'
+      MEDPLUM_BASE_URL: http://127.0.0.1:58103/
+      MEDPLUM_APP_BASE_URL: http://127.0.0.1:53000/
+      MEDPLUM_STORAGE_BASE_URL: http://127.0.0.1:58103/storage/
+      MEDPLUM_DATABASE_HOST: medplum-postgres
+      MEDPLUM_DATABASE_PORT: '5432'
+      MEDPLUM_DATABASE_DBNAME: medplum
+      MEDPLUM_DATABASE_USERNAME: medplum
+      MEDPLUM_DATABASE_PASSWORD: medplum_synthetic_local
+      MEDPLUM_REDIS_HOST: medplum-redis
+      MEDPLUM_REDIS_PORT: '6379'
+      MEDPLUM_REDIS_PASSWORD: medplum_synthetic_local
+      MEDPLUM_BINARY_STORAGE: file:/var/lib/medplum/binary/
+      MEDPLUM_SUPPORT_EMAIL: synthetic-admin@practicehub.invalid
+      MEDPLUM_ALLOWED_ORIGINS: http://127.0.0.1:53000
+      MEDPLUM_INTROSPECTION_ENABLED: 'true'
+      MEDPLUM_VM_CONTEXT_BOTS_ENABLED: 'false'
+    ports:
+      - '127.0.0.1:58103:8103'
+    volumes:
+      - medplum-binary-data:/var/lib/medplum/binary
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          'fetch("http://localhost:8103/healthcheck").then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))',
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+
+  medplum-app:
+    image: medplum/medplum-app@sha256:33ca57a49407e230e7c5844ec6b121a74668c8ce41bb1f8d46b9d282cede979b
+    depends_on:
+      medplum-server:
+        condition: service_healthy
+    environment:
+      MEDPLUM_BASE_URL: http://127.0.0.1:58103/
+    ports:
+      - '127.0.0.1:53000:3000'
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  otel-lgtm:
+    image: grafana/otel-lgtm@sha256:b4da8bf6b1b44f6f683883869619eb9781465c642ce5f2d70591fb27094ddb1c
+    profiles: [observability]
+    environment:
+      ENABLE_LOGS_OTELCOL: 'false'
+    ports:
+      - '127.0.0.1:53001:3000'
+      - '127.0.0.1:54317:4317'
+      - '127.0.0.1:54318:4318'
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  app-postgres-data:
+  minio-data:
+  mailpit-data:
+  medplum-postgres-data:
+  medplum-redis-data:
+  medplum-binary-data:

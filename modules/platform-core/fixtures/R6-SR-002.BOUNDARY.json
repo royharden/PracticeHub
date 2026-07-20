@@ -1,0 +1,57 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-002",
+  "class": "BOUNDARY",
+  "description": "Divergent-statute boundaries: where states disagree the union carries both obligations and the most protective governs; scalar obligations reduce in their declared strictest direction (max for retention clocks, min for consent expiry).",
+  "packs": "v1",
+  "cases": [
+    {
+      "name": "MN x MN recording: the one-party statute is recorded but the all-party floor never relaxes",
+      "basis": { "providerState": "MN", "patientState": "MN" },
+      "topic": "recording-consent",
+      "expect": {
+        "obligations": ["all-party-consent", "one-party-consent"],
+        "defaultsApplied": false,
+        "missingPacks": []
+      }
+    },
+    {
+      "name": "IL provider x NV patient: retention takes the longest clock (10 over 5)",
+      "basis": { "providerState": "IL", "patientState": "NV" },
+      "topic": "retention",
+      "expect": {
+        "obligations": [
+          "legal-hold-override",
+          "minor-extended-retention",
+          "per-state-retention-clock"
+        ],
+        "scalars": { "retention-years-adult": 10 },
+        "defaultsApplied": false
+      }
+    },
+    {
+      "name": "FL provider x MN patient: MHRA written consent + expiry joins FL's written-consent baseline",
+      "basis": { "providerState": "FL", "patientState": "MN" },
+      "topic": "records-consent",
+      "expect": {
+        "obligations": ["consent-expiry", "written-consent"],
+        "scalars": { "consent-expiry-days": 365 },
+        "defaultsApplied": false
+      }
+    },
+    {
+      "name": "IL provider x MN patient: biometrics unions BIPA release mechanics with MCDPA consent",
+      "basis": { "providerState": "IL", "patientState": "MN" },
+      "topic": "biometrics",
+      "expect": {
+        "obligations": [
+          "biometric-consent",
+          "bipa-written-release",
+          "no-biometric-enrollment-default",
+          "retention-destruction-schedule"
+        ],
+        "defaultsApplied": false
+      }
+    }
+  ]
+}

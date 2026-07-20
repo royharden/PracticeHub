@@ -1,0 +1,51 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-002",
+  "class": "FAILURE",
+  "description": "Fail-closed paths: unknown topics and malformed states are errors; a state without a rule pack resolves through the conservative safe defaults with the gap named (NFR-14: a fifth state is a config + counsel event, never a silent statutory answer); a registry without its floor/unknown substrate refuses to resolve.",
+  "packs": "v1",
+  "cases": [
+    {
+      "name": "an unknown topic is an error, never an empty resolution",
+      "basis": { "providerState": "NV", "patientState": "FL" },
+      "topic": "not-a-topic",
+      "expectError": "unknown jurisdiction topic"
+    },
+    {
+      "name": "a malformed state code is an error, never coerced",
+      "basis": { "providerState": "nv", "patientState": "FL" },
+      "topic": "recording-consent",
+      "expectError": "two-letter state code"
+    },
+    {
+      "name": "CA has no pack: eRx resolves the safe defaults, hard-blocks, and names the missing pack",
+      "basis": { "providerState": "CA", "patientState": "NV" },
+      "topic": "erx-epcs-pdmp",
+      "expect": {
+        "obligations": [
+          "epcs-two-factor",
+          "erx-mandate",
+          "jurisdiction-unverified-hard-block",
+          "pdmp-check",
+          "prescriber-state-rules"
+        ],
+        "defaultsApplied": true,
+        "missingPacks": ["CA"]
+      }
+    },
+    {
+      "name": "a registry without the unknown safe-default pack refuses to resolve",
+      "packIndexes": [0, 1, 2, 3, 4],
+      "basis": { "providerState": "NV", "patientState": "FL" },
+      "topic": "recording-consent",
+      "expectError": "missing the 'unknown' pack"
+    },
+    {
+      "name": "a registry without the floor pack refuses to resolve",
+      "packIndexes": [0, 1, 2, 3, 5],
+      "basis": { "providerState": "NV", "patientState": "FL" },
+      "topic": "recording-consent",
+      "expectError": "missing the 'floor' pack"
+    }
+  ]
+}

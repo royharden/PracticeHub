@@ -1,0 +1,36 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-047",
+  "class": "FAILURE",
+  "description": "The lookup fails closed without silent accepts or misrouted denials: no location in context is an error, and an unknown combination resolves to needs-verification — non-permissive for booking, routed to verification instead of turn-away (REQ-ADM-047 exception 1).",
+  "entries": [],
+  "cases": [
+    {
+      "name": "lookup without a location in context is an error",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv"
+      },
+      "payerId": "synthetic-medicare",
+      "providerId": "synthetic-dr-lee",
+      "expectError": "requires a location"
+    },
+    {
+      "name": "an unknown combination resolves to needs-verification, never a silent accept or a plain deny",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "legalEntityId": "northwind-health-nv",
+        "locationId": "northwind-virtual-nv"
+      },
+      "payerId": "synthetic-medicare",
+      "providerId": "synthetic-dr-lee",
+      "expect": {
+        "status": "needs-verification",
+        "policy": null,
+        "accepting": false,
+        "reason": "no-policy-configured",
+        "matchedKey": null
+      }
+    }
+  ]
+}

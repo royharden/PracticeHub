@@ -1,0 +1,49 @@
+{
+  "name": "practicehub",
+  "version": "0.0.0",
+  "private": true,
+  "description": "PracticeHub modular-monolith workspace",
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": "24.18.0",
+    "pnpm": "11.9.0"
+  },
+  "scripts": {
+    "build": "node tools/scripts/turbo-runner.mjs build",
+    "lint": "node tools/scripts/turbo-runner.mjs lint",
+    "typecheck": "node tools/scripts/turbo-runner.mjs typecheck",
+    "unit": "node tools/scripts/turbo-runner.mjs test",
+    "test": "pnpm unit",
+    "verify": "node tools/scripts/verify.mjs",
+    "verify:imports": "pnpm --filter @practicehub/validators run verify:imports",
+    "verify:planning": "pnpm --filter @practicehub/validators run verify:planning",
+    "verify:phi": "pnpm --filter @practicehub/validators run verify:phi",
+    "verify:secrets": "pnpm --filter @practicehub/validators run verify:secrets",
+    "verify:config": "pnpm --filter @practicehub/validators run verify:config",
+    "verify:corpus": "node tools/scripts/verify-corpus.mjs",
+    "verify:publication": "node tools/scripts/verify-publication.mjs",
+    "verify:temporal": "python docs/requirements/union-tools/scan_language.py",
+    "verify:cross-tenant": "pnpm --filter @practicehub/platform-core test",
+    "local:doctor": "pnpm --filter @practicehub/local-tools run doctor",
+    "local:up": "pnpm --filter @practicehub/local-tools run up",
+    "local:migrate": "pnpm --filter @practicehub/local-tools run migrate",
+    "local:seed": "pnpm --filter @practicehub/local-tools run seed",
+    "local:test": "pnpm --filter @practicehub/local-tools run test:local",
+    "local:down": "pnpm --filter @practicehub/local-tools run down",
+    "local:reset": "pnpm --filter @practicehub/local-tools run reset",
+    "export:public": "node publication/export-public-mirror.mjs",
+    "format": "prettier --write \"{apps,modules,packages,adapters,sims,tools}/**/*.{ts,json,mjs}\" \"*.{json,yaml,mjs}\" \".github/workflows/*.yml\"",
+    "format:check": "prettier --check \"{apps,modules,packages,adapters,sims,tools}/**/*.{ts,json,mjs}\" \"*.{json,yaml,mjs}\" \".github/workflows/*.yml\"",
+    "prepare": "git config core.hooksPath .githooks"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "24.13.3",
+    "eslint": "10.7.0",
+    "prettier": "3.9.5",
+    "turbo": "2.10.5",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.64.0",
+    "vitest": "4.1.10"
+  }
+}
