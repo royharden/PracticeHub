@@ -1,0 +1,77 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-012",
+  "class": "HAPPY",
+  "description": "AC-1 + AC-2: for a payer-provider pair, every transaction path is independently represented with its own state, evidence references, and originating event; a verified path satisfies the check at its declared floor and the decision carries the evidence lineage.",
+  "grants": [
+    {
+      "capabilityId": "rcm.rail-path",
+      "tenantId": "northwind-synthetic",
+      "scope": {
+        "payer": "synthetic-payer-aurora",
+        "provider": "synthetic-dr-lee",
+        "transaction": "x12-837"
+      },
+      "state": "simulated",
+      "sinceEventId": "synthetic-cap-evt-0006",
+      "evidenceRefs": ["synthetic-gate:rail-837-sim-conformance"],
+      "rollbackRef": "registry-event-replay",
+      "synthetic": true
+    },
+    {
+      "capabilityId": "rcm.rail-path",
+      "tenantId": "northwind-synthetic",
+      "scope": {
+        "payer": "synthetic-payer-aurora",
+        "provider": "synthetic-dr-lee",
+        "transaction": "x12-270-271"
+      },
+      "state": "scaffolded",
+      "sinceEventId": "synthetic-cap-evt-0007",
+      "evidenceRefs": ["synthetic-gate:rail-270-271-scaffold"],
+      "rollbackRef": "registry-event-replay",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "AC-1: each transaction path renders as an independent matrix row with its own state",
+      "op": "matrix",
+      "filter": { "tenantId": "northwind-synthetic", "capabilityId": "rcm.rail-path" },
+      "expectRows": [
+        {
+          "capabilityId": "rcm.rail-path",
+          "scopeKey": "payer=synthetic-payer-aurora/provider=synthetic-dr-lee/transaction=x12-270-271",
+          "state": "scaffolded",
+          "hasEvidence": true
+        },
+        {
+          "capabilityId": "rcm.rail-path",
+          "scopeKey": "payer=synthetic-payer-aurora/provider=synthetic-dr-lee/transaction=x12-837",
+          "state": "simulated",
+          "hasEvidence": true
+        }
+      ]
+    },
+    {
+      "name": "AC-2: the verified 837 path satisfies its declared floor and the decision names the minting event",
+      "op": "require",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "scope": {
+          "payer": "synthetic-payer-aurora",
+          "provider": "synthetic-dr-lee",
+          "transaction": "x12-837"
+        }
+      },
+      "capabilityId": "rcm.rail-path",
+      "minimumState": "simulated",
+      "expect": {
+        "allowed": true,
+        "grantState": "simulated",
+        "grantScopeKey": "payer=synthetic-payer-aurora/provider=synthetic-dr-lee/transaction=x12-837",
+        "sinceEventId": "synthetic-cap-evt-0006"
+      }
+    }
+  ]
+}

@@ -1,4 +1,7 @@
 export * from './capability.js';
+export * from './capability-definitions.js';
+export * from './commands.js';
+export * from './commands/capability-transition.command.js';
 export * from './config-registry.js';
 export * from './jurisdiction.js';
 export * from './jurisdiction-packs.js';

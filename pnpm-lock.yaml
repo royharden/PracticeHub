@@ -66,6 +66,9 @@ importers:
 
   tools/validators:
     dependencies:
+      '@practicehub/platform-core':
+        specifier: workspace:*
+        version: link:../../modules/platform-core
       '@practicehub/testkit':
         specifier: workspace:*
         version: link:../../packages/testkit

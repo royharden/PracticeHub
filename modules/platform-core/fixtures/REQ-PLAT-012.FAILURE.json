@@ -1,0 +1,67 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-012",
+  "class": "FAILURE",
+  "description": "AC-3 fail-closed half: a path whose health state changed to write-blocked no longer satisfies any side-effect check while staying visible in the matrix, and a tenant with no grant for the path is denied by default — dependent workflows block rather than assume.",
+  "grants": [
+    {
+      "capabilityId": "rcm.rail-path",
+      "tenantId": "northwind-synthetic",
+      "scope": {
+        "payer": "synthetic-payer-aurora",
+        "provider": "synthetic-dr-lee",
+        "transaction": "x12-837"
+      },
+      "state": "read-only",
+      "sinceEventId": "synthetic-cap-evt-0106",
+      "evidenceRefs": ["synthetic-gate:rail-837-health-freeze"],
+      "rollbackRef": "registry-event-replay",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "AC-3: a write-blocked path denies the side-effect check (dependent workflows block)",
+      "op": "require",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "scope": {
+          "payer": "synthetic-payer-aurora",
+          "provider": "synthetic-dr-lee",
+          "transaction": "x12-837"
+        }
+      },
+      "capabilityId": "rcm.rail-path",
+      "minimumState": "simulated",
+      "expectDenied": "does not satisfy"
+    },
+    {
+      "name": "a tenant without the path grant is denied by default (cross-tenant negative)",
+      "op": "require",
+      "context": {
+        "tenantId": "riverbend-synthetic",
+        "scope": {
+          "payer": "synthetic-payer-aurora",
+          "provider": "synthetic-dr-lee",
+          "transaction": "x12-837"
+        }
+      },
+      "capabilityId": "rcm.rail-path",
+      "minimumState": "simulated",
+      "expectDenied": "deny-by-default"
+    },
+    {
+      "name": "the blocked path stays visible in the matrix with its true health state",
+      "op": "matrix",
+      "filter": { "tenantId": "northwind-synthetic", "capabilityId": "rcm.rail-path" },
+      "expectRows": [
+        {
+          "capabilityId": "rcm.rail-path",
+          "scopeKey": "payer=synthetic-payer-aurora/provider=synthetic-dr-lee/transaction=x12-837",
+          "state": "read-only",
+          "hasEvidence": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+-- WP-012 platform_core capability-registry migration.
+-- Contract: docs/contracts/capability-registry.md (FROZEN). Architecture: ADR-011 (R-5).
+-- Idempotent: safe to re-apply; the DB suite re-applies it as its idempotency proof.
+-- Rollback: modules/platform-core/migrations/0003-capability.rollback.sql.
+-- The section between the rls:generated markers is emitted by
+-- renderRlsMigrationSection('platform_core', capabilityRlsSpecs, platformCoreRlsSpecs);
+-- a drift test compares this file against a fresh emission.
+
+-- Event log: every capability transition is an appended receipt carrying
+-- initiator, approvals, evidence links, rollback procedure, and (for IC-6)
+-- the target-module binding. Adjacency is CHECK-enforced so an illegal jump
+-- (e.g. simulated -> active) is unrepresentable at the database as well as in
+-- code. Append-only by grant: UPDATE/DELETE are revoked from the module role.
+CREATE TABLE IF NOT EXISTS platform_core.capability_event (
+  seq bigint GENERATED ALWAYS AS IDENTITY,
+  event_id text PRIMARY KEY CHECK (event_id ~ '^[a-z0-9][a-z0-9-]{0,63}$'),
+  tenant_id text NOT NULL REFERENCES platform_core.tenant (tenant_id),
+  capability_id text NOT NULL CHECK (capability_id ~ '^[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'),
+  scope jsonb NOT NULL DEFAULT '{}'::jsonb CHECK (jsonb_typeof(scope) = 'object'),
+  scope_key text NOT NULL CHECK (
+    scope_key ~ '^\(root\)$' OR scope_key ~ '^[a-z_]+=[a-z0-9-]+(/[a-z_]+=[a-z0-9-]+)*$'
+  ),
+  from_state text NOT NULL CHECK (from_state IN (
+    'disabled', 'scaffolded', 'simulated', 'shadow', 'pilot', 'active', 'read-only', 'retiring'
+  )),
+  to_state text NOT NULL CHECK (to_state IN (
+    'disabled', 'scaffolded', 'simulated', 'shadow', 'pilot', 'active', 'read-only', 'retiring'
+  )),
+  initiator_ref text NOT NULL CHECK (initiator_ref ~ '^[a-z0-9][a-z0-9-]{0,63}$'),
+  approvals jsonb NOT NULL DEFAULT '[]'::jsonb CHECK (jsonb_typeof(approvals) = 'array'),
+  evidence_refs jsonb NOT NULL DEFAULT '[]'::jsonb CHECK (jsonb_typeof(evidence_refs) = 'array'),
+  rollback_ref text NOT NULL,
+  review_ref text,
+  target_capability_id text CHECK (
+    target_capability_id IS NULL
+    OR target_capability_id ~ '^[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
+  ),
+  reason text,
+  occurred_at timestamptz NOT NULL DEFAULT now(),
+  synthetic boolean NOT NULL,
+  -- ADR-011 Decision 1: only the 15 adjacent edges of the state machine exist.
+  CONSTRAINT capability_event_adjacent_transition CHECK (
+    (from_state || '>' || to_state) IN (
+      'disabled>scaffolded', 'scaffolded>disabled', 'scaffolded>simulated',
+      'simulated>scaffolded', 'simulated>shadow', 'shadow>simulated',
+      'shadow>pilot', 'pilot>shadow', 'pilot>active', 'active>pilot',
+      'active>read-only', 'read-only>active', 'read-only>retiring',
+      'retiring>read-only', 'retiring>disabled'
+    )
+  )
+);
+
+CREATE INDEX IF NOT EXISTS capability_event_stream
+  ON platform_core.capability_event (tenant_id, capability_id, scope_key, seq);
+
+-- Grant projection: the current state per (tenant, capability, canonical
+-- scope). since_event_id NULL marks a declared initial state (Riverbend's
+-- standing opposite-state rows); every other row must chain to its minting
+-- event — the DB suite's projection-sync test folds the event log and
+-- compares. The registry is the reversibility mechanism: rollback = replay.
+CREATE TABLE IF NOT EXISTS platform_core.capability_grant (
+  tenant_id text NOT NULL REFERENCES platform_core.tenant (tenant_id),
+  capability_id text NOT NULL CHECK (capability_id ~ '^[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'),
+  scope jsonb NOT NULL DEFAULT '{}'::jsonb CHECK (jsonb_typeof(scope) = 'object'),
+  scope_key text NOT NULL CHECK (
+    scope_key ~ '^\(root\)$' OR scope_key ~ '^[a-z_]+=[a-z0-9-]+(/[a-z_]+=[a-z0-9-]+)*$'
+  ),
+  state text NOT NULL CHECK (state IN (
+    'disabled', 'scaffolded', 'simulated', 'shadow', 'pilot', 'active', 'read-only', 'retiring'
+  )),
+  since_event_id text REFERENCES platform_core.capability_event (event_id),
+  evidence_refs jsonb NOT NULL DEFAULT '[]'::jsonb CHECK (jsonb_typeof(evidence_refs) = 'array'),
+  rollback_ref text NOT NULL,
+  synthetic boolean NOT NULL,
+  PRIMARY KEY (tenant_id, capability_id, scope_key),
+  -- Deny-by-default has one representable exception: only a declared initial
+  -- state may exist without a minting event, and it can only be 'disabled'.
+  CONSTRAINT capability_grant_initial_state_is_disabled
+    CHECK (since_event_id IS NOT NULL OR state = 'disabled')
+);
+
+-- Runtime posture: the event log is append-only (transitions are receipts,
+-- never edits); grant projections advance but are never deleted at runtime.
+-- 0001's schema-wide GRANT re-runs before this file on every migrate pass,
+-- so these REVOKEs re-apply the posture deterministically each pass.
+REVOKE UPDATE, DELETE ON platform_core.capability_event FROM module_platform_core;
+REVOKE DELETE ON platform_core.capability_grant FROM module_platform_core;
+
+-- rls:generated:begin
+-- Generated by @practicehub/platform-core generateRlsDdl/generateRlsCoverageGuard.
+-- Regenerate via renderRlsMigrationSection; the drift test fails on divergence.
+ALTER TABLE platform_core.capability_event ENABLE ROW LEVEL SECURITY;
+ALTER TABLE platform_core.capability_event FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS tenant_isolation ON platform_core.capability_event;
+CREATE POLICY tenant_isolation ON platform_core.capability_event
+  USING (tenant_id = current_setting('practicehub.tenant_id', true))
+  WITH CHECK (tenant_id = current_setting('practicehub.tenant_id', true));
+
+ALTER TABLE platform_core.capability_grant ENABLE ROW LEVEL SECURITY;
+ALTER TABLE platform_core.capability_grant FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS tenant_isolation ON platform_core.capability_grant;
+CREATE POLICY tenant_isolation ON platform_core.capability_grant
+  USING (tenant_id = current_setting('practicehub.tenant_id', true))
+  WITH CHECK (tenant_id = current_setting('practicehub.tenant_id', true));
+
+DO $coverage$
+DECLARE
+  offender text;
+BEGIN
+  SELECT string_agg(c.relname, ', ' ORDER BY c.relname)
+    INTO offender
+    FROM pg_class c
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+   WHERE n.nspname = 'platform_core'
+     AND c.relkind = 'r'
+     AND (NOT c.relrowsecurity
+          OR NOT c.relforcerowsecurity
+          OR c.relname NOT IN ('capability_event', 'capability_grant', 'jurisdiction_rule', 'jurisdiction_rule_pack', 'legal_entity', 'location', 'location_capture', 'synthetic_tenant', 'tenant', 'tenant_config'));
+  IF offender IS NOT NULL THEN
+    RAISE EXCEPTION 'rls coverage failure in schema platform_core: %', offender;
+  END IF;
+END
+$coverage$;
+-- rls:generated:end

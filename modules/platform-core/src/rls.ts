@@ -214,8 +214,15 @@ export const jurisdictionRlsSpecs: readonly RlsTableSpec[] = [
   { schema: 'platform_core', table: 'location_capture', kind: 'tenant-scoped' },
 ];
 
+/** Tables created by 0003-capability.sql (WP-012) — that migration's DDL scope. */
+export const capabilityRlsSpecs: readonly RlsTableSpec[] = [
+  { schema: 'platform_core', table: 'capability_event', kind: 'tenant-scoped' },
+  { schema: 'platform_core', table: 'capability_grant', kind: 'tenant-scoped' },
+];
+
 /** The full platform_core table registry — every migration's coverage guard declares it. */
 export const platformCoreRlsSpecs: readonly RlsTableSpec[] = [
   ...tenancyRlsSpecs,
   ...jurisdictionRlsSpecs,
+  ...capabilityRlsSpecs,
 ];

@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { RlsTableSpec } from './rls.js';
 import {
+  capabilityRlsSpecs,
   extractRlsMigrationSection,
   generateRlsCoverageGuard,
   generateRlsDdl,
@@ -21,6 +22,9 @@ const tenancyMigrationPath = fileURLToPath(
 );
 const jurisdictionMigrationPath = fileURLToPath(
   new URL('../migrations/0002-jurisdiction.sql', import.meta.url),
+);
+const capabilityMigrationPath = fileURLToPath(
+  new URL('../migrations/0003-capability.sql', import.meta.url),
 );
 
 describe('rls generator', () => {
@@ -82,8 +86,16 @@ describe('rls generator', () => {
     );
   });
 
+  it('T-DRIFT: 0003-capability.sql embeds exactly its generated section (schema-wide guard)', () => {
+    const migration = readFileSync(capabilityMigrationPath, 'utf8');
+    const embedded = extractRlsMigrationSection(migration);
+    expect(embedded?.replaceAll('\r\n', '\n')).toBe(
+      renderRlsMigrationSection('platform_core', capabilityRlsSpecs, platformCoreRlsSpecs),
+    );
+  });
+
   it('every migration guard declares the full registry, so re-application stays clean', () => {
-    for (const path of [tenancyMigrationPath, jurisdictionMigrationPath]) {
+    for (const path of [tenancyMigrationPath, jurisdictionMigrationPath, capabilityMigrationPath]) {
       const embedded = extractRlsMigrationSection(readFileSync(path, 'utf8')) ?? '';
       for (const spec of platformCoreRlsSpecs) {
         expect(embedded, `${path} guard must declare ${spec.table}`).toContain(`'${spec.table}'`);

@@ -1,0 +1,156 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-012",
+  "class": "RECOVERY",
+  "description": "AC-3 recovery half: after a path is rolled back mid-incident, dependent checks deny on it while a separately-verified alternative route still satisfies (select only a verified alternative); re-verification with fresh evidence restores the path, and the transition history retains the full lineage including the rollback.",
+  "grants": [
+    {
+      "capabilityId": "rcm.rail-path",
+      "tenantId": "northwind-synthetic",
+      "scope": {
+        "payer": "synthetic-payer-beacon",
+        "provider": "synthetic-dr-lee",
+        "transaction": "x12-837"
+      },
+      "state": "simulated",
+      "sinceEventId": "synthetic-cap-evt-0205",
+      "evidenceRefs": ["synthetic-gate:rail-beacon-837-sim-conformance"],
+      "rollbackRef": "registry-event-replay",
+      "synthetic": true
+    }
+  ],
+  "events": [
+    {
+      "eventId": "synthetic-cap-evt-0201",
+      "tenantId": "northwind-synthetic",
+      "capabilityId": "rcm.rail-path",
+      "scope": {
+        "payer": "synthetic-payer-aurora",
+        "provider": "synthetic-dr-lee",
+        "transaction": "x12-837"
+      },
+      "fromState": "disabled",
+      "toState": "scaffolded",
+      "initiatorRef": "synthetic-platform-bootstrap",
+      "approvals": [{ "approverRef": "synthetic-architecture-owner", "role": "architecture" }],
+      "evidenceRefs": ["synthetic-gate:rail-837-scaffold"],
+      "rollbackRef": "registry-event-replay",
+      "synthetic": true
+    },
+    {
+      "eventId": "synthetic-cap-evt-0202",
+      "tenantId": "northwind-synthetic",
+      "capabilityId": "rcm.rail-path",
+      "scope": {
+        "payer": "synthetic-payer-aurora",
+        "provider": "synthetic-dr-lee",
+        "transaction": "x12-837"
+      },
+      "fromState": "scaffolded",
+      "toState": "simulated",
+      "initiatorRef": "synthetic-platform-bootstrap",
+      "approvals": [{ "approverRef": "synthetic-architecture-owner", "role": "architecture" }],
+      "evidenceRefs": ["synthetic-gate:rail-837-sim-conformance"],
+      "rollbackRef": "registry-event-replay",
+      "synthetic": true
+    },
+    {
+      "eventId": "synthetic-cap-evt-0203",
+      "tenantId": "northwind-synthetic",
+      "capabilityId": "rcm.rail-path",
+      "scope": {
+        "payer": "synthetic-payer-aurora",
+        "provider": "synthetic-dr-lee",
+        "transaction": "x12-837"
+      },
+      "fromState": "simulated",
+      "toState": "scaffolded",
+      "initiatorRef": "synthetic-oncall-operator",
+      "approvals": [],
+      "evidenceRefs": [],
+      "rollbackRef": "instant-rollback",
+      "reason": "synthetic incident: path health degraded",
+      "synthetic": true
+    },
+    {
+      "eventId": "synthetic-cap-evt-0204",
+      "tenantId": "northwind-synthetic",
+      "capabilityId": "rcm.rail-path",
+      "scope": {
+        "payer": "synthetic-payer-aurora",
+        "provider": "synthetic-dr-lee",
+        "transaction": "x12-837"
+      },
+      "fromState": "scaffolded",
+      "toState": "simulated",
+      "initiatorRef": "synthetic-platform-bootstrap",
+      "approvals": [{ "approverRef": "synthetic-architecture-owner", "role": "architecture" }],
+      "evidenceRefs": ["synthetic-gate:rail-837-reverify"],
+      "rollbackRef": "registry-event-replay",
+      "reason": "synthetic recovery: path re-verified",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "mid-incident (after rollback), the aurora 837 path denies",
+      "op": "require",
+      "foldEvents": 3,
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "scope": {
+          "payer": "synthetic-payer-aurora",
+          "provider": "synthetic-dr-lee",
+          "transaction": "x12-837"
+        }
+      },
+      "capabilityId": "rcm.rail-path",
+      "minimumState": "simulated",
+      "expectDenied": "does not satisfy"
+    },
+    {
+      "name": "the separately-verified beacon route still satisfies (verified alternative only)",
+      "op": "require",
+      "foldEvents": 3,
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "scope": {
+          "payer": "synthetic-payer-beacon",
+          "provider": "synthetic-dr-lee",
+          "transaction": "x12-837"
+        }
+      },
+      "capabilityId": "rcm.rail-path",
+      "minimumState": "simulated",
+      "expect": {
+        "allowed": true,
+        "grantScopeKey": "payer=synthetic-payer-beacon/provider=synthetic-dr-lee/transaction=x12-837"
+      }
+    },
+    {
+      "name": "re-verification with fresh evidence restores the path",
+      "op": "require",
+      "foldEvents": 4,
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "scope": {
+          "payer": "synthetic-payer-aurora",
+          "provider": "synthetic-dr-lee",
+          "transaction": "x12-837"
+        }
+      },
+      "capabilityId": "rcm.rail-path",
+      "minimumState": "simulated",
+      "expect": {
+        "allowed": true,
+        "sinceEventId": "synthetic-cap-evt-0204"
+      }
+    },
+    {
+      "name": "the transition history retains the full lineage including the rollback",
+      "op": "history",
+      "scopeKey": "payer=synthetic-payer-aurora/provider=synthetic-dr-lee/transaction=x12-837",
+      "expectCount": 4
+    }
+  ]
+}

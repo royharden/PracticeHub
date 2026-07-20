@@ -14,6 +14,7 @@ const publicSteps = [
   ['-r', 'typecheck'],
   ['-r', 'test'],
   ['verify:imports'],
+  ['verify:handlers'],
   ['verify:secrets'],
   ['verify:phi'],
   ['verify:cross-tenant'],

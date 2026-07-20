@@ -162,7 +162,7 @@ BEGIN
      AND c.relkind = 'r'
      AND (NOT c.relrowsecurity
           OR NOT c.relforcerowsecurity
-          OR c.relname NOT IN ('jurisdiction_rule', 'jurisdiction_rule_pack', 'legal_entity', 'location', 'location_capture', 'synthetic_tenant', 'tenant', 'tenant_config'));
+          OR c.relname NOT IN ('capability_event', 'capability_grant', 'jurisdiction_rule', 'jurisdiction_rule_pack', 'legal_entity', 'location', 'location_capture', 'synthetic_tenant', 'tenant', 'tenant_config'));
   IF offender IS NOT NULL THEN
     RAISE EXCEPTION 'rls coverage failure in schema platform_core: %', offender;
   END IF;

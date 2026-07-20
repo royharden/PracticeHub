@@ -150,6 +150,8 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/003-tenancy-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/004-jurisdiction-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/004-jurisdiction-seed.sql');
+  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/005-capability-seed.sql'), 'utf8'));
+  console.log('seeded infra/postgres/seed/005-capability-seed.sql');
 }
 
 function testLocal(): void {
@@ -251,7 +253,9 @@ function testLocal(): void {
       '(SELECT count(*) FROM platform_core.tenant_config WHERE synthetic IS DISTINCT FROM true) + ' +
       '(SELECT count(*) FROM platform_core.jurisdiction_rule_pack WHERE synthetic IS DISTINCT FROM true) + ' +
       '(SELECT count(*) FROM platform_core.jurisdiction_rule WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM platform_core.location_capture WHERE synthetic IS DISTINCT FROM true);',
+      '(SELECT count(*) FROM platform_core.location_capture WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM platform_core.capability_event WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM platform_core.capability_grant WHERE synthetic IS DISTINCT FROM true);',
   );
   if (unwatermarked !== '0') {
     throw new Error(`platform_core holds ${unwatermarked} row(s) without the synthetic watermark`);
@@ -276,6 +280,44 @@ function testLocal(): void {
     throw new Error(`${incompletePacks} jurisdiction pack(s) do not cover all 12 topics`);
   }
 
+  // WP-012: capability registry seeded with the opposite-state tenant proof.
+  const capabilityStates = scalar(
+    "SELECT string_agg(tenant_id || ':' || state, ',' ORDER BY tenant_id) " +
+      "FROM platform_core.capability_grant WHERE capability_id = 'platform.capability-registry';",
+  );
+  const expectedCapabilityStates = 'northwind-synthetic:simulated,riverbend-synthetic:disabled';
+  if (capabilityStates !== expectedCapabilityStates) {
+    throw new Error(`capability registry tenant states differ: ${capabilityStates}`);
+  }
+
+  // WP-012: the grant projection matches the append-only event log both ways.
+  const orphanGrants = scalar(
+    'SELECT count(*) FROM platform_core.capability_grant g ' +
+      'WHERE g.since_event_id IS NOT NULL AND NOT EXISTS (' +
+      'SELECT FROM platform_core.capability_event e ' +
+      'WHERE e.event_id = g.since_event_id AND e.tenant_id = g.tenant_id ' +
+      'AND e.capability_id = g.capability_id AND e.scope_key = g.scope_key ' +
+      'AND e.to_state = g.state ' +
+      'AND e.seq = (SELECT max(e2.seq) FROM platform_core.capability_event e2 ' +
+      'WHERE e2.tenant_id = g.tenant_id AND e2.capability_id = g.capability_id ' +
+      'AND e2.scope_key = g.scope_key));',
+  );
+  const orphanStreams = scalar(
+    'SELECT count(*) FROM (' +
+      'SELECT DISTINCT ON (tenant_id, capability_id, scope_key) ' +
+      'tenant_id, capability_id, scope_key, to_state ' +
+      'FROM platform_core.capability_event ' +
+      'ORDER BY tenant_id, capability_id, scope_key, seq DESC) latest ' +
+      'WHERE NOT EXISTS (SELECT FROM platform_core.capability_grant g ' +
+      'WHERE g.tenant_id = latest.tenant_id AND g.capability_id = latest.capability_id ' +
+      'AND g.scope_key = latest.scope_key AND g.state = latest.to_state);',
+  );
+  if (orphanGrants !== '0' || orphanStreams !== '0') {
+    throw new Error(
+      `capability projection out of sync: orphan_grants=${orphanGrants} orphan_streams=${orphanStreams}`,
+    );
+  }
+
   // WP-010: the DB-level cross-tenant negative suite runs against the live stack.
   run('pnpm', ['--filter', '@practicehub/platform-core', 'run', 'test:db'], {
     stdio: 'inherit',
@@ -283,8 +325,8 @@ function testLocal(): void {
 
   console.log(
     `services_healthy=${services.size} tenants=${tenantRows.join(',')} ` +
-      'rls_coverage=OK watermark=OK jurisdiction_packs=OK cross_tenant_db_suite=OK ' +
-      'synthetic_stack=OK',
+      'rls_coverage=OK watermark=OK jurisdiction_packs=OK capability_registry=OK ' +
+      'cross_tenant_db_suite=OK synthetic_stack=OK',
   );
 }
 

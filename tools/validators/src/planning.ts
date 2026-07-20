@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { capabilityEdgesV1 } from '@practicehub/platform-core';
 import { parseCsv, records } from '@practicehub/testkit';
 
 import { failIfAny, repoRoot } from './common.js';
@@ -82,6 +83,40 @@ const capabilityIds = new Set(capabilityRows.map((row) => row.constraint_id));
 for (let index = 1; index <= 6; index += 1) {
   if (!capabilityIds.has(`IC-${index}`)) {
     errors.push(`missing capability edge IC-${index}`);
+  }
+}
+
+// WP-012: the frozen CSV register and the executable edge data of record
+// (capabilityEdgesV1) must stay field-identical — the registry enforces what
+// the register declares, never a drifted copy.
+const codeEdges = new Map(capabilityEdgesV1.map((edge) => [edge.constraintId, edge]));
+if (capabilityRows.length !== capabilityEdgesV1.length) {
+  errors.push(
+    `capability edge count differs: csv=${capabilityRows.length} code=${capabilityEdgesV1.length}`,
+  );
+}
+for (const row of capabilityRows) {
+  const edge = codeEdges.get(row.constraint_id ?? '');
+  if (!edge) {
+    errors.push(`capability edge ${row.constraint_id} has no capabilityEdgesV1 mirror`);
+    continue;
+  }
+  const fields: readonly (readonly [string, string | undefined, string])[] = [
+    ['prerequisite_capability', row.prerequisite_capability, edge.prerequisiteCapabilityId],
+    ['minimum_prerequisite_state', row.minimum_prerequisite_state, edge.minimumPrerequisiteState],
+    ['dependent_capability', row.dependent_capability, edge.dependentCapabilityId],
+    [
+      'max_dependent_state_without_prerequisite',
+      row.max_dependent_state_without_prerequisite,
+      edge.maxDependentStateWithoutPrerequisite,
+    ],
+  ];
+  for (const [field, csvValue, codeValue] of fields) {
+    if (csvValue !== codeValue) {
+      errors.push(
+        `capability edge ${row.constraint_id} ${field} drifted: csv=${csvValue} code=${codeValue}`,
+      );
+    }
   }
 }
 

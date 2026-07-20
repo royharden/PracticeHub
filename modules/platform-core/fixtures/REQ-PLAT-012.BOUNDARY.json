@@ -1,0 +1,83 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-012",
+  "class": "BOUNDARY",
+  "description": "Exception boundary: one transaction's availability is never proof of another's (a live 837 path does not satisfy an 835 check), a broad grant that would masquerade as path coverage is unrepresentable, and a path exactly one state below the requested floor is denied.",
+  "grants": [
+    {
+      "capabilityId": "rcm.rail-path",
+      "tenantId": "northwind-synthetic",
+      "scope": {
+        "payer": "synthetic-payer-aurora",
+        "provider": "synthetic-dr-lee",
+        "transaction": "x12-837"
+      },
+      "state": "simulated",
+      "sinceEventId": "synthetic-cap-evt-0006",
+      "evidenceRefs": ["synthetic-gate:rail-837-sim-conformance"],
+      "rollbackRef": "registry-event-replay",
+      "synthetic": true
+    },
+    {
+      "capabilityId": "rcm.rail-path",
+      "tenantId": "northwind-synthetic",
+      "scope": {
+        "payer": "synthetic-payer-aurora",
+        "provider": "synthetic-dr-lee",
+        "transaction": "x12-270-271"
+      },
+      "state": "scaffolded",
+      "sinceEventId": "synthetic-cap-evt-0007",
+      "evidenceRefs": ["synthetic-gate:rail-270-271-scaffold"],
+      "rollbackRef": "registry-event-replay",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "the live 837 path is not proof for the 835 path (exception: no masquerading redundancy)",
+      "op": "require",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "scope": {
+          "payer": "synthetic-payer-aurora",
+          "provider": "synthetic-dr-lee",
+          "transaction": "x12-835"
+        }
+      },
+      "capabilityId": "rcm.rail-path",
+      "minimumState": "simulated",
+      "expectDenied": "deny-by-default"
+    },
+    {
+      "name": "a payer-wide grant without the transaction dimension is unrepresentable",
+      "op": "grant-invalid",
+      "grant": {
+        "capabilityId": "rcm.rail-path",
+        "tenantId": "northwind-synthetic",
+        "scope": { "payer": "synthetic-payer-aurora" },
+        "state": "active",
+        "sinceEventId": "synthetic-cap-evt-broad",
+        "evidenceRefs": ["synthetic-gate:broad"],
+        "rollbackRef": "registry-event-replay",
+        "synthetic": true
+      },
+      "expectError": "requires dimension"
+    },
+    {
+      "name": "a path one state below the requested floor is denied (scaffolded vs simulated)",
+      "op": "require",
+      "context": {
+        "tenantId": "northwind-synthetic",
+        "scope": {
+          "payer": "synthetic-payer-aurora",
+          "provider": "synthetic-dr-lee",
+          "transaction": "x12-270-271"
+        }
+      },
+      "capabilityId": "rcm.rail-path",
+      "minimumState": "simulated",
+      "expectDenied": "does not satisfy"
+    }
+  ]
+}

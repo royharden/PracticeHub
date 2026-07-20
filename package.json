@@ -16,6 +16,7 @@
     "test": "pnpm unit",
     "verify": "node tools/scripts/verify.mjs",
     "verify:imports": "pnpm --filter @practicehub/validators run verify:imports",
+    "verify:handlers": "pnpm --filter @practicehub/validators run verify:handlers",
     "verify:planning": "pnpm --filter @practicehub/validators run verify:planning",
     "verify:phi": "pnpm --filter @practicehub/validators run verify:phi",
     "verify:secrets": "pnpm --filter @practicehub/validators run verify:secrets",

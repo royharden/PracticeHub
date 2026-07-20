@@ -10,6 +10,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --passWithNoTests",
     "verify:imports": "pnpm run build:with-deps && node dist/import-boundaries.js",
+    "verify:handlers": "pnpm run build:with-deps && node dist/handler-coverage.js",
     "verify:planning": "pnpm run build:with-deps && node dist/planning.js",
     "verify:corpus": "pnpm run build:with-deps && node dist/corpus.js",
     "verify:phi": "pnpm run build:with-deps && node dist/phi-fixtures.js",
@@ -17,6 +18,7 @@
     "verify:config": "pnpm run build:with-deps && node dist/config-security.js"
   },
   "dependencies": {
+    "@practicehub/platform-core": "workspace:*",
     "@practicehub/testkit": "workspace:*"
   }
 }
