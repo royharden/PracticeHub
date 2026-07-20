@@ -28,7 +28,12 @@ infra/runtime/
 /.codex/
 /.cursor/
 /.grok/
-/.github/
+# .github is private EXCEPT the public CI workflow (git can only re-include a
+# child if its parent dirs aren't wholly excluded — hence the pattern ladder):
+/.github/*
+!/.github/workflows
+/.github/workflows/*
+!/.github/workflows/public-ci.yml
 /.githooks/
 /.dockerignore
 /AGENTS.md
