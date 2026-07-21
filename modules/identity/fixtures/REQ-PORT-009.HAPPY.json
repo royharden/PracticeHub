@@ -1,0 +1,41 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PORT-009",
+  "class": "HAPPY",
+  "associations": [
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-alex-portal-email",
+      "personId": "np-alex-rivera",
+      "relationship": "self",
+      "verification": "verified",
+      "evidenceRef": "synthetic-endpoint-evidence-0002",
+      "source": "synthetic-portal-enrollment",
+      "synthetic": true
+    }
+  ],
+  "preAuth": {
+    "preAuthRef": "npa-webchat-0005",
+    "tenantId": "northwind-synthetic",
+    "caseRef": "case-8e02",
+    "approvedPublicTopics": ["hours", "services"],
+    "consentedLeadFields": { "interest": "core-assessment" },
+    "synthetic": true
+  },
+  "cases": [
+    {
+      "name": "AC-1: a reopened conversation shows approved public questions, consented lead facts, and the neutral case reference — nothing person-specific",
+      "op": "resume",
+      "expectVisibleCaseRef": "case-8e02",
+      "expectSerializedExcludes": ["np-alex-rivera", "clinical"]
+    },
+    {
+      "name": "AC-2: identity elevation succeeds and the secure thread links governed context without an analytics copy",
+      "op": "elevate-attempt",
+      "atIso": "2026-03-05T18:01:00Z",
+      "expectOutcome": "elevated",
+      "expectElevatedPersonId": "np-alex-rivera",
+      "expectSerializedExcludes": ["np-alex-rivera", "clinical"]
+    }
+  ]
+}

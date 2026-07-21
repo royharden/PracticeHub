@@ -1,0 +1,140 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-024",
+  "class": "RECOVERY",
+  "sessions": [
+    {
+      "sessionId": "nsn-fx-lost-a",
+      "tenantId": "northwind-synthetic",
+      "personId": "np-alex-rivera",
+      "principal": "portal",
+      "deviceId": "nde-alex-phone",
+      "assurance": "aal1",
+      "status": "active",
+      "createdAt": "2026-03-05T18:00:00Z",
+      "lastActivityAt": "2026-03-05T18:05:00Z",
+      "synthetic": true
+    },
+    {
+      "sessionId": "nsn-fx-lost-b",
+      "tenantId": "northwind-synthetic",
+      "personId": "np-alex-rivera",
+      "principal": "portal",
+      "deviceId": "nde-alex-phone",
+      "assurance": "aal1",
+      "status": "active",
+      "createdAt": "2026-03-05T18:10:00Z",
+      "lastActivityAt": "2026-03-05T18:12:00Z",
+      "synthetic": true
+    },
+    {
+      "sessionId": "nsn-fx-keep",
+      "tenantId": "northwind-synthetic",
+      "personId": "np-morgan-lee",
+      "principal": "staff",
+      "staffAccountId": "nsa-morgan-lee",
+      "deviceId": "nde-morgan-workstation",
+      "assurance": "aal2",
+      "status": "active",
+      "createdAt": "2026-03-05T08:00:00Z",
+      "lastActivityAt": "2026-03-05T08:20:00Z",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "AC-4 recovery: a lost/stolen device report terminates every session on that device immediately, others untouched",
+      "op": "device-revoke",
+      "deviceId": "nde-alex-phone",
+      "revokedBy": "synthetic-it-admin-001",
+      "expectStatuses": ["revoked", "revoked", "active"]
+    },
+    {
+      "name": "the lockout threshold trips at the configured attempt count",
+      "op": "lockout",
+      "personId": "np-morgan-lee",
+      "policy": {
+        "role": "front-desk",
+        "idleTimeoutSeconds": 300,
+        "maxConcurrentSessions": 1,
+        "onLimitExceeded": "block-new",
+        "maxFailedAttempts": 5,
+        "stepUpRecencySeconds": 300,
+        "defaultsApplied": false
+      },
+      "failedAttempts": 5,
+      "expectLockedOut": true
+    },
+    {
+      "name": "lockout-recovery path: an attributed admin unlock WITH MFA re-verification recovers the staff account",
+      "op": "recover",
+      "lockedState": { "personId": "np-morgan-lee", "attempts": 5, "lockedOut": true },
+      "recovery": {
+        "path": "staff-admin-unlock",
+        "adminRef": "synthetic-it-admin-001",
+        "mfaReverified": true
+      },
+      "expectRecoveredPath": "staff-admin-unlock"
+    },
+    {
+      "name": "recovery completes with a fresh MFA login — re-authentication is a full issuance, never a resurrection",
+      "op": "staff-issue",
+      "staffRequest": {
+        "sessionId": "nsn-fx-reauth",
+        "tenantId": "northwind-synthetic",
+        "personId": "np-morgan-lee",
+        "staffAccountId": "nsa-morgan-lee",
+        "staffAccountStatus": "active",
+        "device": {
+          "deviceId": "nde-morgan-workstation",
+          "tenantId": "northwind-synthetic",
+          "personId": "np-morgan-lee",
+          "label": "synthetic workstation",
+          "status": "active",
+          "firstSeenAt": "2026-03-01T08:00:00Z",
+          "synthetic": true
+        },
+        "presentedCredentials": [
+          {
+            "credentialId": "ncr-morgan-password",
+            "tenantId": "northwind-synthetic",
+            "personId": "np-morgan-lee",
+            "audience": "staff",
+            "kind": "password",
+            "status": "active",
+            "secretRef": "synthetic-vault:staff-pw-0001",
+            "enrolledBy": "synthetic-it-admin-001",
+            "evidenceRef": "synthetic-enrollment-evidence-0001",
+            "synthetic": true
+          },
+          {
+            "credentialId": "ncr-morgan-webauthn",
+            "tenantId": "northwind-synthetic",
+            "personId": "np-morgan-lee",
+            "audience": "staff",
+            "kind": "webauthn",
+            "status": "active",
+            "secretRef": "synthetic-vault:staff-wa-0001",
+            "enrolledBy": "synthetic-it-admin-001",
+            "evidenceRef": "synthetic-enrollment-evidence-0003",
+            "synthetic": true
+          }
+        ],
+        "atIso": "2026-03-05T09:00:00Z",
+        "synthetic": true
+      },
+      "expectAssurance": "aal2"
+    },
+    {
+      "name": "an admin unlock WITHOUT MFA re-verification fails closed",
+      "op": "recover",
+      "lockedState": { "personId": "np-morgan-lee", "attempts": 5, "lockedOut": true },
+      "recovery": {
+        "path": "staff-admin-unlock",
+        "adminRef": "synthetic-it-admin-001",
+        "mfaReverified": false
+      },
+      "expectError": "MFA re-verification"
+    }
+  ]
+}

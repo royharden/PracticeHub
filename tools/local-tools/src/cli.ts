@@ -163,6 +163,8 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/005-capability-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/006-identity-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/006-identity-seed.sql');
+  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/007-authn-seed.sql'), 'utf8'));
+  console.log('seeded infra/postgres/seed/007-authn-seed.sql');
 }
 
 function testLocal(): void {
@@ -276,7 +278,12 @@ function testLocal(): void {
       '(SELECT count(*) FROM identity.channel_endpoint WHERE synthetic IS DISTINCT FROM true) + ' +
       '(SELECT count(*) FROM identity.endpoint_association WHERE synthetic IS DISTINCT FROM true) + ' +
       '(SELECT count(*) FROM identity.source_identifier WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.identity_timeline WHERE synthetic IS DISTINCT FROM true);',
+      '(SELECT count(*) FROM identity.identity_timeline WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.auth_credential WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.auth_device WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.auth_session WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.auth_challenge WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.account_lockdown WHERE synthetic IS DISTINCT FROM true);',
   );
   if (unwatermarked !== '0') {
     throw new Error(`module schemas hold ${unwatermarked} row(s) without the synthetic watermark`);
@@ -366,6 +373,38 @@ function testLocal(): void {
     );
   }
 
+  // WP-014: the staff-MFA structural invariant holds at rest — no staff
+  // session below aal2 exists in the live database (DB CHECK backs it; this
+  // probe proves the CHECK is actually deployed).
+  const subMfaStaffSessions = scalar(
+    "SELECT count(*) FROM identity.auth_session WHERE principal = 'staff' AND assurance <> 'aal2';",
+  );
+  if (subMfaStaffSessions !== '0') {
+    throw new Error(`${subMfaStaffSessions} staff session(s) below aal2 — staff MFA is mandatory`);
+  }
+
+  // WP-014: per-role session policies are seeded for tenant 1 while tenant 2
+  // deliberately carries none — the fail-to-stricter default is Riverbend's
+  // posture (REQ-ID-024 exception 3), the standing opposite-config proof.
+  const sessionPolicyRows = scalar(
+    "SELECT string_agg(tenant_id || ':' || cnt, ',' ORDER BY tenant_id) FROM (" +
+      'SELECT tenant_id, count(*) AS cnt FROM platform_core.tenant_config ' +
+      "WHERE namespace = 'policy' AND key LIKE 'session-policy:%' GROUP BY tenant_id) p;",
+  );
+  if (sessionPolicyRows !== 'northwind-synthetic:3') {
+    throw new Error(`session-policy config posture differs: ${sessionPolicyRows}`);
+  }
+
+  // WP-014: the authn capability sits at the package ceiling with the
+  // opposite-state tenant proof (northwind scaffolded, riverbend disabled).
+  const authnCapabilityStates = scalar(
+    "SELECT string_agg(tenant_id || ':' || state, ',' ORDER BY tenant_id) " +
+      "FROM platform_core.capability_grant WHERE capability_id = 'identity.authn';",
+  );
+  if (authnCapabilityStates !== 'northwind-synthetic:scaffolded,riverbend-synthetic:disabled') {
+    throw new Error(`authn capability tenant states differ: ${authnCapabilityStates}`);
+  }
+
   // WP-010: the DB-level cross-tenant negative suite runs against the live stack.
   run('pnpm', ['--filter', '@practicehub/platform-core', 'run', 'test:db'], {
     stdio: 'inherit',
@@ -377,10 +416,18 @@ function testLocal(): void {
     stdio: 'inherit',
   });
 
+  // WP-014: the dex federation e2e runs against the live compose dex —
+  // discovery, mock-connector code flow, crosswalk mapping, and the
+  // dark-by-registry denial proof.
+  run('pnpm', ['--filter', '@practicehub/identity', 'run', 'test:federation'], {
+    stdio: 'inherit',
+  });
+
   console.log(
     `services_healthy=${services.size} tenants=${tenantRows.join(',')} ` +
       'rls_coverage=OK watermark=OK jurisdiction_packs=OK capability_registry=OK ' +
-      'identity_model=OK cross_tenant_db_suite=OK synthetic_stack=OK',
+      'identity_model=OK authn_model=OK dex_federation=OK cross_tenant_db_suite=OK ' +
+      'synthetic_stack=OK',
   );
 }
 

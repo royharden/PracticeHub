@@ -1,0 +1,47 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PORT-009",
+  "class": "BOUNDARY",
+  "associations": [
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-alex-portal-email",
+      "personId": "np-alex-rivera",
+      "relationship": "self",
+      "verification": "verified",
+      "evidenceRef": "synthetic-endpoint-evidence-0002",
+      "source": "synthetic-portal-enrollment",
+      "synthetic": true
+    }
+  ],
+  "preAuth": {
+    "preAuthRef": "npa-webchat-0006",
+    "tenantId": "northwind-synthetic",
+    "caseRef": "case-1a55",
+    "approvedPublicTopics": ["hours"],
+    "consentedLeadFields": { "interest": "membership" },
+    "synthetic": true
+  },
+  "cases": [
+    {
+      "name": "the resume surface is structurally public: no person id, no clinical token, only the neutral case reference carries continuity",
+      "op": "resume",
+      "expectVisibleCaseRef": "case-1a55",
+      "expectSerializedExcludes": ["np-", "clinical", "phi"]
+    },
+    {
+      "name": "the exception boundary: transcript possession plus the browser session — the strongest possession pair — still cannot authenticate",
+      "op": "elevate-basis",
+      "presentedSignals": ["transcript-possession", "browser-session"],
+      "expectError": "can never authenticate"
+    },
+    {
+      "name": "fresh verification at the challenge expiry instant still elevates — the boundary belongs to the verified factor, not the possession signals",
+      "op": "elevate-attempt",
+      "atIso": "2026-03-05T18:10:00Z",
+      "presentedSignals": ["transcript-possession"],
+      "expectOutcome": "elevated",
+      "expectElevatedPersonId": "np-alex-rivera"
+    }
+  ]
+}

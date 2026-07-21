@@ -1,0 +1,117 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-024",
+  "class": "FAILURE",
+  "policies": [
+    {
+      "role": "front-desk",
+      "value": { "idleTimeoutSeconds": "not-a-number" }
+    }
+  ],
+  "cases": [
+    {
+      "name": "staff MFA cannot be waived: a password-only login is refused, never a lower-assurance session",
+      "op": "staff-issue",
+      "staffRequest": {
+        "sessionId": "nsn-fx-fail",
+        "tenantId": "northwind-synthetic",
+        "personId": "np-morgan-lee",
+        "staffAccountId": "nsa-morgan-lee",
+        "staffAccountStatus": "active",
+        "device": {
+          "deviceId": "nde-morgan-workstation",
+          "tenantId": "northwind-synthetic",
+          "personId": "np-morgan-lee",
+          "label": "synthetic workstation",
+          "status": "active",
+          "firstSeenAt": "2026-03-01T08:00:00Z",
+          "synthetic": true
+        },
+        "presentedCredentials": [
+          {
+            "credentialId": "ncr-morgan-password",
+            "tenantId": "northwind-synthetic",
+            "personId": "np-morgan-lee",
+            "audience": "staff",
+            "kind": "password",
+            "status": "active",
+            "secretRef": "synthetic-vault:staff-pw-0001",
+            "enrolledBy": "synthetic-it-admin-001",
+            "evidenceRef": "synthetic-enrollment-evidence-0001",
+            "synthetic": true
+          }
+        ],
+        "atIso": "2026-03-05T08:00:00Z",
+        "synthetic": true
+      },
+      "expectError": "mandatory"
+    },
+    {
+      "name": "exception 3: a role with NO configured policy fails to the strictest default (single blocked session, shortest timeout), never unlimited",
+      "op": "policy-resolve",
+      "role": "unconfigured-role",
+      "expectPolicy": {
+        "role": "unconfigured-role",
+        "idleTimeoutSeconds": 300,
+        "maxConcurrentSessions": 1,
+        "onLimitExceeded": "block-new",
+        "defaultsApplied": true
+      }
+    },
+    {
+      "name": "exception 3: a malformed policy entry (control-service fault) also fails to the strictest default",
+      "op": "policy-resolve",
+      "role": "front-desk",
+      "expectPolicy": {
+        "role": "front-desk",
+        "maxConcurrentSessions": 1,
+        "onLimitExceeded": "block-new",
+        "defaultsApplied": true
+      }
+    },
+    {
+      "name": "a suspended staff account cannot authenticate at all",
+      "op": "staff-issue",
+      "staffRequest": {
+        "sessionId": "nsn-fx-susp",
+        "tenantId": "northwind-synthetic",
+        "personId": "np-morgan-lee",
+        "staffAccountId": "nsa-morgan-lee",
+        "staffAccountStatus": "suspended",
+        "device": {
+          "deviceId": "nde-morgan-workstation",
+          "tenantId": "northwind-synthetic",
+          "personId": "np-morgan-lee",
+          "label": "synthetic workstation",
+          "status": "active",
+          "firstSeenAt": "2026-03-01T08:00:00Z",
+          "synthetic": true
+        },
+        "presentedCredentials": [],
+        "atIso": "2026-03-05T08:00:00Z",
+        "synthetic": true
+      },
+      "expectError": "only an active staff account"
+    },
+    {
+      "name": "a consumed magic-link cannot be replayed — single-use by construction",
+      "op": "challenge-consume",
+      "challenge": {
+        "challengeId": "nch-fx-replay",
+        "tenantId": "northwind-synthetic",
+        "personId": "np-alex-rivera",
+        "endpointId": "nce-alex-portal-email",
+        "purpose": "portal-login",
+        "method": "magic-link",
+        "issuedAt": "2026-03-05T18:00:00Z",
+        "expiresAt": "2026-03-05T18:10:00Z",
+        "consumedAt": "2026-03-05T18:01:00Z",
+        "attemptCount": 1,
+        "maxAttempts": 3,
+        "synthetic": true
+      },
+      "atIso": "2026-03-05T18:02:00Z",
+      "expectOutcome": "rejected-replayed"
+    }
+  ]
+}

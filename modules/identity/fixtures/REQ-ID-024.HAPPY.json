@@ -1,0 +1,169 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-024",
+  "class": "HAPPY",
+  "policies": [
+    {
+      "role": "front-desk",
+      "value": {
+        "idleTimeoutSeconds": 300,
+        "maxConcurrentSessions": 1,
+        "onLimitExceeded": "block-new",
+        "maxFailedAttempts": 5,
+        "stepUpRecencySeconds": 300
+      }
+    },
+    {
+      "role": "provider",
+      "value": {
+        "idleTimeoutSeconds": 1800,
+        "maxConcurrentSessions": 2,
+        "onLimitExceeded": "terminate-oldest",
+        "maxFailedAttempts": 5,
+        "stepUpRecencySeconds": 600
+      }
+    }
+  ],
+  "sessions": [
+    {
+      "sessionId": "nsn-fx-old",
+      "tenantId": "northwind-synthetic",
+      "personId": "np-morgan-lee",
+      "principal": "staff",
+      "staffAccountId": "nsa-morgan-lee",
+      "deviceId": "nde-morgan-workstation",
+      "assurance": "aal2",
+      "status": "active",
+      "createdAt": "2026-03-05T07:00:00Z",
+      "lastActivityAt": "2026-03-05T07:50:00Z",
+      "synthetic": true
+    },
+    {
+      "sessionId": "nsn-fx-new",
+      "tenantId": "northwind-synthetic",
+      "personId": "np-morgan-lee",
+      "principal": "staff",
+      "staffAccountId": "nsa-morgan-lee",
+      "deviceId": "nde-morgan-tablet",
+      "assurance": "aal2",
+      "status": "active",
+      "createdAt": "2026-03-05T08:00:00Z",
+      "lastActivityAt": "2026-03-05T08:00:00Z",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "AC-3: the front-desk shared-workstation role resolves its own short-timeout policy from config",
+      "op": "policy-resolve",
+      "role": "front-desk",
+      "expectPolicy": {
+        "role": "front-desk",
+        "idleTimeoutSeconds": 300,
+        "maxConcurrentSessions": 1,
+        "onLimitExceeded": "block-new",
+        "defaultsApplied": false
+      }
+    },
+    {
+      "name": "AC-3 + exception 1: the provider mobile role resolves a longer timeout — per role, never one global setting",
+      "op": "policy-resolve",
+      "role": "provider",
+      "expectPolicy": {
+        "role": "provider",
+        "idleTimeoutSeconds": 1800,
+        "maxConcurrentSessions": 2,
+        "defaultsApplied": false
+      }
+    },
+    {
+      "name": "staff login with password + TOTP issues an aal2 session with a device record",
+      "op": "staff-issue",
+      "staffRequest": {
+        "sessionId": "nsn-fx-issue",
+        "tenantId": "northwind-synthetic",
+        "personId": "np-morgan-lee",
+        "staffAccountId": "nsa-morgan-lee",
+        "staffAccountStatus": "active",
+        "device": {
+          "deviceId": "nde-morgan-workstation",
+          "tenantId": "northwind-synthetic",
+          "personId": "np-morgan-lee",
+          "label": "synthetic workstation",
+          "status": "active",
+          "firstSeenAt": "2026-03-01T08:00:00Z",
+          "synthetic": true
+        },
+        "presentedCredentials": [
+          {
+            "credentialId": "ncr-morgan-password",
+            "tenantId": "northwind-synthetic",
+            "personId": "np-morgan-lee",
+            "audience": "staff",
+            "kind": "password",
+            "status": "active",
+            "secretRef": "synthetic-vault:staff-pw-0001",
+            "enrolledBy": "synthetic-it-admin-001",
+            "evidenceRef": "synthetic-enrollment-evidence-0001",
+            "synthetic": true
+          },
+          {
+            "credentialId": "ncr-morgan-totp",
+            "tenantId": "northwind-synthetic",
+            "personId": "np-morgan-lee",
+            "audience": "staff",
+            "kind": "totp",
+            "status": "active",
+            "secretRef": "synthetic-vault:staff-totp-0001",
+            "enrolledBy": "synthetic-it-admin-001",
+            "evidenceRef": "synthetic-enrollment-evidence-0002",
+            "synthetic": true
+          }
+        ],
+        "atIso": "2026-03-05T08:00:00Z",
+        "synthetic": true
+      },
+      "expectAssurance": "aal2"
+    },
+    {
+      "name": "AC-2: over the concurrent limit the oldest session terminates and the user is notified",
+      "op": "concurrent",
+      "personId": "np-morgan-lee",
+      "policy": {
+        "role": "provider",
+        "idleTimeoutSeconds": 1800,
+        "maxConcurrentSessions": 2,
+        "onLimitExceeded": "terminate-oldest",
+        "maxFailedAttempts": 5,
+        "stepUpRecencySeconds": 600,
+        "defaultsApplied": false
+      },
+      "expectAdmit": true,
+      "expectTerminate": ["nsn-fx-old"],
+      "expectNotificationAction": "oldest-terminated"
+    },
+    {
+      "name": "AC-1: a session inside its idle window stays active",
+      "op": "idle",
+      "sessionId": "nsn-fx-new",
+      "policy": {
+        "role": "front-desk",
+        "idleTimeoutSeconds": 300,
+        "maxConcurrentSessions": 1,
+        "onLimitExceeded": "block-new",
+        "maxFailedAttempts": 5,
+        "stepUpRecencySeconds": 300,
+        "defaultsApplied": false
+      },
+      "atIso": "2026-03-05T08:03:00Z",
+      "expectState": "active"
+    },
+    {
+      "name": "AC-4: revoking a reported device terminates its session immediately while others survive",
+      "op": "device-revoke",
+      "deviceId": "nde-morgan-tablet",
+      "revokedBy": "synthetic-it-admin-001",
+      "expectStatuses": ["active", "revoked"]
+    }
+  ]
+}

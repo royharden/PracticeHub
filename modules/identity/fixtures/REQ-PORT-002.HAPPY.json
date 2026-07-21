@@ -1,0 +1,47 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PORT-002",
+  "class": "HAPPY",
+  "associations": [
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-alex-portal-email",
+      "personId": "np-alex-rivera",
+      "relationship": "self",
+      "verification": "verified",
+      "evidenceRef": "synthetic-endpoint-evidence-0002",
+      "source": "synthetic-portal-enrollment",
+      "synthetic": true
+    }
+  ],
+  "preAuth": {
+    "preAuthRef": "npa-webchat-0001",
+    "tenantId": "northwind-synthetic",
+    "caseRef": "case-7f3a",
+    "approvedPublicTopics": ["hours", "services", "insurance-accepted"],
+    "consentedLeadFields": { "interest": "membership" },
+    "synthetic": true
+  },
+  "cases": [
+    {
+      "name": "AC-1: the pre-auth session exposes only approved public topics, consented lead fields, and a neutral case reference",
+      "op": "resume",
+      "expectVisibleCaseRef": "case-7f3a",
+      "expectSerializedExcludes": ["np-alex-rivera", "clinical"]
+    },
+    {
+      "name": "AC-2: when person-specific content is requested the person sees why verification is needed",
+      "op": "elevate-begin",
+      "expectExplanationContains": "verification"
+    },
+    {
+      "name": "AC-2: a completed verified-channel challenge links the session to the governed identity while marketing analytics receive neither the identity nor clinical detail",
+      "op": "elevate-attempt",
+      "atIso": "2026-03-05T18:01:00Z",
+      "presentedSignals": ["cookie"],
+      "expectOutcome": "elevated",
+      "expectElevatedPersonId": "np-alex-rivera",
+      "expectSerializedExcludes": ["np-alex-rivera", "clinical", "governed"]
+    }
+  ]
+}

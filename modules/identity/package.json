@@ -10,7 +10,8 @@
     "lint": "eslint src --max-warnings=0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
-    "test:db": "vitest run --config vitest.db.config.ts"
+    "test:db": "vitest run --config vitest.db.config.ts",
+    "test:federation": "vitest run --config vitest.federation.config.ts"
   },
   "dependencies": {
     "@practicehub/contracts": "workspace:*",

@@ -1,0 +1,67 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PORT-002",
+  "class": "BOUNDARY",
+  "associations": [
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-alex-portal-email",
+      "personId": "np-alex-rivera",
+      "relationship": "self",
+      "verification": "verified",
+      "evidenceRef": "synthetic-endpoint-evidence-0002",
+      "source": "synthetic-portal-enrollment",
+      "synthetic": true
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-rivera-email",
+      "personId": "np-alex-rivera",
+      "relationship": "self",
+      "verification": "asserted",
+      "source": "synthetic-web-form",
+      "synthetic": true
+    }
+  ],
+  "preAuth": {
+    "preAuthRef": "npa-webchat-0002",
+    "tenantId": "northwind-synthetic",
+    "caseRef": "case-2b91",
+    "approvedPublicTopics": ["hours"],
+    "consentedLeadFields": {},
+    "synthetic": true
+  },
+  "cases": [
+    {
+      "name": "the elevation-channel boundary: a challenge can issue only over a VERIFIED association — the asserted household email is refused",
+      "op": "challenge-issue",
+      "challengeRequest": {
+        "challengeId": "nch-fx-asserted",
+        "tenantId": "northwind-synthetic",
+        "personId": "np-alex-rivera",
+        "endpointId": "nce-rivera-email",
+        "purpose": "elevation",
+        "method": "otp",
+        "issuedAt": "2026-03-05T18:00:00Z",
+        "expiresAt": "2026-03-05T18:10:00Z",
+        "maxAttempts": 3,
+        "synthetic": true
+      },
+      "expectError": "VERIFIED"
+    },
+    {
+      "name": "the challenge stays valid through its exact expiry instant — elevation succeeds at the boundary",
+      "op": "elevate-attempt",
+      "atIso": "2026-03-05T18:10:00Z",
+      "expectOutcome": "elevated",
+      "expectElevatedPersonId": "np-alex-rivera"
+    },
+    {
+      "name": "one second past expiry the same flow resolves to decline, never a partial elevation",
+      "op": "elevate-attempt",
+      "atIso": "2026-03-05T18:10:01Z",
+      "expectOutcome": "declined",
+      "expectHumanPath": true
+    }
+  ]
+}

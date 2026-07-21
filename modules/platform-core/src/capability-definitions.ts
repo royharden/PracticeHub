@@ -127,6 +127,14 @@ export const capabilityDefinitionsV1: readonly CapabilityDefinition[] = [
       'Person/roles/endpoints/source-id crosswalk model (M02, WP-013); the IC-6 target-module ' +
       'grant identity-bound wave imports check.',
   },
+  {
+    capabilityId: 'identity.authn',
+    ownerRole: 'security',
+    dimensions: [],
+    description:
+      'Platform-owned authentication (M02, WP-014): sessions, MFA, portal magic-link/OTP, ' +
+      'lockout/ATO machinery. Session issuance commands floor at simulated.',
+  },
 ];
 
 /** Exact mirror of docs/architecture/capability-edge-preconditions.csv (FROZEN). */
@@ -289,6 +297,16 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       rollbackRef: 'already-disabled',
       synthetic: true,
     },
+    {
+      capabilityId: 'identity.authn',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
   ],
   events: [
     chainEvent(
@@ -358,6 +376,17 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       'disabled',
       'scaffolded',
       'synthetic-gate:wp-013-identity-scaffold',
+    ),
+    // WP-014: authn lands at its package ceiling — `scaffolded`. The
+    // issue-session command (floored at `simulated`) therefore DENIES against
+    // this seed, by design; Riverbend stays the opposite-state proof.
+    chainEvent(
+      'synthetic-cap-evt-0009',
+      'identity.authn',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-014-authn-scaffold',
     ),
   ],
 };

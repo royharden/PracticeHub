@@ -1,0 +1,142 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-024",
+  "class": "BOUNDARY",
+  "policies": [
+    {
+      "role": "front-desk",
+      "value": {
+        "idleTimeoutSeconds": 300,
+        "maxConcurrentSessions": 1,
+        "onLimitExceeded": "block-new",
+        "maxFailedAttempts": 5,
+        "stepUpRecencySeconds": 300
+      }
+    },
+    {
+      "role": "front-desk",
+      "revision": 2,
+      "value": {
+        "idleTimeoutSeconds": 240,
+        "maxConcurrentSessions": 1,
+        "onLimitExceeded": "block-new",
+        "maxFailedAttempts": 5,
+        "stepUpRecencySeconds": 300
+      }
+    }
+  ],
+  "sessions": [
+    {
+      "sessionId": "nsn-fx-bnd",
+      "tenantId": "northwind-synthetic",
+      "personId": "np-morgan-lee",
+      "principal": "staff",
+      "staffAccountId": "nsa-morgan-lee",
+      "deviceId": "nde-morgan-workstation",
+      "assurance": "aal2",
+      "status": "active",
+      "createdAt": "2026-03-05T08:00:00Z",
+      "lastActivityAt": "2026-03-05T08:00:00Z",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "exception 2 boundary: at 80% of the idle window the session prompts stay-active instead of locking",
+      "op": "idle",
+      "sessionId": "nsn-fx-bnd",
+      "policy": {
+        "role": "front-desk",
+        "idleTimeoutSeconds": 300,
+        "maxConcurrentSessions": 1,
+        "onLimitExceeded": "block-new",
+        "maxFailedAttempts": 5,
+        "stepUpRecencySeconds": 300,
+        "defaultsApplied": false
+      },
+      "atIso": "2026-03-05T08:04:00Z",
+      "expectState": "stay-active-prompt"
+    },
+    {
+      "name": "AC-1 boundary: exactly at the timeout the session locks and requires re-authentication",
+      "op": "idle",
+      "sessionId": "nsn-fx-bnd",
+      "policy": {
+        "role": "front-desk",
+        "idleTimeoutSeconds": 300,
+        "maxConcurrentSessions": 1,
+        "onLimitExceeded": "block-new",
+        "maxFailedAttempts": 5,
+        "stepUpRecencySeconds": 300,
+        "defaultsApplied": false
+      },
+      "atIso": "2026-03-05T08:05:00Z",
+      "expectState": "locked"
+    },
+    {
+      "name": "AC-2 boundary: exactly at the limit with block-new policy the new session is blocked and the user notified",
+      "op": "concurrent",
+      "personId": "np-morgan-lee",
+      "policy": {
+        "role": "front-desk",
+        "idleTimeoutSeconds": 300,
+        "maxConcurrentSessions": 1,
+        "onLimitExceeded": "block-new",
+        "maxFailedAttempts": 5,
+        "stepUpRecencySeconds": 300,
+        "defaultsApplied": false
+      },
+      "expectAdmit": false,
+      "expectTerminate": [],
+      "expectNotificationAction": "new-session-blocked"
+    },
+    {
+      "name": "AC-3: revision 2 of the same role's policy applies on the next resolution — no restart",
+      "op": "policy-resolve",
+      "role": "front-desk",
+      "expectPolicy": {
+        "role": "front-desk",
+        "idleTimeoutSeconds": 240,
+        "defaultsApplied": false
+      }
+    },
+    {
+      "name": "challenge validity boundary: consumable exactly at its expiry instant",
+      "op": "challenge-consume",
+      "challenge": {
+        "challengeId": "nch-fx-bnd",
+        "tenantId": "northwind-synthetic",
+        "personId": "np-alex-rivera",
+        "endpointId": "nce-alex-portal-email",
+        "purpose": "portal-login",
+        "method": "otp",
+        "issuedAt": "2026-03-05T18:00:00Z",
+        "expiresAt": "2026-03-05T18:10:00Z",
+        "attemptCount": 0,
+        "maxAttempts": 3,
+        "synthetic": true
+      },
+      "atIso": "2026-03-05T18:10:00Z",
+      "expectOutcome": "consumed"
+    },
+    {
+      "name": "challenge validity boundary: one second past expiry is rejected",
+      "op": "challenge-consume",
+      "challenge": {
+        "challengeId": "nch-fx-bnd2",
+        "tenantId": "northwind-synthetic",
+        "personId": "np-alex-rivera",
+        "endpointId": "nce-alex-portal-email",
+        "purpose": "portal-login",
+        "method": "otp",
+        "issuedAt": "2026-03-05T18:00:00Z",
+        "expiresAt": "2026-03-05T18:10:00Z",
+        "attemptCount": 0,
+        "maxAttempts": 3,
+        "synthetic": true
+      },
+      "atIso": "2026-03-05T18:10:01Z",
+      "expectOutcome": "rejected-expired"
+    }
+  ]
+}

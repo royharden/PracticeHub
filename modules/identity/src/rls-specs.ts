@@ -21,3 +21,18 @@ export const identityRlsSpecs: readonly RlsTableSpec[] = [
   { schema: 'identity', table: 'source_identifier', kind: 'tenant-scoped' },
   { schema: 'identity', table: 'identity_timeline', kind: 'tenant-scoped' },
 ];
+
+/** Tables created by 0005-authn.sql (WP-014) — that migration's DDL scope. */
+export const authnRlsSpecs: readonly RlsTableSpec[] = [
+  { schema: 'identity', table: 'auth_credential', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'auth_device', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'auth_session', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'auth_challenge', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'account_lockdown', kind: 'tenant-scoped' },
+];
+
+/** The full identity-schema registry — every migration's coverage guard declares it. */
+export const identitySchemaRlsSpecs: readonly RlsTableSpec[] = [
+  ...identityRlsSpecs,
+  ...authnRlsSpecs,
+];

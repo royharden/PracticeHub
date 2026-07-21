@@ -1,0 +1,52 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PORT-002",
+  "class": "FAILURE",
+  "associations": [
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-alex-portal-email",
+      "personId": "np-alex-rivera",
+      "relationship": "self",
+      "verification": "verified",
+      "evidenceRef": "synthetic-endpoint-evidence-0002",
+      "source": "synthetic-portal-enrollment",
+      "synthetic": true
+    }
+  ],
+  "preAuth": {
+    "preAuthRef": "npa-webchat-0003",
+    "tenantId": "northwind-synthetic",
+    "caseRef": "case-9d44",
+    "approvedPublicTopics": ["hours"],
+    "consentedLeadFields": {},
+    "synthetic": true
+  },
+  "cases": [
+    {
+      "name": "the exception verbatim: name, browser cookie, campaign ID, and conversational details together can never infer a patient match",
+      "op": "elevate-basis",
+      "presentedSignals": ["name-assertion", "cookie", "campaign-link", "conversational-knowledge"],
+      "expectError": "can never authenticate"
+    },
+    {
+      "name": "possession of the browser session alone is equally insufficient",
+      "op": "elevate-basis",
+      "presentedSignals": ["browser-session"],
+      "expectError": "can never authenticate"
+    },
+    {
+      "name": "an issued-but-unconsumed challenge does not authenticate — only completion of the verified-channel factor does",
+      "op": "elevate-basis",
+      "withConsumedChallenge": false,
+      "expectError": "consumed verified-channel challenge"
+    },
+    {
+      "name": "AC-3: failed verification withholds person-specific information and offers the human and secure-channel paths",
+      "op": "elevate-attempt",
+      "atIso": "2026-03-05T19:00:00Z",
+      "expectOutcome": "declined",
+      "expectHumanPath": true
+    }
+  ]
+}

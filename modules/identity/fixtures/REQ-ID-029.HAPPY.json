@@ -1,0 +1,85 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-029",
+  "class": "HAPPY",
+  "associations": [
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-alex-portal-email",
+      "personId": "np-alex-rivera",
+      "relationship": "self",
+      "verification": "verified",
+      "evidenceRef": "synthetic-endpoint-evidence-0002",
+      "source": "synthetic-portal-enrollment",
+      "synthetic": true
+    }
+  ],
+  "sessions": [
+    {
+      "sessionId": "nsn-fx-victim",
+      "tenantId": "northwind-synthetic",
+      "personId": "np-alex-rivera",
+      "principal": "portal",
+      "deviceId": "nde-alex-phone",
+      "assurance": "aal1",
+      "status": "active",
+      "createdAt": "2026-03-04T01:00:00Z",
+      "lastActivityAt": "2026-03-04T01:30:00Z",
+      "synthetic": true
+    },
+    {
+      "sessionId": "nsn-fx-bystander",
+      "tenantId": "northwind-synthetic",
+      "personId": "np-morgan-lee",
+      "principal": "staff",
+      "staffAccountId": "nsa-morgan-lee",
+      "deviceId": "nde-morgan-workstation",
+      "assurance": "aal2",
+      "status": "active",
+      "createdAt": "2026-03-04T01:00:00Z",
+      "lastActivityAt": "2026-03-04T01:30:00Z",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "AC-1 + AC-3: a credential-stuffing signal locks the account down — sessions revoked, signals recorded verbatim, member notified on the verified channel",
+      "op": "ato-raise",
+      "personId": "np-alex-rivera",
+      "signals": [
+        {
+          "kind": "credential-stuffing",
+          "detail": "synthetic: stuffing wave across accounts",
+          "observedAt": "2026-03-04T02:00:00Z"
+        }
+      ],
+      "expectRequirement": "re-identity-proofing",
+      "expectRevokedSessionIds": ["nsn-fx-victim"],
+      "expectEndpoint": "nce-alex-portal-email"
+    },
+    {
+      "name": "AC-2: the member returns through re-identity-proofing with evidence and the case releases",
+      "op": "ato-release",
+      "personId": "np-alex-rivera",
+      "signals": [
+        {
+          "kind": "credential-stuffing",
+          "detail": "synthetic: stuffing wave across accounts",
+          "observedAt": "2026-03-04T02:00:00Z"
+        }
+      ],
+      "release": {
+        "requirementMet": "re-identity-proofing",
+        "evidenceRef": "synthetic-idproof-redo-0001",
+        "releasedBy": "synthetic-it-admin-001"
+      },
+      "expectStatus": "released"
+    },
+    {
+      "name": "AC-4: an admin invokes cohort-wide protections — rate limiting plus a forced credential reset for the at-risk cohort",
+      "op": "ato-cohort",
+      "cohortPersonIds": ["np-alex-rivera", "np-casey-rivera"],
+      "invokedBy": "synthetic-it-admin-001"
+    }
+  ]
+}

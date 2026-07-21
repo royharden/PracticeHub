@@ -1,0 +1,46 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PORT-009",
+  "class": "FAILURE",
+  "associations": [
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-alex-portal-email",
+      "personId": "np-alex-rivera",
+      "relationship": "self",
+      "verification": "verified",
+      "evidenceRef": "synthetic-endpoint-evidence-0002",
+      "source": "synthetic-portal-enrollment",
+      "synthetic": true
+    }
+  ],
+  "preAuth": {
+    "preAuthRef": "npa-webchat-0007",
+    "tenantId": "northwind-synthetic",
+    "caseRef": "case-6f30",
+    "approvedPublicTopics": ["hours"],
+    "consentedLeadFields": {},
+    "synthetic": true
+  },
+  "cases": [
+    {
+      "name": "the exception verbatim: a campaign link cannot authenticate a person or proxy",
+      "op": "elevate-basis",
+      "presentedSignals": ["campaign-link"],
+      "expectError": "can never authenticate"
+    },
+    {
+      "name": "cookies plus knowledge of prior questions cannot authenticate either",
+      "op": "elevate-basis",
+      "presentedSignals": ["cookie", "conversational-knowledge"],
+      "expectError": "can never authenticate"
+    },
+    {
+      "name": "AC-3 first half: failed verification keeps the old context protected — person-specific work stays withheld with the human path offered",
+      "op": "elevate-attempt",
+      "atIso": "2026-03-05T19:30:00Z",
+      "expectOutcome": "declined",
+      "expectHumanPath": true
+    }
+  ]
+}

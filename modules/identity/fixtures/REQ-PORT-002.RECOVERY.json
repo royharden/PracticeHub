@@ -1,0 +1,48 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PORT-002",
+  "class": "RECOVERY",
+  "associations": [
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-alex-portal-email",
+      "personId": "np-alex-rivera",
+      "relationship": "self",
+      "verification": "verified",
+      "evidenceRef": "synthetic-endpoint-evidence-0002",
+      "source": "synthetic-portal-enrollment",
+      "synthetic": true
+    }
+  ],
+  "preAuth": {
+    "preAuthRef": "npa-webchat-0004",
+    "tenantId": "northwind-synthetic",
+    "caseRef": "case-4c17",
+    "approvedPublicTopics": ["hours", "services"],
+    "consentedLeadFields": { "interest": "membership" },
+    "synthetic": true
+  },
+  "cases": [
+    {
+      "name": "after a failed attempt the conversation continues on public content with the human path standing",
+      "op": "elevate-attempt",
+      "atIso": "2026-03-05T19:00:00Z",
+      "expectOutcome": "declined",
+      "expectHumanPath": true
+    },
+    {
+      "name": "the public surface survives the failure untouched — same topics, same neutral case reference",
+      "op": "resume",
+      "expectVisibleCaseRef": "case-4c17",
+      "expectSerializedExcludes": ["np-alex-rivera"]
+    },
+    {
+      "name": "recovery: a fresh verified-channel challenge completes elevation on retry",
+      "op": "elevate-attempt",
+      "atIso": "2026-03-05T18:01:00Z",
+      "expectOutcome": "elevated",
+      "expectElevatedPersonId": "np-alex-rivera",
+      "expectSerializedExcludes": ["np-alex-rivera"]
+    }
+  ]
+}

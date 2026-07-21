@@ -1,0 +1,83 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-029",
+  "class": "FAILURE",
+  "associations": [
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-alex-portal-email",
+      "personId": "np-alex-rivera",
+      "relationship": "self",
+      "verification": "verified",
+      "evidenceRef": "synthetic-endpoint-evidence-0002",
+      "source": "synthetic-portal-enrollment",
+      "synthetic": true
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-rivera-email",
+      "personId": "np-jordan-kim",
+      "relationship": "self",
+      "verification": "asserted",
+      "source": "synthetic-crm-import",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "AC-3 fails closed: a lockdown without its triggering signals is refused — the forensic record is mandatory",
+      "op": "ato-raise",
+      "personId": "np-alex-rivera",
+      "signals": [],
+      "expectError": "forensic record"
+    },
+    {
+      "name": "AC-2 fails closed: step-up does not satisfy a high-risk case that requires re-identity-proofing",
+      "op": "ato-release",
+      "personId": "np-alex-rivera",
+      "signals": [
+        {
+          "kind": "impossible-travel",
+          "detail": "synthetic: two regions in one minute",
+          "observedAt": "2026-03-04T02:20:00Z"
+        }
+      ],
+      "release": {
+        "requirementMet": "step-up",
+        "evidenceRef": "synthetic-stepup-evidence-0002",
+        "releasedBy": "synthetic-it-admin-001"
+      },
+      "expectError": "does not satisfy"
+    },
+    {
+      "name": "exception 1 fails closed: a person with only asserted channels gets no notification — routed to the supervised manual path instead",
+      "op": "notify-select",
+      "personId": "np-jordan-kim",
+      "recentlyChangedEndpointIds": [],
+      "expectError": "no verified channel"
+    },
+    {
+      "name": "exception 3: tuning past the protection floor is refused — ATO detection can never be disabled",
+      "op": "ato-tune",
+      "currentThresholds": {
+        "failedLoginSignalThreshold": 10,
+        "newDeviceSignalThreshold": 5,
+        "detectionEnabled": true
+      },
+      "nextThresholds": {
+        "failedLoginSignalThreshold": 21,
+        "newDeviceSignalThreshold": 5,
+        "detectionEnabled": true
+      },
+      "invokedBy": "synthetic-it-admin-001",
+      "expectError": "never disabled"
+    },
+    {
+      "name": "AC-4 fails closed: cohort protections require an attributed admin",
+      "op": "ato-cohort",
+      "cohortPersonIds": ["np-alex-rivera"],
+      "invokedBy": "",
+      "expectError": "invoking admin"
+    }
+  ]
+}

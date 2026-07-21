@@ -1,0 +1,46 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PORT-009",
+  "class": "RECOVERY",
+  "associations": [
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-alex-portal-email",
+      "personId": "np-alex-rivera",
+      "relationship": "self",
+      "verification": "verified",
+      "evidenceRef": "synthetic-endpoint-evidence-0002",
+      "source": "synthetic-portal-enrollment",
+      "synthetic": true
+    }
+  ],
+  "preAuth": {
+    "preAuthRef": "npa-webchat-0008",
+    "tenantId": "northwind-synthetic",
+    "caseRef": "case-3d78",
+    "approvedPublicTopics": ["hours", "services"],
+    "consentedLeadFields": { "interest": "membership" },
+    "synthetic": true
+  },
+  "cases": [
+    {
+      "name": "AC-3: the session belonged to someone else — the old context stays protected and a NEW public conversation starts with no inherited lead facts",
+      "op": "wrong-person",
+      "priorSubjectPersonId": "np-casey-rivera",
+      "expectProtected": true
+    },
+    {
+      "name": "the same person re-verifying resumes cleanly — no wrong-person directive fires",
+      "op": "wrong-person",
+      "priorSubjectPersonId": "np-alex-rivera",
+      "expectProtected": null
+    },
+    {
+      "name": "after the wrong-person event, fresh verification still elevates the RIGHT person from a clean session",
+      "op": "elevate-attempt",
+      "atIso": "2026-03-05T18:01:00Z",
+      "expectOutcome": "elevated",
+      "expectElevatedPersonId": "np-alex-rivera"
+    }
+  ]
+}

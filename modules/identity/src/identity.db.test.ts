@@ -17,7 +17,7 @@ import { generateRlsCoverageGuard, tenantBindingSql } from '@practicehub/platfor
 import { Client } from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { identityRlsSpecs } from './rls-specs.js';
+import { identityRlsSpecs, identitySchemaRlsSpecs } from './rls-specs.js';
 
 const repoRoot = fileURLToPath(new URL('../../..', import.meta.url));
 const host = process.env['PRACTICEHUB_DB_HOST'] ?? '127.0.0.1';
@@ -171,7 +171,10 @@ describe('identity schema DB suite (WP-013)', () => {
          AND (NOT c.relrowsecurity OR NOT c.relforcerowsecurity)`,
     );
     expect(unprotected.rows[0]?.count).toBe('0');
-    await owner.query(generateRlsCoverageGuard('identity', identityRlsSpecs));
+    // Schema-wide registry, not this migration's DDL scope: the guard must
+    // accept every declared identity table (WP-011 guard-vs-DDL split; the
+    // WP-014 authn tables share the schema).
+    await owner.query(generateRlsCoverageGuard('identity', identitySchemaRlsSpecs));
   });
 
   it('I-07: the identity timeline is append-only for the runtime role', async () => {

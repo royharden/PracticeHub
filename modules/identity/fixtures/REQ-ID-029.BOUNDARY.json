@@ -1,0 +1,77 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-029",
+  "class": "BOUNDARY",
+  "associations": [
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-alex-portal-email",
+      "personId": "np-alex-rivera",
+      "relationship": "self",
+      "verification": "verified",
+      "evidenceRef": "synthetic-endpoint-evidence-0002",
+      "source": "synthetic-portal-enrollment",
+      "synthetic": true
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-attacker-swap",
+      "personId": "np-alex-rivera",
+      "relationship": "self",
+      "verification": "verified",
+      "evidenceRef": "synthetic-endpoint-evidence-0009",
+      "source": "synthetic-portal-contact-change",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "AC-2 proportionality boundary: a moderate signal (new-device burst) requires step-up, not full re-proofing",
+      "op": "ato-raise",
+      "personId": "np-alex-rivera",
+      "signals": [
+        {
+          "kind": "new-device-burst",
+          "detail": "synthetic: 4 new devices in one window",
+          "observedAt": "2026-03-04T02:10:00Z"
+        }
+      ],
+      "expectRequirement": "step-up",
+      "expectRevokedSessionIds": []
+    },
+    {
+      "name": "exception 1: the channel changed inside the incident window is skipped — notification falls back to the prior-verified channel and the change becomes part of the incident",
+      "op": "notify-select",
+      "personId": "np-alex-rivera",
+      "recentlyChangedEndpointIds": ["nce-attacker-swap"],
+      "expectEndpoint": "nce-alex-portal-email",
+      "expectChannelBasis": "prior-verified-fallback",
+      "expectContactChangeTreatedAsIncident": true
+    },
+    {
+      "name": "with no incident-window change the verified channel is used directly",
+      "op": "notify-select",
+      "personId": "np-alex-rivera",
+      "recentlyChangedEndpointIds": [],
+      "expectEndpoint": "nce-alex-portal-email",
+      "expectChannelBasis": "verified",
+      "expectContactChangeTreatedAsIncident": false
+    },
+    {
+      "name": "exception 3 boundary: a relaxation INSIDE the floor is allowed and every relaxation is named in the log record",
+      "op": "ato-tune",
+      "currentThresholds": {
+        "failedLoginSignalThreshold": 10,
+        "newDeviceSignalThreshold": 5,
+        "detectionEnabled": true
+      },
+      "nextThresholds": {
+        "failedLoginSignalThreshold": 20,
+        "newDeviceSignalThreshold": 5,
+        "detectionEnabled": true
+      },
+      "invokedBy": "synthetic-it-admin-001",
+      "expectRelaxations": ["failedLoginSignalThreshold 10 -> 20"]
+    }
+  ]
+}
