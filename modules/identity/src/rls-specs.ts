@@ -39,9 +39,21 @@ export const mergeRlsSpecs: readonly RlsTableSpec[] = [
   { schema: 'identity', table: 'merge_lineage', kind: 'tenant-scoped' },
 ];
 
+/** Tables created by 0008-pdp.sql (WP-015) — that migration's DDL scope. */
+export const pdpRlsSpecs: readonly RlsTableSpec[] = [
+  { schema: 'identity', table: 'role_template', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'role_assignment', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'access_override', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'authority_record', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'person_flag', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'partition_tag', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'gipa_authorization', kind: 'tenant-scoped' },
+];
+
 /** The full identity-schema registry — every migration's coverage guard declares it. */
 export const identitySchemaRlsSpecs: readonly RlsTableSpec[] = [
   ...identityRlsSpecs,
   ...authnRlsSpecs,
   ...mergeRlsSpecs,
+  ...pdpRlsSpecs,
 ];

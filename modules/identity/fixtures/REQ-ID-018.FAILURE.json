@@ -1,0 +1,48 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-018",
+  "class": "FAILURE",
+  "description": "Deny-by-default outside the defined scope; overrides without a documented justification are unrepresentable; an expired override grants nothing.",
+  "cases": [
+    {
+      "name": "an out-of-scope attempt denies and audits (AC-5)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "staff", "roleKey": "front-desk" },
+        "segment": "medications",
+        "action": "view",
+        "purpose": "treatment"
+      },
+      "expectAllowed": false,
+      "expectDenials": ["no-permit"]
+    },
+    {
+      "name": "an override without justification is refused (AC-8)",
+      "op": "grant-override",
+      "omitJustification": true,
+      "expectError": "justification"
+    },
+    {
+      "name": "an override without an expiry is refused — time-boxed by construction (EX-2)",
+      "op": "grant-override",
+      "omitExpiry": true,
+      "expectError": "time-boxed"
+    },
+    {
+      "name": "an expired override no longer widens anything",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": {
+          "kind": "staff",
+          "roleKey": "front-desk",
+          "overrides": [{ "segment": "documents", "actions": ["view"], "expiresOn": "2026-02-01" }]
+        },
+        "segment": "documents",
+        "action": "view",
+        "purpose": "operations"
+      },
+      "expectAllowed": false,
+      "expectDenials": ["no-permit"]
+    }
+  ]
+}

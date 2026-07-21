@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-007",
+  "class": "FAILURE",
+  "description": "After the birthday a guardian attempt is denied with a message explaining the transition — never a silent or confusing error.",
+  "cases": [
+    {
+      "name": "a suspended-majority record denies with the explanatory transition code (AC-9)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": {
+          "kind": "proxy",
+          "authority": { "status": "suspended-majority" }
+        },
+        "segment": "messaging",
+        "action": "view",
+        "subject": "minor",
+        "stepUp": true,
+        "patientState": "NV"
+      },
+      "expectAllowed": false,
+      "expectDenials": ["majority-transition"]
+    },
+    {
+      "name": "guardian-signed consents flag for the adult's own re-consent while suspended (AC-8)",
+      "op": "majority-evaluate",
+      "asOfDate": "2029-07-01",
+      "expectPhase": "suspended-pending-adult-consent",
+      "expectReConsent": ["synthetic-consent-0002"]
+    }
+  ]
+}

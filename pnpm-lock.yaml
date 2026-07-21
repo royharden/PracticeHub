@@ -66,6 +66,9 @@ importers:
         specifier: workspace:*
         version: link:../platform-core
     devDependencies:
+      '@practicehub/audit-evidence':
+        specifier: workspace:*
+        version: link:../audit-evidence
       '@practicehub/testkit':
         specifier: workspace:*
         version: link:../../packages/testkit

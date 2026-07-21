@@ -1,0 +1,29 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-013",
+  "class": "BOUNDARY",
+  "description": "Financial and clinical artifacts check recipient and content SEPARATELY for clinical and guarantor authority.",
+  "cases": [
+    {
+      "name": "a clinical artifact to the former guardian is NOT authorized (AC-3)",
+      "op": "emancipation-deliver",
+      "artifactKind": "clinical",
+      "recipient": "guardian",
+      "expectAuthorized": false
+    },
+    {
+      "name": "a financial artifact to the standing guarantor IS authorized — a separate check (AC-3)",
+      "op": "emancipation-deliver",
+      "artifactKind": "financial",
+      "recipient": "guardian",
+      "expectAuthorized": true
+    },
+    {
+      "name": "a clinical artifact to the emancipated minor is authorized",
+      "op": "emancipation-deliver",
+      "artifactKind": "clinical",
+      "recipient": "self",
+      "expectAuthorized": true
+    }
+  ]
+}

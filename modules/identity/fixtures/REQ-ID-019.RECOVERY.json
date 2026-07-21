@@ -1,0 +1,53 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-019",
+  "class": "RECOVERY",
+  "description": "Unclassifiable migrated data quarantines for manual compliance review; an expired authorization blocks NEW disclosure without unwinding prior ones.",
+  "cases": [
+    {
+      "name": "unreliable migrated data quarantines — never defaults to not-genetic (EX-1)",
+      "op": "classify",
+      "elementKind": "legacy-unknown-field",
+      "ingestPath": "migration-workbench",
+      "reliable": false,
+      "expectTagged": true,
+      "expectReviewStatus": "needs-classification-review",
+      "expectBlocked": true
+    },
+    {
+      "name": "no authorization on file: genetic excluded, prior disclosures stand (EX-4)",
+      "op": "assemble-export",
+      "exportAuth": "none",
+      "expectIncludedCount": 1,
+      "expectExcludedGeneticCount": 1
+    },
+    {
+      "name": "a genetic export without a live authorization denies at the PDP too",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "staff", "roleKey": "compliance-privacy-officer" },
+        "segment": "genetic",
+        "action": "export",
+        "purpose": "legal-obligation",
+        "consent": "granted",
+        "gipaAuth": "expired"
+      },
+      "expectAllowed": false,
+      "expectDenials": ["gipa-authorization-required"]
+    },
+    {
+      "name": "a re-issued live authorization restores the export path",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "staff", "roleKey": "compliance-privacy-officer" },
+        "segment": "genetic",
+        "action": "export",
+        "purpose": "legal-obligation",
+        "consent": "granted",
+        "gipaAuth": "active"
+      },
+      "expectAllowed": true,
+      "expectBasisContains": "gipa-authorization:nga-0001"
+    }
+  ]
+}

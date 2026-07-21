@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-018",
+  "class": "RECOVERY",
+  "description": "Session-level access updates immediately — no stale-session access to since-removed scope — and a revocation triggers an actual access change.",
+  "cases": [
+    {
+      "name": "a role change refuses cached permits written before it (AC-5)",
+      "op": "cache-read",
+      "changeKind": "role-change",
+      "expectServed": false
+    },
+    {
+      "name": "an untouched principal's cache still serves",
+      "op": "cache-read",
+      "changeKind": "none",
+      "expectServed": true
+    },
+    {
+      "name": "review attestation revocation carries an actual access-change directive (EX-1 remediation)",
+      "op": "attest",
+      "attestDecision": "revoke",
+      "expectAccessChange": true
+    },
+    {
+      "name": "a confirm attestation records who and why without an access change",
+      "op": "attest",
+      "attestDecision": "confirm",
+      "expectAccessChange": false
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-014",
+  "class": "BOUNDARY",
+  "description": "The caregiver receives only the authorized functions — unrelated segments stay denied while the authority is active.",
+  "cases": [
+    {
+      "name": "an activated incapacity scope answers its own segments only",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": {
+          "kind": "proxy",
+          "authority": {
+            "kind": "incapacity-contingent",
+            "expiresOn": "2026-09-01",
+            "triggeringEvidenceRef": "synthetic-determination-0001",
+            "scope": [{ "segment": "scheduling", "actions": ["view", "edit"] }]
+          }
+        },
+        "segment": "scheduling",
+        "action": "edit",
+        "subject": "minor",
+        "stepUp": true,
+        "patientState": "NV"
+      },
+      "expectAllowed": true
+    },
+    {
+      "name": "an unrelated segment stays denied under the same activation (AC-2)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": {
+          "kind": "proxy",
+          "authority": {
+            "kind": "incapacity-contingent",
+            "expiresOn": "2026-09-01",
+            "triggeringEvidenceRef": "synthetic-determination-0001",
+            "scope": [{ "segment": "scheduling", "actions": ["view", "edit"] }]
+          }
+        },
+        "segment": "clinical-notes",
+        "action": "view",
+        "subject": "minor",
+        "stepUp": true,
+        "patientState": "NV"
+      },
+      "expectAllowed": false,
+      "expectDenials": ["proxy-scope-exceeded"]
+    }
+  ]
+}

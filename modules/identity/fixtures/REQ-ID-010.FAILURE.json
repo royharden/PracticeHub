@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-010",
+  "class": "FAILURE",
+  "description": "An ambiguous, conflicting, or appealed order blocks automated authority replacement and escalates while minimum-necessary care continues.",
+  "cases": [
+    {
+      "name": "an ambiguous order blocks and escalates to the compliance/privacy officer (EX-1)",
+      "op": "replace-guardian",
+      "orderFlags": { "ambiguous": true },
+      "expectOutcome": "blocked-escalated"
+    },
+    {
+      "name": "a conflicting order blocks the same way (EX-1)",
+      "op": "replace-guardian",
+      "orderFlags": { "conflicting": true },
+      "expectOutcome": "blocked-escalated"
+    },
+    {
+      "name": "an appealed order blocks the same way (EX-1)",
+      "op": "replace-guardian",
+      "orderFlags": { "appealed": true },
+      "expectOutcome": "blocked-escalated"
+    },
+    {
+      "name": "an order missing a validation dimension refuses outright (AC-1)",
+      "op": "replace-guardian",
+      "orderFlags": { "partiesValidated": false },
+      "expectError": "validated jurisdiction, parties, scope"
+    }
+  ]
+}

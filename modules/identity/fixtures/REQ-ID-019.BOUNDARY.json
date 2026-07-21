@@ -1,0 +1,35 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-019",
+  "class": "BOUNDARY",
+  "description": "The export boundary: genetic is excluded by default, included only under a specific, dated, written authorization re-checked at SEND time.",
+  "cases": [
+    {
+      "name": "a live written authorization includes genetic with its reference (AC-3)",
+      "op": "assemble-export",
+      "exportAuth": "active",
+      "expectIncludedCount": 2,
+      "expectExcludedGeneticCount": 0,
+      "expectAuthorizationRef": "nga-0001"
+    },
+    {
+      "name": "an authorization valid at request but expired at SEND excludes genetic (EX-2)",
+      "op": "assemble-export",
+      "exportAuth": "expired",
+      "expectIncludedCount": 1,
+      "expectExcludedGeneticCount": 1
+    },
+    {
+      "name": "a genetic-touching break-glass event classifies elevated-genetic (AC-8)",
+      "op": "break-glass-severity",
+      "severityTags": ["gipa-genetic"],
+      "expectSeverity": "elevated-genetic"
+    },
+    {
+      "name": "a non-genetic break-glass event stays standard severity",
+      "op": "break-glass-severity",
+      "severityTags": ["chd"],
+      "expectSeverity": "standard"
+    }
+  ]
+}

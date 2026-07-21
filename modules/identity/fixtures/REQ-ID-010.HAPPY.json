@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-010",
+  "class": "HAPPY",
+  "description": "A validated court order records a versioned guardianship decision: prior powers end, the new guardian receives only approved scope, both parties get only order-permitted notices.",
+  "cases": [
+    {
+      "name": "a fully validated order replaces guardian authority as a new version (AC-1/AC-2/AC-4)",
+      "op": "replace-guardian",
+      "openItems": [
+        { "itemRef": "nai-appt-1", "kind": "appointment", "disposition": "new-owner" },
+        { "itemRef": "nai-consent-1", "kind": "consent", "disposition": "acknowledged" }
+      ],
+      "expectOutcome": "replaced",
+      "expectNextVersion": 2,
+      "expectPriorStatus": "superseded"
+    }
+  ]
+}

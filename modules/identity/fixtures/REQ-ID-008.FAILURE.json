@@ -1,0 +1,39 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-008",
+  "class": "FAILURE",
+  "description": "Expired or revoked proxy authority terminates access; an out-of-scope attempt is blocked and audited, never fail-open.",
+  "cases": [
+    {
+      "name": "an expired grant denies the attempted action and the deny is audited (EX-1)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": {
+          "kind": "proxy",
+          "authority": { "expiresOn": "2026-02-01" }
+        },
+        "segment": "scheduling",
+        "action": "view",
+        "subject": "minor",
+        "stepUp": true,
+        "patientState": "NV"
+      },
+      "expectAllowed": false,
+      "expectDenials": ["authority-expired"]
+    },
+    {
+      "name": "a scope-exceeding attempt blocks and logs — the system never fails open (EX-4)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "proxy" },
+        "segment": "clinical-notes",
+        "action": "view",
+        "subject": "minor",
+        "stepUp": true,
+        "patientState": "NV"
+      },
+      "expectAllowed": false,
+      "expectDenials": ["proxy-scope-exceeded"]
+    }
+  ]
+}

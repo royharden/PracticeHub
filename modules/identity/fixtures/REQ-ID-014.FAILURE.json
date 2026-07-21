@@ -1,0 +1,21 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-014",
+  "class": "FAILURE",
+  "description": "A caregiver assertion alone cannot activate contingent authority; conflicting capacity evidence blocks nonurgent delegated actions and escalates.",
+  "cases": [
+    {
+      "name": "an assertion alone never activates (EX-1)",
+      "op": "incapacity-activate",
+      "withTrigger": false,
+      "expectOutcome": "blocked-assertion-only"
+    },
+    {
+      "name": "conflicting capacity evidence blocks and escalates (EX-2)",
+      "op": "incapacity-activate",
+      "withTrigger": true,
+      "conflictingEvidence": true,
+      "expectOutcome": "blocked-escalated"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-012",
+  "class": "BOUNDARY",
+  "description": "Expiry is exact: the expiration date withdraws access and every open item routes to the human exception queue for lawful reassignment.",
+  "cases": [
+    {
+      "name": "the expiration date itself expires the authority and queues open work (AC-3)",
+      "op": "expire-authority",
+      "authority": {
+        "kind": "temporary-guardianship",
+        "expiresOn": "2026-06-01",
+        "renewalOwnerRef": "synthetic-renewal-owner-0001"
+      },
+      "asOfDate": "2026-06-01",
+      "openItems": [
+        { "itemRef": "nai-result-2", "kind": "result" },
+        { "itemRef": "nai-med-1", "kind": "medication" }
+      ],
+      "expectQueueCount": 2
+    },
+    {
+      "name": "before the expiration event the expiry operation refuses",
+      "op": "expire-authority",
+      "authority": {
+        "kind": "temporary-guardianship",
+        "expiresOn": "2026-06-01",
+        "renewalOwnerRef": "synthetic-renewal-owner-0001"
+      },
+      "asOfDate": "2026-05-31",
+      "expectError": "has not reached its expiration"
+    }
+  ]
+}

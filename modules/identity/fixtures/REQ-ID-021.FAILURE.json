@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-021",
+  "class": "FAILURE",
+  "description": "A flag set without its confirmation source is unrepresentable; unlock attempts by other roles or without a documented purpose refuse.",
+  "cases": [
+    {
+      "name": "setting the flag without its death-confirmation source refuses (AC-3)",
+      "op": "set-deceased",
+      "omitSource": true,
+      "expectError": "confirmation source"
+    },
+    {
+      "name": "a front-desk unlock attempt refuses (AC-2)",
+      "op": "unlock-estate",
+      "unlockRoles": ["front-desk"],
+      "expectError": "restricted"
+    },
+    {
+      "name": "an unlock without the documented estate/legal purpose refuses (AC-2)",
+      "op": "unlock-estate",
+      "omitPurposeRef": true,
+      "expectError": "documented estate/legal purpose"
+    }
+  ]
+}

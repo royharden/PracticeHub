@@ -1,0 +1,36 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-019",
+  "class": "HAPPY",
+  "description": "Genetic data tags at ingestion into a partitioned class; the coverage audit confirms every ingestion path; clinical access stays purpose-scoped.",
+  "cases": [
+    {
+      "name": "a family-history element tags gipa-genetic at the lab interface (AC-1/AC-5)",
+      "op": "classify",
+      "elementKind": "family-history",
+      "ingestPath": "lab-interface",
+      "reliable": true,
+      "expectTagged": true,
+      "expectReviewStatus": "auto-confirmed",
+      "expectBlocked": false
+    },
+    {
+      "name": "the coverage audit confirms all four ingestion paths (AC-4)",
+      "op": "coverage-audit",
+      "coveredPaths": ["manual-entry", "migration-workbench", "lab-interface", "pa-payload"],
+      "expectComplete": true
+    },
+    {
+      "name": "a clinician reads genetic data under treatment with the partition tag on the audit record",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "staff", "roleKey": "physician-app" },
+        "segment": "genetic",
+        "action": "view",
+        "purpose": "treatment"
+      },
+      "expectAllowed": true,
+      "expectPartitionTags": ["gipa-genetic"]
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-023",
+  "class": "FAILURE",
+  "description": "Billing responsibility never implies clinical access: notes, results, medications, and messages all deny for the guarantor.",
+  "cases": [
+    {
+      "name": "clinical notes deny for a guarantor (AC-1)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "guarantor" },
+        "segment": "clinical-notes",
+        "action": "view",
+        "purpose": "payment",
+        "subject": "minor",
+        "stepUp": true
+      },
+      "expectAllowed": false,
+      "expectDenials": ["guarantor-no-clinical"]
+    },
+    {
+      "name": "medications deny for a guarantor (AC-1)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "guarantor" },
+        "segment": "medications",
+        "action": "view",
+        "purpose": "payment",
+        "subject": "minor",
+        "stepUp": true
+      },
+      "expectAllowed": false,
+      "expectDenials": ["guarantor-no-clinical"]
+    },
+    {
+      "name": "messaging is outside the billing scope and denies (AC-1)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "guarantor" },
+        "segment": "messaging",
+        "action": "view",
+        "purpose": "payment",
+        "subject": "minor"
+      },
+      "expectAllowed": false,
+      "expectDenials": ["no-permit"]
+    }
+  ]
+}

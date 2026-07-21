@@ -1,0 +1,13 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-013",
+  "class": "RECOVERY",
+  "description": "A later legal-status change versions the authority and re-evaluates future access without deleting earlier lawful confidential activity.",
+  "cases": [
+    {
+      "name": "a status change re-versions; earlier lawful activity is retained (EX-2)",
+      "op": "emancipation-version",
+      "ended": true
+    }
+  ]
+}

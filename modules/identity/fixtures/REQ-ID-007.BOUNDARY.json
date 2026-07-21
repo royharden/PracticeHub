@@ -1,0 +1,29 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-007",
+  "class": "BOUNDARY",
+  "description": "The 30-lead review boundary and the majority date itself are exact edges.",
+  "cases": [
+    {
+      "name": "the first review-window date opens the work item, not one date earlier",
+      "op": "majority-evaluate",
+      "asOfDate": "2029-05-03",
+      "expectPhase": "review-window"
+    },
+    {
+      "name": "the majority date itself suspends guardian-derived authority (AC-7)",
+      "op": "majority-evaluate",
+      "asOfDate": "2029-06-02",
+      "expectPhase": "suspended-pending-adult-consent",
+      "expectSuspendedIds": ["nar-alex-casey"],
+      "expectReConsent": ["synthetic-consent-0002"],
+      "expectContactDirective": true
+    },
+    {
+      "name": "state-specific confidential carve-outs arrive as resolver data (EX-3)",
+      "op": "majority-evaluate",
+      "asOfDate": "2029-06-02",
+      "expectCarveoutContains": "strictest-minor-confidentiality"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-007",
+  "class": "HAPPY",
+  "description": "The review point derives from jurisdiction + date of birth; a review work item opens ahead of the transition.",
+  "cases": [
+    {
+      "name": "before the review window nothing changes",
+      "op": "majority-evaluate",
+      "asOfDate": "2029-05-02",
+      "expectPhase": "pre-review"
+    },
+    {
+      "name": "inside the window a majority-transition review work item is due by the majority date (AC-1)",
+      "op": "majority-evaluate",
+      "asOfDate": "2029-05-15",
+      "expectPhase": "review-window"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-011",
+  "class": "HAPPY",
+  "description": "Authoritative evidence resolves the conflict: scope, contacts, appointments, and disclosure rules update together with version provenance.",
+  "cases": [
+    {
+      "name": "a court order resolves the held conflict as a new version with provenance (AC-3)",
+      "op": "custody-resolve",
+      "custodyBasis": "court-order",
+      "expectResolvedVersion": 2
+    }
+  ]
+}

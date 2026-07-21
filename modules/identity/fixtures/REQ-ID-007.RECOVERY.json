@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-007",
+  "class": "RECOVERY",
+  "description": "A documented continuing-authority order with an evidence-backed expiry preserves access; the adult completing their own consent transitions the account.",
+  "cases": [
+    {
+      "name": "a court-order continuation WITH an expiry survives majority; one without does not (EX-2/EX-5)",
+      "op": "majority-evaluate",
+      "asOfDate": "2029-06-02",
+      "records": [
+        {},
+        {
+          "authorityId": "nar-continuing",
+          "kind": "court-order-guardian",
+          "expiresOn": "2032-06-02"
+        },
+        { "authorityId": "nar-indefinite", "kind": "court-order-guardian" }
+      ],
+      "expectPreservedIds": ["nar-continuing"],
+      "expectSuspendedIds": ["nar-alex-casey", "nar-indefinite"]
+    },
+    {
+      "name": "the adult's completed identity-verification + consent transitions the account (AC-2/AC-5)",
+      "op": "majority-evaluate",
+      "asOfDate": "2029-06-10",
+      "adultConsentCompleted": true,
+      "expectPhase": "transitioned",
+      "expectReConsent": []
+    }
+  ]
+}

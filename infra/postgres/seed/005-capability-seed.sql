@@ -29,27 +29,33 @@ VALUES
   ('synthetic-cap-evt-0008', 'northwind-synthetic', 'identity.person-model', '{}'::jsonb, '(root)', 'disabled', 'scaffolded', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:wp-013-identity-scaffold"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true),
   ('synthetic-cap-evt-0009', 'northwind-synthetic', 'identity.authn', '{}'::jsonb, '(root)', 'disabled', 'scaffolded', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:wp-014-authn-scaffold"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true),
   ('synthetic-cap-evt-0010', 'northwind-synthetic', 'identity.merge-governance', '{}'::jsonb, '(root)', 'disabled', 'scaffolded', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:wp-016-merge-scaffold"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true),
-  ('synthetic-cap-evt-0011', 'northwind-synthetic', 'platform.audit-store', '{}'::jsonb, '(root)', 'disabled', 'scaffolded', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:wp-020-audit-scaffold"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true)
+  ('synthetic-cap-evt-0011', 'northwind-synthetic', 'platform.audit-store', '{}'::jsonb, '(root)', 'disabled', 'scaffolded', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:wp-020-audit-scaffold"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true),
+  ('synthetic-cap-evt-0012', 'northwind-synthetic', 'identity.access-policy', '{}'::jsonb, '(root)', 'disabled', 'scaffolded', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:wp-015-pdp-scaffold"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true),
+  ('synthetic-cap-evt-0013', 'northwind-synthetic', 'privacy.gipa-partition', '{}'::jsonb, '(root)', 'disabled', 'scaffolded', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:wp-015-gipa-partition-scaffold"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true)
 ON CONFLICT (event_id) DO NOTHING;
 
 INSERT INTO platform_core.capability_grant
   (tenant_id, capability_id, scope, scope_key, state, since_event_id,
    evidence_refs, rollback_ref, synthetic)
 VALUES
+  ('northwind-synthetic', 'identity.access-policy', '{}'::jsonb, '(root)', 'scaffolded', 'synthetic-cap-evt-0012', '["synthetic-gate:wp-015-pdp-scaffold"]'::jsonb, 'registry-event-replay', true),
   ('northwind-synthetic', 'identity.authn', '{}'::jsonb, '(root)', 'scaffolded', 'synthetic-cap-evt-0009', '["synthetic-gate:wp-014-authn-scaffold"]'::jsonb, 'registry-event-replay', true),
   ('northwind-synthetic', 'identity.merge-governance', '{}'::jsonb, '(root)', 'scaffolded', 'synthetic-cap-evt-0010', '["synthetic-gate:wp-016-merge-scaffold"]'::jsonb, 'registry-event-replay', true),
   ('northwind-synthetic', 'identity.person-model', '{}'::jsonb, '(root)', 'scaffolded', 'synthetic-cap-evt-0008', '["synthetic-gate:wp-013-identity-scaffold"]'::jsonb, 'registry-event-replay', true),
   ('northwind-synthetic', 'platform.audit-store', '{}'::jsonb, '(root)', 'scaffolded', 'synthetic-cap-evt-0011', '["synthetic-gate:wp-020-audit-scaffold"]'::jsonb, 'registry-event-replay', true),
   ('northwind-synthetic', 'platform.bootstrap', '{}'::jsonb, '(root)', 'simulated', 'synthetic-cap-evt-0004', '["synthetic-gate:plan-000-bootstrap-simulated"]'::jsonb, 'registry-event-replay', true),
   ('northwind-synthetic', 'platform.capability-registry', '{}'::jsonb, '(root)', 'simulated', 'synthetic-cap-evt-0002', '["synthetic-gate:wp-012-registry-simulated"]'::jsonb, 'registry-event-replay', true),
+  ('northwind-synthetic', 'privacy.gipa-partition', '{}'::jsonb, '(root)', 'scaffolded', 'synthetic-cap-evt-0013', '["synthetic-gate:wp-015-gipa-partition-scaffold"]'::jsonb, 'registry-event-replay', true),
   ('northwind-synthetic', 'rcm.rail-path', '{"payer":"synthetic-payer-aurora","provider":"synthetic-dr-lee","transaction":"x12-270-271"}'::jsonb, 'payer=synthetic-payer-aurora/provider=synthetic-dr-lee/transaction=x12-270-271', 'scaffolded', 'synthetic-cap-evt-0007', '["synthetic-gate:rail-270-271-scaffold"]'::jsonb, 'registry-event-replay', true),
   ('northwind-synthetic', 'rcm.rail-path', '{"payer":"synthetic-payer-aurora","provider":"synthetic-dr-lee","transaction":"x12-837"}'::jsonb, 'payer=synthetic-payer-aurora/provider=synthetic-dr-lee/transaction=x12-837', 'simulated', 'synthetic-cap-evt-0006', '["synthetic-gate:rail-837-sim-conformance"]'::jsonb, 'registry-event-replay', true),
+  ('riverbend-synthetic', 'identity.access-policy', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
   ('riverbend-synthetic', 'identity.authn', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
   ('riverbend-synthetic', 'identity.merge-governance', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
   ('riverbend-synthetic', 'identity.person-model', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
   ('riverbend-synthetic', 'platform.audit-store', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
   ('riverbend-synthetic', 'platform.bootstrap', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
-  ('riverbend-synthetic', 'platform.capability-registry', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true)
+  ('riverbend-synthetic', 'platform.capability-registry', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
+  ('riverbend-synthetic', 'privacy.gipa-partition', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true)
 ON CONFLICT (tenant_id, capability_id, scope_key) DO UPDATE
 SET scope = EXCLUDED.scope,
     state = EXCLUDED.state,

@@ -1,0 +1,28 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-002",
+  "class": "HAPPY",
+  "description": "RBAC minimum necessary: each role reaches exactly its template's permit set, decided at the one policy decision point.",
+  "cases": [
+    {
+      "name": "the biller reaches statements under a payment purpose (minimum necessary)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "staff", "roleKey": "biller-coder" },
+        "segment": "statements",
+        "action": "edit",
+        "purpose": "payment"
+      },
+      "expectAllowed": true,
+      "expectBasisContains": "role-template:biller-coder:v1"
+    },
+    {
+      "name": "the separation-of-duties policy data evaluates distinct actors compliant",
+      "op": "sod-evaluate",
+      "sodId": "sod-gate-1",
+      "firstActor": "synthetic-a",
+      "secondActor": "synthetic-b",
+      "expectCompliant": true
+    }
+  ]
+}

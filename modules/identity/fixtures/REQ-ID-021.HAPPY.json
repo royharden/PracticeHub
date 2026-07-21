@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-021",
+  "class": "HAPPY",
+  "description": "Setting the deceased flag cancels queued outreach on every channel with zero grace-period sends and locks the chart read-only (lock half; comms execution WP-044).",
+  "cases": [
+    {
+      "name": "the flag-set act emits the full-channel suppression + chart-lock directives (AC-1/AC-2)",
+      "op": "set-deceased",
+      "expectSuppressionChannels": 6,
+      "expectVendorPropagation": true
+    }
+  ]
+}

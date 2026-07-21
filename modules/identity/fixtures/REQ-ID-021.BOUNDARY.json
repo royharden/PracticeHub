@@ -1,0 +1,51 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-021",
+  "class": "BOUNDARY",
+  "description": "The lock boundary: only compliance-privacy-officer or practice-manager unlock, only for a documented estate/legal purpose.",
+  "cases": [
+    {
+      "name": "a front-desk edit on a locked chart denies (AC-2)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "staff", "roleKey": "front-desk" },
+        "segment": "scheduling",
+        "action": "edit",
+        "purpose": "operations",
+        "subject": "deceased",
+        "deceased": true
+      },
+      "expectAllowed": false,
+      "expectDenials": ["chart-locked-deceased"]
+    },
+    {
+      "name": "the practice manager with a documented estate unlock passes (AC-2)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "staff", "roleKey": "practice-manager" },
+        "segment": "scheduling",
+        "action": "edit",
+        "purpose": "legal-obligation",
+        "subject": "deceased",
+        "deceased": true,
+        "estateUnlock": true
+      },
+      "expectAllowed": true,
+      "expectBasisContains": "estate-unlock:"
+    },
+    {
+      "name": "the same manager WITHOUT the documented unlock stays locked",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "staff", "roleKey": "practice-manager" },
+        "segment": "scheduling",
+        "action": "edit",
+        "purpose": "legal-obligation",
+        "subject": "deceased",
+        "deceased": true
+      },
+      "expectAllowed": false,
+      "expectDenials": ["chart-locked-deceased"]
+    }
+  ]
+}

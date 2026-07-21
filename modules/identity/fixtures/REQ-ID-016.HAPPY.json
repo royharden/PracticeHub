@@ -1,0 +1,13 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-016",
+  "class": "HAPPY",
+  "description": "A verified responsibility change applies prospectively: future statements and payment access use the new financial role.",
+  "cases": [
+    {
+      "name": "an evidenced, fully reviewed change routes future statements to the new guarantor (AC-1/AC-2)",
+      "op": "guarantor-change",
+      "expectOutcome": "changed"
+    }
+  ]
+}

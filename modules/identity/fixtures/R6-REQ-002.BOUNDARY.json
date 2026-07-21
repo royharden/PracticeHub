@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-002",
+  "class": "BOUNDARY",
+  "description": "Every decision — allow AND deny — is born with its access-stream audit input; the deny carries its machine-readable code.",
+  "cases": [
+    {
+      "name": "an in-permit allow audits with the template basis on the record",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "staff", "roleKey": "ma-nurse" },
+        "segment": "clinical-notes",
+        "action": "edit",
+        "purpose": "treatment"
+      },
+      "expectAllowed": true,
+      "expectBasisContains": "role-template:ma-nurse:v1"
+    },
+    {
+      "name": "the adjacent out-of-permit action denies and the deny AUDITS with its code",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "staff", "roleKey": "ma-nurse" },
+        "segment": "medications",
+        "action": "edit",
+        "purpose": "treatment"
+      },
+      "expectAllowed": false,
+      "expectDenials": ["no-permit"]
+    }
+  ]
+}

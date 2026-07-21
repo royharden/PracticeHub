@@ -248,7 +248,7 @@ BEGIN
      AND c.relkind = 'r'
      AND (NOT c.relrowsecurity
           OR NOT c.relforcerowsecurity
-          OR c.relname NOT IN ('account_lockdown', 'auth_challenge', 'auth_credential', 'auth_device', 'auth_session', 'channel_endpoint', 'endpoint_association', 'guarantor_role', 'identity_timeline', 'merge_case', 'merge_case_person', 'merge_event', 'merge_lineage', 'patient_record', 'person', 'person_name', 'proxy_grant', 'source_identifier', 'staff_account'));
+          OR c.relname NOT IN ('access_override', 'account_lockdown', 'auth_challenge', 'auth_credential', 'auth_device', 'auth_session', 'authority_record', 'channel_endpoint', 'endpoint_association', 'gipa_authorization', 'guarantor_role', 'identity_timeline', 'merge_case', 'merge_case_person', 'merge_event', 'merge_lineage', 'partition_tag', 'patient_record', 'person', 'person_flag', 'person_name', 'proxy_grant', 'role_assignment', 'role_template', 'source_identifier', 'staff_account'));
   IF offender IS NOT NULL THEN
     RAISE EXCEPTION 'rls coverage failure in schema identity: %', offender;
   END IF;

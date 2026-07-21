@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-002",
+  "class": "RECOVERY",
+  "description": "No stale permission survives an identity or authority change: cached permits key on invalidation epochs.",
+  "cases": [
+    {
+      "name": "a merge event refuses cached permits written before it (FWD-MERGE-015-CACHE)",
+      "op": "cache-read",
+      "changeKind": "merge",
+      "expectServed": false
+    },
+    {
+      "name": "an untouched principal's cached permit still serves",
+      "op": "cache-read",
+      "changeKind": "none",
+      "expectServed": true
+    }
+  ]
+}

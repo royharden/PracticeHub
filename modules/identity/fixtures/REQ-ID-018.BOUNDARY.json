@@ -1,0 +1,35 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-018",
+  "class": "BOUNDARY",
+  "description": "The scheduled review compares actual permissions against the CURRENT role definition, across the user's combined multi-system footprint.",
+  "cases": [
+    {
+      "name": "drifted access flags as required remediation; the footprint spans systems (AC-2/AC-4)",
+      "op": "run-review",
+      "actualGrants": [
+        { "system": "practicehub", "segment": "scheduling", "action": "edit" },
+        { "system": "practicehub", "segment": "medications", "action": "view" },
+        { "system": "athena-one", "segment": "clinical-notes", "action": "view" }
+      ],
+      "expectFindingKinds": ["drift-remediation-required", "combined-footprint"]
+    },
+    {
+      "name": "two systems defining the same role differently is a reconciliation finding (EX-3)",
+      "op": "run-review",
+      "actualGrants": [
+        { "system": "practicehub", "segment": "scheduling", "action": "edit" },
+        { "system": "athena-one", "segment": "clinical-notes", "action": "view" }
+      ],
+      "externalPermits": [{ "segment": "clinical-notes", "action": "view" }],
+      "expectFindingKinds": ["role-definition-mismatch-reconciliation"]
+    },
+    {
+      "name": "a template version bump re-evaluates pinned assignments on the next review (AC-9)",
+      "op": "run-review",
+      "bumpTemplate": true,
+      "actualGrants": [{ "system": "practicehub", "segment": "scheduling", "action": "edit" }],
+      "expectFindingKinds": ["template-reevaluation"]
+    }
+  ]
+}

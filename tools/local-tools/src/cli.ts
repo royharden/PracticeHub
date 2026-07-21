@@ -169,6 +169,8 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/008-merge-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/009-audit-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/009-audit-seed.sql');
+  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/010-pdp-seed.sql'), 'utf8'));
+  console.log('seeded infra/postgres/seed/010-pdp-seed.sql');
 }
 
 function testLocal(): void {
@@ -292,6 +294,13 @@ function testLocal(): void {
       '(SELECT count(*) FROM identity.merge_case_person WHERE synthetic IS DISTINCT FROM true) + ' +
       '(SELECT count(*) FROM identity.merge_event WHERE synthetic IS DISTINCT FROM true) + ' +
       '(SELECT count(*) FROM identity.merge_lineage WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.role_template WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.role_assignment WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.access_override WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.authority_record WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.person_flag WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.partition_tag WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.gipa_authorization WHERE synthetic IS DISTINCT FROM true) + ' +
       '(SELECT count(*) FROM audit_evidence.audit_event WHERE synthetic IS DISTINCT FROM true) + ' +
       '(SELECT count(*) FROM audit_evidence.retention_schedule WHERE synthetic IS DISTINCT FROM true) + ' +
       '(SELECT count(*) FROM audit_evidence.legal_hold WHERE synthetic IS DISTINCT FROM true) + ' +
@@ -483,6 +492,56 @@ function testLocal(): void {
     throw new Error(`merge capability tenant states differ: ${mergeCapabilityStates}`);
   }
 
+  // WP-015: PDP posture — Northwind carries the 8 canonical v1 role
+  // templates while Riverbend deliberately carries NONE (an unresolvable
+  // template is a deny; tenant 2 is the standing deny-by-default proof).
+  const roleTemplatePosture = scalar(
+    "SELECT string_agg(tenant_id || ':' || cnt, ',' ORDER BY tenant_id) FROM (" +
+      'SELECT tenant_id, count(*) AS cnt FROM identity.role_template GROUP BY tenant_id) t;',
+  );
+  if (roleTemplatePosture !== 'northwind-synthetic:8') {
+    throw new Error(`role-template posture differs: ${roleTemplatePosture}`);
+  }
+
+  // WP-015: the deceased chart-lock standing proof — the flag is SET with a
+  // recorded confirmation source and no correction (REQ-ID-021 AC-3).
+  const deceasedProof = scalar(
+    'SELECT count(*) FROM identity.person_flag ' +
+      "WHERE person_id = 'np-riley-fox' AND kind = 'deceased' AND action = 'set' " +
+      'AND source_ref IS NOT NULL ' +
+      'AND NOT EXISTS (SELECT FROM identity.person_flag c ' +
+      "WHERE c.person_id = 'np-riley-fox' AND c.action = 'corrected');",
+  );
+  if (deceasedProof !== '1') {
+    throw new Error(`deceased chart-lock standing proof broken: ${deceasedProof}`);
+  }
+
+  // WP-015: GIPA partition standing proofs — a confirmed genetic tag exists
+  // and the migrated needs-review row is BLOCKED from release (REQ-ID-019
+  // EX-1); a violating row is unrepresentable by CHECK, this probes the live
+  // posture.
+  const partitionProof = scalar(
+    "SELECT (SELECT count(*) FROM identity.partition_tag WHERE tag = 'gipa-genetic' " +
+      "AND review_status <> 'needs-classification-review')::text || '|' || " +
+      '(SELECT count(*) FROM identity.partition_tag ' +
+      "WHERE review_status = 'needs-classification-review' AND NOT blocked_from_release)::text;",
+  );
+  if (!/^[1-9][0-9]*\|0$/.test(partitionProof)) {
+    throw new Error(`gipa partition standing proof broken: ${partitionProof}`);
+  }
+
+  // WP-015: the PDP and GIPA-partition capabilities sit at the package
+  // ceiling with the opposite-state tenant proof.
+  for (const capabilityId of ['identity.access-policy', 'privacy.gipa-partition']) {
+    const states = scalar(
+      "SELECT string_agg(tenant_id || ':' || state, ',' ORDER BY tenant_id) " +
+        `FROM platform_core.capability_grant WHERE capability_id = '${capabilityId}';`,
+    );
+    if (states !== 'northwind-synthetic:scaffolded,riverbend-synthetic:disabled') {
+      throw new Error(`${capabilityId} capability tenant states differ: ${states}`);
+    }
+  }
+
   // WP-020: the audit hash chains are LINKED at rest — no forged genesis, no
   // gap, no prev-hash that fails to name its predecessor's entry hash (the
   // full sha-256 recompute runs in the audit DB suite).
@@ -565,7 +624,8 @@ function testLocal(): void {
   console.log(
     `services_healthy=${services.size} tenants=${tenantRows.join(',')} ` +
       'rls_coverage=OK watermark=OK jurisdiction_packs=OK capability_registry=OK ' +
-      'identity_model=OK authn_model=OK merge_governance=OK audit_store=OK ' +
+      'identity_model=OK authn_model=OK merge_governance=OK pdp_model=OK ' +
+      'gipa_partition=OK audit_store=OK ' +
       'dex_federation=OK cross_tenant_db_suite=OK synthetic_stack=OK',
   );
 }

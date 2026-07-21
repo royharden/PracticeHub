@@ -1,0 +1,40 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-002",
+  "class": "FAILURE",
+  "description": "Deny-by-default: an empty permit set reaches nothing; the separation-of-duties pairs refuse a same-actor pass.",
+  "cases": [
+    {
+      "name": "the it-security-admin template (empty permits) is denied demographics — administration is not data access",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "staff", "roleKey": "it-security-admin" },
+        "segment": "demographics",
+        "action": "view",
+        "purpose": "operations"
+      },
+      "expectAllowed": false,
+      "expectDenials": ["no-permit"]
+    },
+    {
+      "name": "the employer-sponsor-admin template reaches no clinical segment either",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "staff", "roleKey": "employer-sponsor-admin" },
+        "segment": "clinical-notes",
+        "action": "view",
+        "purpose": "operations"
+      },
+      "expectAllowed": false,
+      "expectDenials": ["no-permit"]
+    },
+    {
+      "name": "a same-actor SoD pair is non-compliant (ADR-006 Decision 4)",
+      "op": "sod-evaluate",
+      "sodId": "sod-act-1",
+      "firstActor": "synthetic-a",
+      "secondActor": "synthetic-a",
+      "expectCompliant": false
+    }
+  ]
+}

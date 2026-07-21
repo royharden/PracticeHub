@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-016",
+  "class": "RECOVERY",
+  "description": "Once the blocker clears and review completes, the change applies with its lineage intact.",
+  "cases": [
+    {
+      "name": "with blockers cleared the reviewed change applies",
+      "op": "guarantor-change",
+      "blockers": [],
+      "expectOutcome": "changed"
+    },
+    {
+      "name": "the post-change lineage still rewrites nothing",
+      "op": "reassign-balances",
+      "expectRewrites": false
+    }
+  ]
+}

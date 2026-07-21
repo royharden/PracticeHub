@@ -1,0 +1,27 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-010",
+  "class": "BOUNDARY",
+  "description": "Every open appointment, consent, result, and care task needs a disposition — a single unowned item blocks, none is silently closed.",
+  "cases": [
+    {
+      "name": "one undispositioned result blocks the replacement and is named (AC-3)",
+      "op": "replace-guardian",
+      "openItems": [
+        { "itemRef": "nai-appt-1", "kind": "appointment", "disposition": "new-owner" },
+        { "itemRef": "nai-result-1", "kind": "result" }
+      ],
+      "expectOutcome": "blocked-open-items",
+      "expectUndispositioned": ["nai-result-1"]
+    },
+    {
+      "name": "with every item dispositioned the same order proceeds",
+      "op": "replace-guardian",
+      "openItems": [
+        { "itemRef": "nai-appt-1", "kind": "appointment", "disposition": "new-owner" },
+        { "itemRef": "nai-result-1", "kind": "result", "disposition": "acknowledged" }
+      ],
+      "expectOutcome": "replaced"
+    }
+  ]
+}

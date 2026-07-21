@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-021",
+  "class": "RECOVERY",
+  "description": "A deceased report later proven incorrect restores prior state via a DOCUMENTED correction — never a simple toggle-back — and the interim silence was correct behavior.",
+  "cases": [
+    {
+      "name": "a documented correction restores the prior state (EX-1)",
+      "op": "correct-deceased",
+      "expectDeceasedState": false
+    },
+    {
+      "name": "a toggle-back without correction evidence is unrepresentable (EX-1)",
+      "op": "correct-deceased",
+      "omitCorrectionEvidence": true,
+      "expectError": "documented correction"
+    },
+    {
+      "name": "correcting a chart that carries no active flag refuses",
+      "op": "correct-deceased",
+      "withPriorSet": false,
+      "expectError": "no active deceased flag"
+    }
+  ]
+}

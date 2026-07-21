@@ -152,6 +152,15 @@ export const capabilityDefinitionsV1: readonly CapabilityDefinition[] = [
       'schedules, legal holds. Governance commands (destruction, hold release) floor at ' +
       'simulated; audit.emit itself is never capability-gated.',
   },
+  {
+    capabilityId: 'identity.access-policy',
+    ownerRole: 'security',
+    dimensions: [],
+    description:
+      'Policy decision point (M02, WP-015): role templates, proxy/guardian authority, ' +
+      'GIPA partition enforcement, deceased chart lock. Authority-increasing commands ' +
+      'floor at simulated; protective revocations are never gate-blocked.',
+  },
 ];
 
 /** Exact mirror of docs/architecture/capability-edge-preconditions.csv (FROZEN). */
@@ -344,6 +353,26 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       rollbackRef: 'already-disabled',
       synthetic: true,
     },
+    {
+      capabilityId: 'identity.access-policy',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
+    {
+      capabilityId: 'privacy.gipa-partition',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
   ],
   events: [
     chainEvent(
@@ -447,6 +476,30 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       'disabled',
       'scaffolded',
       'synthetic-gate:wp-020-audit-scaffold',
+    ),
+    // WP-015: the PDP lands at its package ceiling — `scaffolded`. The
+    // authority-increasing commands (floored at `simulated`) therefore DENY
+    // against this seed, by design; Riverbend stays the opposite-state proof.
+    chainEvent(
+      'synthetic-cap-evt-0012',
+      'identity.access-policy',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-015-pdp-scaffold',
+    ),
+    // WP-015: the GIPA partition enforcement substance ships with the PDP,
+    // so its capability (declared by WP-012 as the IC-2 prerequisite) lands
+    // at `scaffolded` too. IC-2 requires `simulated`, so employer surfaces
+    // stay capped at `scaffolded` until the loop package walks it up with
+    // partition-fuzzing evidence.
+    chainEvent(
+      'synthetic-cap-evt-0013',
+      'privacy.gipa-partition',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-015-gipa-partition-scaffold',
     ),
   ],
 };

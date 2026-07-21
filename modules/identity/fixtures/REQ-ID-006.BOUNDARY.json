@@ -1,0 +1,57 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-006",
+  "class": "BOUNDARY",
+  "description": "Segment-level confidentiality holds at the scope edge: in-scope actions pass, the adjacent action and the confidential segment do not.",
+  "cases": [
+    {
+      "name": "messaging edit sits inside the scope and passes",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "proxy" },
+        "segment": "messaging",
+        "action": "edit",
+        "subject": "minor",
+        "stepUp": true,
+        "patientState": "NV"
+      },
+      "expectAllowed": true
+    },
+    {
+      "name": "results edit — one action past the granted view — denies",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "proxy" },
+        "segment": "results",
+        "action": "edit",
+        "subject": "minor",
+        "stepUp": true,
+        "patientState": "NV"
+      },
+      "expectAllowed": false,
+      "expectDenials": ["proxy-scope-exceeded"]
+    },
+    {
+      "name": "the confidential segment denies a proxy even when the scope names it, absent a legal basis (AC-2)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": {
+          "kind": "proxy",
+          "authority": {
+            "scope": [
+              { "segment": "scheduling", "actions": ["view"] },
+              { "segment": "confidential-adolescent", "actions": ["view"] }
+            ]
+          }
+        },
+        "segment": "confidential-adolescent",
+        "action": "view",
+        "subject": "minor",
+        "stepUp": true,
+        "patientState": "NV"
+      },
+      "expectAllowed": false,
+      "expectDenials": ["minor-confidential-protected"]
+    }
+  ]
+}

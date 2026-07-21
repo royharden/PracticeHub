@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-013",
+  "class": "HAPPY",
+  "description": "Verified emancipation establishes independent authority: portal, consent, scheduling, and record-release rights follow that scope rather than household defaults.",
+  "cases": [
+    {
+      "name": "reviewed evidence establishes the minor's own independent authority (AC-1/AC-2)",
+      "op": "emancipation-establish",
+      "statusResolved": true,
+      "expectOutcome": "established"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-014",
+  "class": "HAPPY",
+  "description": "Incapacity authority activates only from a verified triggering determination, with scope, duration, and a responsible reviewer.",
+  "cases": [
+    {
+      "name": "a verified triggering determination activates the scoped authority (AC-1/AC-2)",
+      "op": "incapacity-activate",
+      "withTrigger": true,
+      "expectOutcome": "activated"
+    }
+  ]
+}

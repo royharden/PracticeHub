@@ -1,0 +1,27 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-011",
+  "class": "RECOVERY",
+  "description": "Once authoritative evidence lands, the prevailing record resumes serving scoped access from its new version.",
+  "cases": [
+    {
+      "name": "resolution restores scoped access on the prevailing record",
+      "op": "custody-resolve",
+      "custodyBasis": "verified-legal-document",
+      "expectResolvedVersion": 2
+    },
+    {
+      "name": "an active resolved record answers scoped reads again",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "proxy" },
+        "segment": "messaging",
+        "action": "view",
+        "subject": "minor",
+        "stepUp": true,
+        "patientState": "NV"
+      },
+      "expectAllowed": true
+    }
+  ]
+}

@@ -1,25 +1,31 @@
 /**
- * Drift gates for the identity migrations (WP-013 + WP-014 + WP-016): each
- * committed generated RLS section must byte-match a fresh emission from the
- * WP-010 generator — every migration emits DDL for its own tables with the
- * SCHEMA-WIDE coverage guard (the WP-011 guard-vs-DDL split, so re-applying
- * an early migration after a later one stays clean while an undeclared table
- * still raises). Every table must be declared, and the append-only postures
- * must survive every migration's GRANT pass: the timeline REVOKE stays in
- * 0004/0005, the merge-table REVOKEs stay in 0006 AND (conditionally) in
- * 0004/0005 whose schema-wide GRANT would otherwise re-open them on re-apply
- * (probed live by the DB suite).
+ * Drift gates for the identity migrations (WP-013 + WP-014 + WP-016 +
+ * WP-015): each committed generated RLS section must byte-match a fresh
+ * emission from the WP-010 generator — every migration emits DDL for its own
+ * tables with the SCHEMA-WIDE coverage guard (the WP-011 guard-vs-DDL split,
+ * so re-applying an early migration after a later one stays clean while an
+ * undeclared table still raises). Every table must be declared, and the
+ * append-only/immutability postures must survive every migration's GRANT
+ * pass: the timeline REVOKE stays in 0004/0005, the merge-table REVOKEs stay
+ * in 0006 AND (conditionally) in 0004/0005, and the PDP postures stay in
+ * 0008 AND (conditionally) in 0004/0005 whose schema-wide GRANT would
+ * otherwise re-open them on re-apply (probed live by the DB suite). The
+ * committed role-template seed section must byte-match
+ * renderPdpTemplateSeedSection — canonicalRoleTemplateSeedsV1 is the one
+ * data source for template permits.
  */
 import { readFileSync } from 'node:fs';
 
 import { extractRlsMigrationSection, renderRlsMigrationSection } from '@practicehub/platform-core';
 import { describe, expect, it } from 'vitest';
 
+import { pdpSeedBeginMarker, pdpSeedEndMarker, renderPdpTemplateSeedSection } from './pdp.js';
 import {
   authnRlsSpecs,
   identityRlsSpecs,
   identitySchemaRlsSpecs,
   mergeRlsSpecs,
+  pdpRlsSpecs,
 } from './rls-specs.js';
 
 const identityMigrationSql = readFileSync(
@@ -32,6 +38,14 @@ const authnMigrationSql = readFileSync(
 );
 const mergeMigrationSql = readFileSync(
   new URL('../migrations/0006-merge.sql', import.meta.url),
+  'utf8',
+);
+const pdpMigrationSql = readFileSync(
+  new URL('../migrations/0008-pdp.sql', import.meta.url),
+  'utf8',
+);
+const pdpSeedSql = readFileSync(
+  new URL('../../../infra/postgres/seed/010-pdp-seed.sql', import.meta.url),
   'utf8',
 );
 
@@ -54,6 +68,13 @@ describe('identity RLS drift gate', () => {
     const embedded = extractRlsMigrationSection(mergeMigrationSql);
     expect(embedded).toBe(
       renderRlsMigrationSection('identity', mergeRlsSpecs, identitySchemaRlsSpecs),
+    );
+  });
+
+  it('0008-pdp.sql embeds exactly the generated section (schema-wide guard)', () => {
+    const embedded = extractRlsMigrationSection(pdpMigrationSql);
+    expect(embedded).toBe(
+      renderRlsMigrationSection('identity', pdpRlsSpecs, identitySchemaRlsSpecs),
     );
   });
 
@@ -83,9 +104,19 @@ describe('identity RLS drift gate', () => {
     expect(created).toEqual(declared);
   });
 
-  it('the schema-wide registry is exactly the union of all three DDL scopes', () => {
+  it('every CREATE TABLE in 0008 is declared in its DDL-scope registry', () => {
+    const created = [...pdpMigrationSql.matchAll(/CREATE TABLE IF NOT EXISTS identity\.(\w+)/g)]
+      .map((match) => match[1])
+      .sort();
+    const declared = pdpRlsSpecs.map((spec) => spec.table).sort();
+    expect(created).toEqual(declared);
+  });
+
+  it('the schema-wide registry is exactly the union of all four DDL scopes', () => {
     expect(identitySchemaRlsSpecs.map((spec) => spec.table).sort()).toEqual(
-      [...identityRlsSpecs, ...authnRlsSpecs, ...mergeRlsSpecs].map((spec) => spec.table).sort(),
+      [...identityRlsSpecs, ...authnRlsSpecs, ...mergeRlsSpecs, ...pdpRlsSpecs]
+        .map((spec) => spec.table)
+        .sort(),
     );
   });
 
@@ -130,5 +161,58 @@ describe('identity RLS drift gate', () => {
       expect(sql).toContain('REVOKE DELETE ON identity.merge_case FROM module_identity;');
       expect(sql).toContain('REVOKE DELETE ON identity.merge_case_person FROM module_identity;');
     }
+  });
+
+  it('0008 asserts the PDP structural postures directly', () => {
+    expect(pdpMigrationSql).toContain(
+      'REVOKE UPDATE, DELETE ON identity.person_flag FROM module_identity;',
+    );
+    expect(pdpMigrationSql).toContain(
+      'REVOKE UPDATE, DELETE ON identity.role_template FROM module_identity;',
+    );
+    expect(pdpMigrationSql).toContain(
+      'GRANT UPDATE (status) ON identity.role_template TO module_identity;',
+    );
+    for (const table of [
+      'role_assignment',
+      'access_override',
+      'authority_record',
+      'partition_tag',
+      'gipa_authorization',
+    ]) {
+      expect(pdpMigrationSql).toContain(`REVOKE DELETE ON identity.${table} FROM module_identity;`);
+    }
+  });
+
+  it('0004 and 0005 conditionally re-assert the PDP postures their GRANT would re-open', () => {
+    for (const sql of [identityMigrationSql, authnMigrationSql]) {
+      for (const table of [
+        'person_flag',
+        'role_template',
+        'role_assignment',
+        'access_override',
+        'authority_record',
+        'partition_tag',
+        'gipa_authorization',
+      ]) {
+        expect(sql, `conditional re-REVOKE for identity.${table}`).toContain(
+          `IF to_regclass('identity.${table}') IS NOT NULL THEN`,
+        );
+      }
+      expect(sql).toContain('REVOKE UPDATE, DELETE ON identity.person_flag FROM module_identity;');
+      expect(sql).toContain(
+        'REVOKE UPDATE, DELETE ON identity.role_template FROM module_identity;',
+      );
+      expect(sql).toContain('GRANT UPDATE (status) ON identity.role_template TO module_identity;');
+    }
+  });
+
+  it('010-pdp-seed.sql embeds exactly the generated role-template section', () => {
+    const begin = pdpSeedSql.indexOf(pdpSeedBeginMarker);
+    const end = pdpSeedSql.indexOf(pdpSeedEndMarker);
+    expect(begin).toBeGreaterThanOrEqual(0);
+    expect(end).toBeGreaterThan(begin);
+    const embedded = pdpSeedSql.slice(begin, end + pdpSeedEndMarker.length);
+    expect(embedded).toBe(renderPdpTemplateSeedSection('northwind-synthetic'));
   });
 });

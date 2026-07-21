@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-014",
+  "class": "RECOVERY",
+  "description": "When capacity returns, a qualified reviewer withdraws proxy scope and future actions return to the patient.",
+  "cases": [
+    {
+      "name": "capacity return withdraws the delegated scope; future actions return to the patient (AC-3)",
+      "op": "incapacity-deactivate"
+    }
+  ]
+}

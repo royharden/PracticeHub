@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-016",
+  "class": "FAILURE",
+  "description": "Conflicting custody, disputed responsibility, bankruptcy, confidential minor service, or an unverified caller blocks reassignment AND statement release.",
+  "cases": [
+    {
+      "name": "disputed responsibility blocks the change and holds statements (EX-1)",
+      "op": "guarantor-change",
+      "blockers": ["disputed-responsibility"],
+      "expectOutcome": "blocked-review"
+    },
+    {
+      "name": "an unverified caller blocks the same way (EX-1)",
+      "op": "guarantor-change",
+      "blockers": ["unverified-caller"],
+      "expectOutcome": "blocked-review"
+    },
+    {
+      "name": "a confidential minor service blocks the same way (EX-1)",
+      "op": "guarantor-change",
+      "blockers": ["confidential-minor-service"],
+      "expectOutcome": "blocked-review"
+    },
+    {
+      "name": "a historical reassignment without its human approver refuses (AC-3)",
+      "op": "reassign-balances",
+      "omitApprover": true,
+      "expectError": "human approver"
+    }
+  ]
+}

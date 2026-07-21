@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-023",
+  "class": "RECOVERY",
+  "description": "Ending the relationship: removal with an unpaid balance requires a valid patient payment method, then billing reverts and access ends; a contested designation has a removal path.",
+  "cases": [
+    {
+      "name": "removal with an unpaid balance and no patient method blocks (EX-2)",
+      "op": "guarantor-release",
+      "unpaidBalance": true,
+      "expectOutcome": "blocked-payment-method-required"
+    },
+    {
+      "name": "a valid patient payment method releases the guarantor and transfers billing (AC-3/AC-6)",
+      "op": "guarantor-release",
+      "unpaidBalance": true,
+      "withPaymentMethod": true,
+      "expectOutcome": "released",
+      "expectTransfersTo": "patient"
+    },
+    {
+      "name": "a contested guarantor designation opens an attributed review (EX-4)",
+      "op": "guarantor-dispute"
+    }
+  ]
+}

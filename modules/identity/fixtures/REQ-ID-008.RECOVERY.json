@@ -1,0 +1,57 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-008",
+  "class": "RECOVERY",
+  "description": "An expired MHRA consent auto-suspends the results-viewing scope while scheduling/messaging scopes continue (the consent-expiry engine).",
+  "cases": [
+    {
+      "name": "a stale MN consent suspends the records scope (EX-6)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": {
+          "kind": "proxy",
+          "authority": { "jurisdiction": "MN", "consentCapturedOn": "2025-01-01" }
+        },
+        "segment": "results",
+        "action": "view",
+        "subject": "minor",
+        "stepUp": true,
+        "patientState": "MN"
+      },
+      "expectAllowed": false,
+      "expectDenials": ["records-consent-expired"]
+    },
+    {
+      "name": "scheduling continues while the records scope is suspended (EX-6)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": {
+          "kind": "proxy",
+          "authority": { "jurisdiction": "MN", "consentCapturedOn": "2025-01-01" }
+        },
+        "segment": "scheduling",
+        "action": "view",
+        "subject": "minor",
+        "stepUp": true,
+        "patientState": "MN"
+      },
+      "expectAllowed": true
+    },
+    {
+      "name": "a refreshed written consent restores the records scope",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": {
+          "kind": "proxy",
+          "authority": { "jurisdiction": "MN", "consentCapturedOn": "2026-03-20" }
+        },
+        "segment": "results",
+        "action": "view",
+        "subject": "minor",
+        "stepUp": true,
+        "patientState": "MN"
+      },
+      "expectAllowed": true
+    }
+  ]
+}

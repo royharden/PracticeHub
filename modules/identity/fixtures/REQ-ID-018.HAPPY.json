@@ -1,0 +1,31 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-018",
+  "class": "HAPPY",
+  "description": "Canonical role templates map each persona to its minimum permit set; assigning a template applies the whole set in one action.",
+  "cases": [
+    {
+      "name": "a front-desk permit answers scheduling from its template basis (AC-1/AC-6)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "staff", "roleKey": "front-desk" },
+        "segment": "scheduling",
+        "action": "edit",
+        "purpose": "operations"
+      },
+      "expectAllowed": true,
+      "expectBasisContains": "role-template:front-desk:v1"
+    },
+    {
+      "name": "assigning a role ends every prior active assignment in the SAME act (AC-7/EX-4)",
+      "op": "assign-role",
+      "priorAssignments": [{ "roleKey": "front-desk" }],
+      "newRoleKey": "biller-coder",
+      "expectEndedCount": 1
+    },
+    {
+      "name": "a justified, approved, time-boxed override lands review-flagged (AC-8)",
+      "op": "grant-override"
+    }
+  ]
+}

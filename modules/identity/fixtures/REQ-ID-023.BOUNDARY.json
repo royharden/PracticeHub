@@ -1,0 +1,35 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-023",
+  "class": "BOUNDARY",
+  "description": "The same person holds guarantor AND caregiver roles simultaneously without the scopes conflating.",
+  "cases": [
+    {
+      "name": "as guarantor, the dual-role person is denied clinical results (EX-3)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "guarantor" },
+        "segment": "results",
+        "action": "view",
+        "purpose": "payment",
+        "subject": "minor",
+        "stepUp": true
+      },
+      "expectAllowed": false,
+      "expectDenials": ["guarantor-no-clinical"]
+    },
+    {
+      "name": "as proxy, the SAME person reaches scoped results — the roles stay distinct (EX-3)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "proxy" },
+        "segment": "results",
+        "action": "view",
+        "subject": "minor",
+        "stepUp": true,
+        "patientState": "NV"
+      },
+      "expectAllowed": true
+    }
+  ]
+}

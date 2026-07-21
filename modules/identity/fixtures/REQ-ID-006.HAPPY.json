@@ -1,0 +1,29 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-006",
+  "class": "HAPPY",
+  "description": "Staff verify relationship, authority, jurisdiction, scope, and evidence before granting proxy access; portal actions log against the proxy's own identity.",
+  "cases": [
+    {
+      "name": "verified guardian authority establishes active with scope, evidence, and verifier (AC-1)",
+      "op": "establish-authority",
+      "relationshipVerified": true,
+      "expectOutcome": "established"
+    },
+    {
+      "name": "an in-scope proxy read is allowed and audited against the proxy's OWN identity (AC-3)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "proxy" },
+        "segment": "results",
+        "action": "view",
+        "subject": "minor",
+        "stepUp": true,
+        "patientState": "NV"
+      },
+      "expectAllowed": true,
+      "expectBasisContains": "authority:nar-alex-casey:v1",
+      "expectActorRef": "synthetic-portal:np-alex-rivera"
+    }
+  ]
+}

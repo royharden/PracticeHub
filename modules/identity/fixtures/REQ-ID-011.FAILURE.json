@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-011",
+  "class": "FAILURE",
+  "description": "Staff cannot infer authority from insurance subscriber, guarantor, household, or prior-message status — the resolution basis vocabulary structurally excludes them.",
+  "cases": [
+    {
+      "name": "insurance-subscriber status can never carry the resolution (EX-1)",
+      "op": "custody-resolve",
+      "custodyBasis": "insurance-subscriber",
+      "expectError": "never carry the decision"
+    },
+    {
+      "name": "guarantor status can never carry the resolution (EX-1)",
+      "op": "custody-resolve",
+      "custodyBasis": "guarantor-status",
+      "expectError": "never carry the decision"
+    },
+    {
+      "name": "household membership can never carry the resolution (EX-1)",
+      "op": "custody-resolve",
+      "custodyBasis": "household-membership",
+      "expectError": "never carry the decision"
+    },
+    {
+      "name": "whoever messaged last can never carry the resolution (EX-1)",
+      "op": "custody-resolve",
+      "custodyBasis": "prior-message-thread",
+      "expectError": "never carry the decision"
+    }
+  ]
+}

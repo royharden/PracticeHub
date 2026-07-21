@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-013",
+  "class": "FAILURE",
+  "description": "Unresolved emancipation or self-consent status denies contested disclosure by default and routes to compliance review without delaying emergency care.",
+  "cases": [
+    {
+      "name": "unresolved status holds for compliance review; contested disclosure denies by default (EX-1)",
+      "op": "emancipation-establish",
+      "statusResolved": false,
+      "expectOutcome": "held-compliance-review"
+    }
+  ]
+}

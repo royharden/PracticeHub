@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-012",
+  "class": "RECOVERY",
+  "description": "A valid renewal or replacement resumes access from the new effective version and reconciles held work.",
+  "cases": [
+    {
+      "name": "valid renewal evidence renews from the NEW effective version and reconciles held work (AC-4)",
+      "op": "attempt-extension",
+      "authority": {
+        "kind": "temporary-guardianship",
+        "expiresOn": "2026-06-01",
+        "renewalOwnerRef": "synthetic-renewal-owner-0001"
+      },
+      "extensionBasis": "valid-renewal-evidence",
+      "expectOutcome": "renewed"
+    }
+  ]
+}

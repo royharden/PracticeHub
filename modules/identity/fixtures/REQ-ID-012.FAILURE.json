@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-012",
+  "class": "FAILURE",
+  "description": "Expired authority cannot be extended by portal activity, staff convenience, or an unrelated financial relationship.",
+  "cases": [
+    {
+      "name": "portal activity never extends authority (EX-1)",
+      "op": "attempt-extension",
+      "extensionBasis": "portal-activity",
+      "expectOutcome": "refused"
+    },
+    {
+      "name": "staff convenience never extends authority (EX-1)",
+      "op": "attempt-extension",
+      "extensionBasis": "staff-convenience",
+      "expectOutcome": "refused"
+    },
+    {
+      "name": "a financial relationship never extends authority (EX-1)",
+      "op": "attempt-extension",
+      "extensionBasis": "financial-relationship",
+      "expectOutcome": "refused"
+    }
+  ]
+}

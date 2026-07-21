@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-016",
+  "class": "BOUNDARY",
+  "description": "Prior actors lose ONLY the authority that ended; historical reassignment shows the legal basis without rewriting prior transactions.",
+  "cases": [
+    {
+      "name": "a counselor-approved historical reassignment writes lineage that rewrites nothing (AC-3)",
+      "op": "reassign-balances",
+      "expectRewrites": false
+    },
+    {
+      "name": "every reviewed dimension is required before any change applies (AC-1)",
+      "op": "guarantor-change",
+      "reviewedMissing": "balances",
+      "expectError": "reviews effective scope"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-010",
+  "class": "RECOVERY",
+  "description": "A mistaken replacement rolls back FROM the versioned evidence chain without erasing actions already taken or their actors.",
+  "cases": [
+    {
+      "name": "rollback reinstates the prior guardian as a NEW version; the mistaken record is retained (EX-2)",
+      "op": "rollback-replacement"
+    }
+  ]
+}

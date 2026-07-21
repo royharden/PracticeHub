@@ -1,0 +1,33 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-023",
+  "class": "HAPPY",
+  "description": "A linked guarantor views invoices and manages payment methods for the patient without any clinical visibility.",
+  "cases": [
+    {
+      "name": "the guarantor views statements for the linked patient (AC-1/AC-5)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "guarantor" },
+        "segment": "statements",
+        "action": "view",
+        "purpose": "payment",
+        "subject": "minor"
+      },
+      "expectAllowed": true,
+      "expectBasisContains": "guarantor-role:ngr-alex-for-casey"
+    },
+    {
+      "name": "the guarantor manages cards on file (AC-1)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": { "kind": "guarantor" },
+        "segment": "payment-methods",
+        "action": "edit",
+        "purpose": "payment",
+        "subject": "minor"
+      },
+      "expectAllowed": true
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-006",
+  "class": "FAILURE",
+  "description": "Missing or unverified authority blocks proxy access and routes to trained staff; unverified records never grant.",
+  "cases": [
+    {
+      "name": "an unverified authority request routes to trained staff instead of granting (EX-1)",
+      "op": "establish-authority",
+      "relationshipVerified": false,
+      "expectOutcome": "routed-to-staff-verification"
+    },
+    {
+      "name": "a pending-verification record denies portal access",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": {
+          "kind": "proxy",
+          "authority": { "status": "pending-verification", "verifiedBy": null }
+        },
+        "segment": "scheduling",
+        "action": "view",
+        "subject": "minor",
+        "stepUp": true,
+        "patientState": "NV"
+      },
+      "expectAllowed": false,
+      "expectDenials": ["authority-not-verified"]
+    }
+  ]
+}

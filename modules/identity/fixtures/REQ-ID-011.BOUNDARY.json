@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-011",
+  "class": "BOUNDARY",
+  "description": "While no authoritative resolution exists, contested actions hold and clinically necessary care follows the neutral pathway.",
+  "cases": [
+    {
+      "name": "a held-conflict record denies the contested caregiver action (AC-2)",
+      "op": "evaluate",
+      "evaluate": {
+        "actor": {
+          "kind": "proxy",
+          "authority": { "status": "held-conflict" }
+        },
+        "segment": "scheduling",
+        "action": "edit",
+        "subject": "minor",
+        "stepUp": true,
+        "patientState": "NV"
+      },
+      "expectAllowed": false,
+      "expectDenials": ["custody-conflict-held"]
+    }
+  ]
+}
