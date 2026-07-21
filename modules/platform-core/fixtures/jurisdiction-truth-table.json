@@ -1,7 +1,8 @@
 {
   "synthetic": true,
-  "packsVersion": "jurisdictionPacksV1 (all packs v1, draft)",
-  "note": "FROZEN regression baseline for the strictest-law cascade (WP-011 verification gate). Regenerate ONLY as a deliberate, change-controlled act after a rule-pack change (command in docs/contracts/jurisdiction-resolver.md), then review the cell diff. CA is the deliberately-unpacked fifth-state probe (NFR-14).",
+  "packsVersion": "jurisdictionPacksV1 (all packs v1, draft, effective-dated per ADR-ADJ-002)",
+  "asOf": "2026-01-01",
+  "note": "FROZEN regression baseline for the strictest-law cascade (WP-011 verification gate). Every cell is computed at the pinned asOf above — wall-clock never selects the versions the gate compares against (ADR-ADJ-002 semantics 8); the pin equals the state packs' baseline effectiveOn, so every cell is also an inclusive-boundary (effectiveOn <= asOf by equality) proof. Regenerate ONLY as a deliberate, change-controlled act after a rule-pack change (command in docs/contracts/jurisdiction-resolver.md), then review the cell diff. CA is the deliberately-unpacked fifth-state probe (NFR-14).",
   "cells": {
     "recording-consent|NV|NV": {
       "obligations": ["all-party-consent"],

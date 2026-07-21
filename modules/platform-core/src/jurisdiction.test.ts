@@ -25,6 +25,7 @@ import {
   jurisdictionPacksV1,
   jurisdictionSeedBeginMarker,
   jurisdictionSeedEndMarker,
+  packBaselineEffectiveOn,
   renderJurisdictionSeedSection,
 } from './jurisdiction-packs.js';
 
@@ -42,6 +43,14 @@ const truthTablePath = fileURLToPath(
  * fifth-state path), and the unknown location, on both facts.
  */
 const truthTableStates: readonly (string | null)[] = ['NV', 'FL', 'IL', 'MN', 'CA', null];
+
+/**
+ * Pinned as-of for the regression baseline (ADR-ADJ-002 semantics 8): the
+ * harness NEVER lets wall-clock select pack versions. Pinning exactly the
+ * state packs' baseline effective date also makes every cell an
+ * inclusive-boundary proof — effectiveOn ≤ asOf holds by equality.
+ */
+const truthTableAsOf = packBaselineEffectiveOn;
 
 interface TruthTableCell {
   readonly obligations: readonly string[];
@@ -66,7 +75,12 @@ function computeTruthTable(): Record<string, TruthTableCell> {
       for (const patientState of truthTableStates) {
         const key = `${topic}|${providerState ?? 'unknown'}|${patientState ?? 'unknown'}`;
         table[key] = truthTableCell(
-          resolveJurisdiction(jurisdictionPacksV1, { providerState, patientState }, topic),
+          resolveJurisdiction(
+            jurisdictionPacksV1,
+            { providerState, patientState },
+            topic,
+            truthTableAsOf,
+          ),
         );
       }
     }
@@ -269,14 +283,205 @@ describe('strictest-law cascade resolver — hand-derived anchors (R6-SR-002)', 
   });
 });
 
+describe('effective-dated selection — hand-derived boundary anchors (ADR-ADJ-002)', () => {
+  // The retention scalar is the probe surface: the floor carries no retention
+  // scalar, so version selection is visible in the OUTCOME, never masked by
+  // the floor union (the WP-011 LESSONS entry on floor masking). Contribution
+  // packVersion/effectiveOn provenance is asserted alongside.
+  const nvV1 = jurisdictionPacksV1.find(
+    (pack) => pack.jurisdiction === 'NV',
+  ) as JurisdictionRulePack;
+  const nvStagedV2: JurisdictionRulePack = {
+    ...nvV1,
+    version: 2,
+    effectiveOn: '2100-06-01',
+    changeControlRef: 'synthetic-ccr-jur-nv-002-staged',
+    rules: nvV1.rules.map((rule) =>
+      rule.topic === 'retention' ? { ...rule, scalars: { 'retention-years-adult': 6 } } : rule,
+    ),
+  };
+  const nvCorrectionV3: JurisdictionRulePack = {
+    ...nvV1,
+    version: 3,
+    effectiveOn: '2026-02-01',
+    changeControlRef: 'synthetic-ccr-jur-nv-003-correction',
+    rules: nvV1.rules.map((rule) =>
+      rule.topic === 'retention' ? { ...rule, scalars: { 'retention-years-adult': 8 } } : rule,
+    ),
+  };
+  const providerContribution = (
+    resolution: JurisdictionResolution,
+  ): JurisdictionResolution['contributions'][number] | undefined =>
+    resolution.contributions.find((contribution) => contribution.fact === 'provider');
+
+  it('a future-staged version is inert the day before its effective date', () => {
+    const resolution = resolveJurisdiction(
+      [...jurisdictionPacksV1, nvStagedV2],
+      { providerState: 'NV', patientState: 'NV' },
+      'retention',
+      '2100-05-31',
+    );
+    expect(resolution.scalars).toEqual({ 'retention-years-adult': 5 });
+    expect(providerContribution(resolution)?.packVersion).toBe(1);
+    expect(providerContribution(resolution)?.effectiveOn).toBe(packBaselineEffectiveOn);
+    expect(resolution.asOf).toBe('2100-05-31');
+  });
+
+  it('the staged version activates ON its effective date (inclusive boundary)', () => {
+    const resolution = resolveJurisdiction(
+      [...jurisdictionPacksV1, nvStagedV2],
+      { providerState: 'NV', patientState: 'NV' },
+      'retention',
+      '2100-06-01',
+    );
+    expect(resolution.scalars).toEqual({ 'retention-years-adult': 6 });
+    expect(providerContribution(resolution)?.packVersion).toBe(2);
+    expect(providerContribution(resolution)?.effectiveOn).toBe('2100-06-01');
+  });
+
+  it('a correction lands as a higher version with an EARLIER effective date and governs (no monotonicity constraint)', () => {
+    const packs = [...jurisdictionPacksV1, nvStagedV2, nvCorrectionV3];
+    const current = resolveJurisdiction(
+      packs,
+      { providerState: 'NV', patientState: 'NV' },
+      'retention',
+      '2026-07-01',
+    );
+    expect(current.scalars).toEqual({ 'retention-years-adult': 8 });
+    expect(providerContribution(current)?.packVersion).toBe(3);
+    // The correction shadows the staged version even on the staged date:
+    // reissuing a staged version that must absorb a correction is counsel
+    // change-control procedure (EW-025), never resolver guesswork.
+    const stagedDay = resolveJurisdiction(
+      packs,
+      { providerState: 'NV', patientState: 'NV' },
+      'retention',
+      '2100-06-01',
+    );
+    expect(providerContribution(stagedDay)?.packVersion).toBe(3);
+    expect(stagedDay.scalars).toEqual({ 'retention-years-adult': 8 });
+  });
+
+  it('a jurisdiction with NO version effective as-of resolves through the safe defaults with the gap named', () => {
+    const futureOnlyMn = jurisdictionPacksV1.map((pack) =>
+      pack.jurisdiction === 'MN' ? { ...pack, effectiveOn: '2100-01-01' } : pack,
+    );
+    const resolution = resolveJurisdiction(
+      futureOnlyMn,
+      { providerState: 'NV', patientState: 'MN' },
+      'retention',
+      '2026-07-01',
+    );
+    expect(resolution.defaultsApplied).toBe(true);
+    expect(resolution.missingPacks).toEqual(['MN']);
+    expect(resolution.scalars).toEqual({ 'retention-years-adult': 10 });
+  });
+
+  it('floor/unknown not effective as-of the query is a resolver ERROR, never a defaults fallback', () => {
+    // Reachable only before the epoch sentinel — and there it must throw,
+    // not quietly fall through: even fully-known states route to the unknown
+    // pack (not yet effective) and hit the fail-closed error.
+    expect(() =>
+      resolveJurisdiction(
+        jurisdictionPacksV1,
+        { providerState: 'NV', patientState: 'NV' },
+        'retention',
+        '1969-12-31',
+      ),
+    ).toThrow(/no effective 'unknown' pack as-of 1969-12-31/);
+  });
+
+  it('registry validation pins the epoch sentinel on the earliest floor/unknown version', () => {
+    for (const pseudo of ['floor', 'unknown']) {
+      const drifted = jurisdictionPacksV1.map((pack) =>
+        pack.jurisdiction === pseudo ? { ...pack, effectiveOn: packBaselineEffectiveOn } : pack,
+      );
+      expect(() => assertJurisdictionRegistryWellFormed(drifted)).toThrow(/epoch sentinel/);
+    }
+  });
+
+  it('a LATER floor version may stage a later date — the earliest keeps the substrate always-effective', () => {
+    const floorV1 = jurisdictionPacksV1.find(
+      (pack) => pack.jurisdiction === 'floor',
+    ) as JurisdictionRulePack;
+    const floorStagedV2: JurisdictionRulePack = {
+      ...floorV1,
+      version: 2,
+      effectiveOn: '2100-01-01',
+      changeControlRef: 'synthetic-ccr-jur-floor-002-staged',
+    };
+    const resolution = resolveJurisdiction(
+      [...jurisdictionPacksV1, floorStagedV2],
+      { providerState: 'NV', patientState: 'NV' },
+      'retention',
+      '2026-07-01',
+    );
+    expect(
+      resolution.contributions.find((contribution) => contribution.fact === 'floor')?.packVersion,
+    ).toBe(1);
+  });
+
+  it('rejects a malformed asOf and a malformed effectiveOn (fail-closed)', () => {
+    for (const bad of ['2026-2-1', '2026-02-30', 'not-a-date', '20260201']) {
+      expect(() =>
+        resolveJurisdiction(
+          jurisdictionPacksV1,
+          { providerState: 'NV', patientState: 'NV' },
+          'retention',
+          bad,
+        ),
+      ).toThrow(/asOf must be a calendar date/);
+    }
+    expect(() =>
+      assertJurisdictionRulePackWellFormed({ ...nvV1, effectiveOn: '2026-13-01' }),
+    ).toThrow(/effectiveOn must be a calendar date/);
+  });
+
+  it('an omitted asOf selects as-of the current date and echoes the value used (send-time path)', () => {
+    const resolution = resolveJurisdiction(
+      jurisdictionPacksV1,
+      { providerState: 'NV', patientState: 'FL' },
+      'retention',
+    );
+    expect(resolution.asOf).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    // The baseline-dated v1 packs govern as-of now: effective-dated selection
+    // resolves exactly what version-only selection did — the
+    // current-behavior-unchanged invariant on WP-020/WP-015 call sites.
+    for (const contribution of resolution.contributions) {
+      expect(contribution.packVersion).toBe(1);
+    }
+    expect(resolution.scalars).toEqual({ 'retention-years-adult': 5 });
+  });
+
+  it('every contribution carries its pack effectiveOn (provenance duty unchanged, supplemented)', () => {
+    const resolution = resolveJurisdiction(
+      jurisdictionPacksV1,
+      { providerState: 'NV', patientState: 'CA' },
+      'retention',
+      truthTableAsOf,
+    );
+    expect(providerContribution(resolution)?.effectiveOn).toBe(packBaselineEffectiveOn);
+    expect(
+      resolution.contributions.find((contribution) => contribution.fact === 'patient')?.effectiveOn,
+    ).toBe('1970-01-01');
+    expect(
+      resolution.contributions.find((contribution) => contribution.fact === 'floor')?.effectiveOn,
+    ).toBe('1970-01-01');
+  });
+});
+
 describe('rule-change regression harness (verification gate)', () => {
   it('TRUTH-TABLE: every state×topic resolution matches the committed table', () => {
     const committed = JSON.parse(readFileSync(truthTablePath, 'utf8')) as {
       synthetic: true;
       packsVersion: string;
+      asOf: string;
       cells: Record<string, TruthTableCell>;
     };
     expect(committed.synthetic).toBe(true);
+    // The committed baseline records its pinned as-of; wall-clock never
+    // selects the versions the gate compares against (ADR-ADJ-002).
+    expect(committed.asOf, 'committed truth table must pin the harness asOf').toBe(truthTableAsOf);
     const computed = computeTruthTable();
     expect(
       Object.keys(committed.cells).length,
@@ -312,6 +517,7 @@ interface ResolutionExpectation {
   readonly missingPacks?: readonly string[];
   readonly counselReviewPending?: boolean;
   readonly contributionVersions?: Readonly<Record<string, number>>;
+  readonly asOf?: string;
 }
 
 function expectResolution(
@@ -342,6 +548,9 @@ function expectResolution(
       `${fact} contribution pack version`,
     ).toBe(version);
   }
+  if (expectation.asOf !== undefined) {
+    expect(resolution.asOf).toBe(expectation.asOf);
+  }
 }
 
 interface ResolverFixtureCase {
@@ -349,6 +558,8 @@ interface ResolverFixtureCase {
   readonly packIndexes?: readonly number[];
   readonly basis: JurisdictionBasis;
   readonly topic: string;
+  /** Pinned as-of for effective-dated selection; omitted = as-of-now path. */
+  readonly asOf?: string;
   readonly expect?: ResolutionExpectation;
   readonly expectError?: string;
 }
@@ -388,7 +599,12 @@ describe('R6-SR-002 fixture pack (strictest-law cascade engine)', () => {
         it(fixtureCase.name, () => {
           const packs = resolverFixturePacks(fixture, fixtureCase);
           const run = (): JurisdictionResolution =>
-            resolveJurisdiction(packs, fixtureCase.basis, fixtureCase.topic as JurisdictionTopic);
+            resolveJurisdiction(
+              packs,
+              fixtureCase.basis,
+              fixtureCase.topic as JurisdictionTopic,
+              fixtureCase.asOf,
+            );
           if (fixtureCase.expectError !== undefined) {
             expect(run).toThrow(new RegExp(fixtureCase.expectError));
             return;

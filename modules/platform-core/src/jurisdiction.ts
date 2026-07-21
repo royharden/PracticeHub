@@ -1,13 +1,18 @@
 /**
- * Jurisdiction-as-data (WP-011). A versioned `JurisdictionRulePack` registry
- * (per jurisdiction × topic) with a strictest-law cascade resolver over the
- * two location facts (R6-SR-002; ADR-005 §5) and safe defaults on unknown
- * location. Contract: docs/contracts/jurisdiction-resolver.md (FROZEN).
+ * Jurisdiction-as-data (WP-011). A versioned, EFFECTIVE-DATED
+ * `JurisdictionRulePack` registry (per jurisdiction × topic) with a
+ * strictest-law cascade resolver over the two location facts (R6-SR-002;
+ * ADR-005 §5) and safe defaults on unknown location. Contract:
+ * docs/contracts/jurisdiction-resolver.md (FROZEN; effective-dating per
+ * ADR-ADJ-002).
  *
  * Adding a state is a rule pack + counsel sign-off (EW-025), never code
  * (NFR-14): a known state with no pack resolves through the `unknown`
  * safe-default pack with the gap named in `missingPacks` — conservative,
- * never a silent statutory answer and never a crash.
+ * never a silent statutory answer and never a crash. Activation timing is
+ * part of the rule (ADR-ADJ-002): the active version of a jurisdiction as-of
+ * `T` is the highest version whose `effectiveOn ≤ T`; a future-dated pack is
+ * pre-staged and inert until its date.
  */
 
 import { TenancyInvariantError } from './tenancy.js';
@@ -105,8 +110,32 @@ export const jurisdictionScalarDirections: Readonly<Record<string, 'min' | 'max'
 export const floorJurisdiction = 'floor';
 export const unknownJurisdiction = 'unknown';
 
+/**
+ * Epoch sentinel (ADR-ADJ-002 semantics 3): the earliest `floor`/`unknown`
+ * version carries this `effectiveOn` so the fail-closed substrate is
+ * effective at every queriable as-of date.
+ */
+export const epochEffectiveOn = '1970-01-01';
+
 const stateCodePattern = /^[A-Z]{2}$/;
 const refPattern = /^[a-z0-9][a-z0-9-]{0,127}$/;
+const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Calendar-date check (ADR-ADJ-002 semantics 5): ISO `YYYY-MM-DD`, compared
+ * as strings on a UTC basis; day granularity is deliberate — counsel
+ * effective dates are day-granular.
+ */
+function isCalendarDate(value: string): boolean {
+  if (!isoDatePattern.test(value)) {
+    return false;
+  }
+  const parsed = Date.parse(`${value}T00:00:00Z`);
+  if (Number.isNaN(parsed)) {
+    return false;
+  }
+  return new Date(parsed).toISOString().slice(0, 10) === value;
+}
 
 export type PackStatus = 'draft' | 'counsel-signed';
 
@@ -128,6 +157,13 @@ export interface JurisdictionRule {
 export interface JurisdictionRulePack {
   readonly jurisdiction: string;
   readonly version: number;
+  /**
+   * ISO date (`YYYY-MM-DD`, counsel-supplied, part of the change-controlled
+   * artifact) on and after which this version is selectable (ADR-ADJ-002:
+   * inclusive boundary). A future-dated pack is pre-staged and inert until
+   * its date.
+   */
+  readonly effectiveOn: string;
   readonly status: PackStatus;
   readonly counselSignoffRef?: string;
   readonly changeControlRef: string;
@@ -160,6 +196,12 @@ export function assertJurisdictionRulePackWellFormed(pack: JurisdictionRulePack)
   }
   if (!Number.isInteger(pack.version) || pack.version < 1) {
     throw new JurisdictionError(`pack ${label}: version must be a positive integer`);
+  }
+  if (!isCalendarDate(pack.effectiveOn)) {
+    throw new JurisdictionError(
+      `pack ${label}: effectiveOn must be a calendar date (YYYY-MM-DD); ` +
+        `received ${JSON.stringify(pack.effectiveOn)}`,
+    );
   }
   if (pack.synthetic !== true) {
     throw new JurisdictionError(`pack ${label}: missing the synthetic watermark`);
@@ -242,18 +284,39 @@ export function assertJurisdictionRegistryWellFormed(packs: readonly Jurisdictio
     seen.add(key);
   }
   for (const required of [floorJurisdiction, unknownJurisdiction]) {
-    if (!packs.some((pack) => pack.jurisdiction === required)) {
+    const versions = packs.filter((pack) => pack.jurisdiction === required);
+    if (versions.length === 0) {
       throw new JurisdictionError(`registry is missing the '${required}' pack`);
+    }
+    // ADR-ADJ-002 semantics 3: the fail-closed substrate must be effective at
+    // every queriable as-of, so the earliest version carries the epoch
+    // sentinel. Later versions may carry later dates; selection still finds
+    // the earliest one before their effective dates.
+    const earliest = [...versions].sort((left, right) => left.version - right.version)[0];
+    if (earliest !== undefined && earliest.effectiveOn !== epochEffectiveOn) {
+      throw new JurisdictionError(
+        `pack ${required} v${earliest.version}: the earliest '${required}' version must carry ` +
+          `the epoch sentinel ${epochEffectiveOn} (always-effective fail-closed substrate)`,
+      );
     }
   }
 }
 
-function activePack(
+/**
+ * Selection rule (ADR-ADJ-002 semantics 2): the active version of a
+ * jurisdiction as-of `T` is the highest version among those with
+ * `effectiveOn ≤ T` (ISO string comparison; inclusive boundary). No
+ * monotonicity constraint links version order to effectiveOn order — a
+ * correction may land as a new highest version with an earlier effectiveOn
+ * than a staged future version.
+ */
+function activePackAsOf(
   packs: readonly JurisdictionRulePack[],
   jurisdiction: string,
+  asOf: string,
 ): JurisdictionRulePack | undefined {
   return packs
-    .filter((pack) => pack.jurisdiction === jurisdiction)
+    .filter((pack) => pack.jurisdiction === jurisdiction && pack.effectiveOn <= asOf)
     .sort((left, right) => right.version - left.version)[0];
 }
 
@@ -271,17 +334,25 @@ export interface JurisdictionContribution {
   readonly fact: 'provider' | 'patient' | 'floor';
   readonly jurisdiction: string;
   readonly packVersion: number;
+  /** The selected version's effective date (ADR-ADJ-002 provenance duty). */
+  readonly effectiveOn: string;
   readonly packStatus: PackStatus;
   readonly obligations: readonly string[];
   readonly scalars: Readonly<Record<string, number>>;
   /** True when this fact resolved through the safe-default pack. */
   readonly defaultsApplied: boolean;
-  /** Set when a known state had no pack (NFR-14 fifth-state path). */
+  /**
+   * Set when a known state had no selectable pack — none at all, or none
+   * effective as-of the query (NFR-14 fifth-state path; same fail-closed
+   * route either way).
+   */
   readonly missingPack?: string;
 }
 
 export interface JurisdictionResolution {
   readonly topic: JurisdictionTopic;
+  /** The as-of date the selection used (explicit, or the current date). */
+  readonly asOf: string;
   /** Sorted union of every contribution — the most protective combined set. */
   readonly obligations: readonly string[];
   /** Strictest value per scalar key (direction per jurisdictionScalarDirections). */
@@ -298,6 +369,7 @@ function contributionFor(
   fact: 'provider' | 'patient' | 'floor',
   state: string | null,
   topic: JurisdictionTopic,
+  asOf: string,
 ): JurisdictionContribution {
   let jurisdiction: string;
   let defaultsApplied = false;
@@ -311,16 +383,24 @@ function contributionFor(
     throw new JurisdictionError(
       `${fact} state must be a two-letter state code or null; received ${JSON.stringify(state)}`,
     );
-  } else if (activePack(packs, state) === undefined) {
+  } else if (activePackAsOf(packs, state, asOf) === undefined) {
+    // No pack at all, or no version effective as-of the query — the same
+    // fail-closed route with the gap named (ADR-ADJ-002 semantics 2).
     jurisdiction = unknownJurisdiction;
     defaultsApplied = true;
     missingPack = state;
   } else {
     jurisdiction = state;
   }
-  const pack = activePack(packs, jurisdiction);
+  const pack = activePackAsOf(packs, jurisdiction, asOf);
   if (pack === undefined) {
-    throw new JurisdictionError(`registry is missing the '${jurisdiction}' pack`);
+    // Registry validation guarantees floor/unknown presence with the epoch
+    // sentinel on the earliest version, so this is reachable only for an
+    // as-of before the epoch — a fail-closed resolver ERROR, never a
+    // defaults fallback (ADR-ADJ-002 semantics 3).
+    throw new JurisdictionError(
+      `registry has no effective '${jurisdiction}' pack as-of ${asOf} (fail-closed)`,
+    );
   }
   const rule = pack.rules.find((candidate) => candidate.topic === topic);
   if (rule === undefined) {
@@ -330,6 +410,7 @@ function contributionFor(
     fact,
     jurisdiction,
     packVersion: pack.version,
+    effectiveOn: pack.effectiveOn,
     packStatus: pack.status,
     obligations: rule.obligations,
     scalars: rule.scalars ?? {},
@@ -345,20 +426,32 @@ function contributionFor(
  * the strictest value per declared direction. Unknown facts and unpacked
  * states contribute the safe-default pack — a mis-detected or missing
  * location fails safe, never permissive.
+ *
+ * `asOf` (ADR-ADJ-002 semantics 4) selects the pack versions: send-time /
+ * action-time consumers omit it (defaults to the current date, UTC basis);
+ * retrospective and audit consumers pass it explicitly. Effective-dating
+ * supplements per-action provenance, never replaces it.
  */
 export function resolveJurisdiction(
   packs: readonly JurisdictionRulePack[],
   basis: JurisdictionBasis,
   topic: JurisdictionTopic,
+  asOf?: string,
 ): JurisdictionResolution {
   if (!isJurisdictionTopic(topic)) {
     throw new JurisdictionError(`unknown jurisdiction topic ${JSON.stringify(topic)}`);
   }
+  const resolvedAsOf = asOf ?? new Date().toISOString().slice(0, 10);
+  if (!isCalendarDate(resolvedAsOf)) {
+    throw new JurisdictionError(
+      `asOf must be a calendar date (YYYY-MM-DD); received ${JSON.stringify(resolvedAsOf)}`,
+    );
+  }
   assertJurisdictionRegistryWellFormed(packs);
   const contributions = [
-    contributionFor(packs, 'provider', basis.providerState, topic),
-    contributionFor(packs, 'patient', basis.patientState, topic),
-    contributionFor(packs, 'floor', null, topic),
+    contributionFor(packs, 'provider', basis.providerState, topic, resolvedAsOf),
+    contributionFor(packs, 'patient', basis.patientState, topic, resolvedAsOf),
+    contributionFor(packs, 'floor', null, topic, resolvedAsOf),
   ];
   const obligations = [
     ...new Set(contributions.flatMap((contribution) => contribution.obligations)),
@@ -378,6 +471,7 @@ export function resolveJurisdiction(
   }
   return {
     topic,
+    asOf: resolvedAsOf,
     obligations,
     scalars,
     contributions,

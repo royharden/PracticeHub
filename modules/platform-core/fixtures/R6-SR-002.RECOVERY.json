@@ -2,12 +2,13 @@
   "synthetic": true,
   "requirementId": "R6-SR-002",
   "class": "RECOVERY",
-  "description": "Pack-version recovery semantics: the newest version governs; reverting a bad change is dropping the newest version, which restores the prior one (the package's 'pack versions revert' rollback); counsel sign-off evidence (EW-025) clears the counselReviewPending flag and is orthogonal to the unknown-location defaults.",
+  "description": "Pack-version recovery semantics: the newest EFFECTIVE version governs (ADR-ADJ-002); reverting a bad change is dropping the newest version, which restores the prior one (the package's 'pack versions revert' rollback); a future-staged version is pre-staged and inert until its effective date and activates ON it (inclusive boundary); counsel sign-off evidence (EW-025) clears the counselReviewPending flag and is orthogonal to the unknown-location defaults.",
   "packs": "inline",
   "packsInline": [
     {
       "jurisdiction": "floor",
       "version": 1,
+      "effectiveOn": "1970-01-01",
       "status": "counsel-signed",
       "counselSignoffRef": "synthetic-counsel-jur-floor-001",
       "changeControlRef": "synthetic-ccr-fixture-floor-001",
@@ -30,6 +31,7 @@
     {
       "jurisdiction": "unknown",
       "version": 1,
+      "effectiveOn": "1970-01-01",
       "status": "counsel-signed",
       "counselSignoffRef": "synthetic-counsel-jur-unknown-001",
       "changeControlRef": "synthetic-ccr-fixture-unknown-001",
@@ -96,6 +98,7 @@
     {
       "jurisdiction": "NV",
       "version": 1,
+      "effectiveOn": "2026-01-01",
       "status": "draft",
       "changeControlRef": "synthetic-ccr-fixture-nv-001",
       "synthetic": true,
@@ -125,6 +128,7 @@
     {
       "jurisdiction": "NV",
       "version": 2,
+      "effectiveOn": "2026-01-15",
       "status": "counsel-signed",
       "counselSignoffRef": "synthetic-counsel-jur-nv-002",
       "changeControlRef": "synthetic-ccr-fixture-nv-002",
@@ -151,17 +155,71 @@
         { "topic": "cpom", "obligations": [], "sourceRef": "synthetic-fixture" },
         { "topic": "minors-part2", "obligations": [], "sourceRef": "synthetic-fixture" }
       ]
+    },
+    {
+      "jurisdiction": "NV",
+      "version": 3,
+      "effectiveOn": "2100-01-01",
+      "status": "draft",
+      "changeControlRef": "synthetic-ccr-fixture-nv-003-staged",
+      "synthetic": true,
+      "rules": [
+        {
+          "topic": "recording-consent",
+          "obligations": ["all-party-consent"],
+          "sourceRef": "synthetic-fixture"
+        },
+        { "topic": "chd-rights", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "genetic-authorization", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "records-consent", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "erx-epcs-pdmp", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "telehealth-licensure", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "auto-renewal", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "retention", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "biometrics", "obligations": [], "sourceRef": "synthetic-fixture" },
+        {
+          "topic": "ai-disclosure",
+          "obligations": ["ai-disclosure", "crisis-protocol", "no-ai-therapy-representation"],
+          "sourceRef": "synthetic-fixture"
+        },
+        { "topic": "cpom", "obligations": [], "sourceRef": "synthetic-fixture" },
+        { "topic": "minors-part2", "obligations": [], "sourceRef": "synthetic-fixture" }
+      ]
     }
   ],
   "cases": [
     {
-      "name": "the newest pack version governs and carries its own provenance",
+      "name": "the newest EFFECTIVE pack version governs and carries its own provenance — the future-staged v3 stays inert as-of-now",
       "basis": { "providerState": "NV", "patientState": "NV" },
       "topic": "ai-disclosure",
       "expect": {
         "obligations": ["ai-disclosure", "no-ai-therapy-representation"],
         "contributionVersions": { "provider": 2, "patient": 2 },
         "counselReviewPending": false
+      }
+    },
+    {
+      "name": "a future-staged version is inert the day before its effective date",
+      "basis": { "providerState": "NV", "patientState": "NV" },
+      "topic": "ai-disclosure",
+      "asOf": "2099-12-31",
+      "expect": {
+        "obligations": ["ai-disclosure", "no-ai-therapy-representation"],
+        "contributionVersions": { "provider": 2, "patient": 2 },
+        "counselReviewPending": false,
+        "asOf": "2099-12-31"
+      }
+    },
+    {
+      "name": "the staged version activates ON its effective date (inclusive) and its draft status re-raises the counsel-review flag",
+      "basis": { "providerState": "NV", "patientState": "NV" },
+      "topic": "ai-disclosure",
+      "asOf": "2100-01-01",
+      "expect": {
+        "obligations": ["ai-disclosure", "crisis-protocol", "no-ai-therapy-representation"],
+        "contributionVersions": { "provider": 3, "patient": 3 },
+        "counselReviewPending": true,
+        "asOf": "2100-01-01"
       }
     },
     {

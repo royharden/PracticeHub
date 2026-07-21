@@ -13,16 +13,17 @@
 -- from jurisdictionPacksV1. Regenerate on any pack change; the drift test
 -- and the DB registry-sync test fail on divergence.
 INSERT INTO platform_core.jurisdiction_rule_pack
-  (jurisdiction, version, status, counsel_signoff_ref, change_control_ref, synthetic)
+  (jurisdiction, version, effective_on, status, counsel_signoff_ref, change_control_ref, synthetic)
 VALUES
-  ('FL', 1, 'draft', NULL, 'synthetic-ccr-jur-fl-001', true),
-  ('floor', 1, 'draft', NULL, 'synthetic-ccr-jur-floor-001', true),
-  ('IL', 1, 'draft', NULL, 'synthetic-ccr-jur-il-001', true),
-  ('MN', 1, 'draft', NULL, 'synthetic-ccr-jur-mn-001', true),
-  ('NV', 1, 'draft', NULL, 'synthetic-ccr-jur-nv-001', true),
-  ('unknown', 1, 'draft', NULL, 'synthetic-ccr-jur-unknown-001', true)
+  ('FL', 1, DATE '2026-01-01', 'draft', NULL, 'synthetic-ccr-jur-fl-001', true),
+  ('floor', 1, DATE '1970-01-01', 'draft', NULL, 'synthetic-ccr-jur-floor-001', true),
+  ('IL', 1, DATE '2026-01-01', 'draft', NULL, 'synthetic-ccr-jur-il-001', true),
+  ('MN', 1, DATE '2026-01-01', 'draft', NULL, 'synthetic-ccr-jur-mn-001', true),
+  ('NV', 1, DATE '2026-01-01', 'draft', NULL, 'synthetic-ccr-jur-nv-001', true),
+  ('unknown', 1, DATE '1970-01-01', 'draft', NULL, 'synthetic-ccr-jur-unknown-001', true)
 ON CONFLICT (jurisdiction, version) DO UPDATE
-SET status = EXCLUDED.status,
+SET effective_on = EXCLUDED.effective_on,
+    status = EXCLUDED.status,
     counsel_signoff_ref = EXCLUDED.counsel_signoff_ref,
     change_control_ref = EXCLUDED.change_control_ref,
     synthetic = EXCLUDED.synthetic;

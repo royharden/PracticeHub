@@ -94,8 +94,12 @@ describe('jurisdiction registry + location capture (DB level)', () => {
     // collation-independent across Postgres locale configurations.
     const byteOrder = (left: string, right: string): number =>
       left < right ? -1 : left > right ? 1 : 0;
+    // effective_on::text keeps the comparison an ISO-string comparison —
+    // timezone-independent, matching the resolver's day-granular UTC basis
+    // (ADR-ADJ-002 semantics 5/7: REGISTRY-SYNC covers the column).
     const packRows = await owner.query(
-      `SELECT jurisdiction, version, status, counsel_signoff_ref, change_control_ref
+      `SELECT jurisdiction, version, effective_on::text AS effective_on, status,
+              counsel_signoff_ref, change_control_ref
          FROM platform_core.jurisdiction_rule_pack
         ORDER BY jurisdiction COLLATE "C", version`,
     );
@@ -104,6 +108,7 @@ describe('jurisdiction registry + location capture (DB level)', () => {
       .map((pack) => ({
         jurisdiction: pack.jurisdiction,
         version: pack.version,
+        effective_on: pack.effectiveOn,
         status: pack.status,
         counsel_signoff_ref: pack.counselSignoffRef ?? null,
         change_control_ref: pack.changeControlRef,

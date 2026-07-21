@@ -1,12 +1,18 @@
 /**
- * Jurisdiction rule packs v1 (WP-011) — the versioned data of record for the
- * strictest-law cascade. Content encodes docs/compliance/state-matrix.md
- * (NV/FL/IL/MN + the sec 0 governing rules); every rule cites its matrix row or
- * R6-SR id. Packs are counsel-owned data under EW-025: all v1 packs are
- * `draft` (counsel sign-off is an external wait — the resolver surfaces
- * `counselReviewPending` until a signed version supersedes these), and every
- * change routes through a change-control ref plus the truth-table regression
- * harness (jurisdiction.test.ts).
+ * Jurisdiction rule packs v1 (WP-011) — the versioned, effective-dated data
+ * of record for the strictest-law cascade. Content encodes
+ * docs/compliance/state-matrix.md (NV/FL/IL/MN + the sec 0 governing rules);
+ * every rule cites its matrix row or R6-SR id. Packs are counsel-owned data
+ * under EW-025: all v1 packs are `draft` (counsel sign-off is an external
+ * wait — the resolver surfaces `counselReviewPending` until a signed version
+ * supersedes these), and every change routes through a change-control ref
+ * plus the truth-table regression harness (jurisdiction.test.ts).
+ *
+ * Effective dating (ADR-ADJ-002 remediation item 2): the four state packs'
+ * v1 carry the pinned synthetic baseline date so current resolution behavior
+ * is unchanged for as-of-now consumers; the floor and unknown packs carry
+ * the epoch sentinel — the fail-closed substrate is effective at every
+ * queriable as-of.
  *
  * The committed seed `infra/postgres/seed/004-jurisdiction-seed.sql` embeds
  * the output of `renderJurisdictionSeedSection(jurisdictionPacksV1)` between
@@ -14,13 +20,24 @@
  */
 
 import type { JurisdictionRulePack } from './jurisdiction.js';
+import { epochEffectiveOn } from './jurisdiction.js';
 
 const sm = (row: string): string => `state-matrix ${row}`;
+
+/**
+ * Pinned synthetic baseline effective date for the v1 state packs
+ * (ADR-ADJ-002 remediation item 2): a fixed calendar date at or before any
+ * as-of the build evaluates, so the effective-dated selection resolves the
+ * same versions the version-only selection did — current behavior is
+ * byte-identical (the truth-table zero-cell diff is the proof).
+ */
+export const packBaselineEffectiveOn = '2026-01-01';
 
 export const jurisdictionPacksV1: readonly JurisdictionRulePack[] = [
   {
     jurisdiction: 'NV',
     version: 1,
+    effectiveOn: packBaselineEffectiveOn,
     status: 'draft',
     changeControlRef: 'synthetic-ccr-jur-nv-001',
     synthetic: true,
@@ -100,6 +117,7 @@ export const jurisdictionPacksV1: readonly JurisdictionRulePack[] = [
   {
     jurisdiction: 'FL',
     version: 1,
+    effectiveOn: packBaselineEffectiveOn,
     status: 'draft',
     changeControlRef: 'synthetic-ccr-jur-fl-001',
     synthetic: true,
@@ -174,6 +192,7 @@ export const jurisdictionPacksV1: readonly JurisdictionRulePack[] = [
   {
     jurisdiction: 'IL',
     version: 1,
+    effectiveOn: packBaselineEffectiveOn,
     status: 'draft',
     changeControlRef: 'synthetic-ccr-jur-il-001',
     synthetic: true,
@@ -248,6 +267,7 @@ export const jurisdictionPacksV1: readonly JurisdictionRulePack[] = [
   {
     jurisdiction: 'MN',
     version: 1,
+    effectiveOn: packBaselineEffectiveOn,
     status: 'draft',
     changeControlRef: 'synthetic-ccr-jur-mn-001',
     synthetic: true,
@@ -330,6 +350,7 @@ export const jurisdictionPacksV1: readonly JurisdictionRulePack[] = [
     // sec 0.2 safe default, Virtual rows).
     jurisdiction: 'floor',
     version: 1,
+    effectiveOn: epochEffectiveOn,
     status: 'draft',
     changeControlRef: 'synthetic-ccr-jur-floor-001',
     synthetic: true,
@@ -418,6 +439,7 @@ export const jurisdictionPacksV1: readonly JurisdictionRulePack[] = [
     // / written-consent / hard-block).
     jurisdiction: 'unknown',
     version: 1,
+    effectiveOn: epochEffectiveOn,
     status: 'draft',
     changeControlRef: 'synthetic-ccr-jur-unknown-001',
     synthetic: true,
@@ -536,7 +558,8 @@ export function renderJurisdictionSeedSection(packs: readonly JurisdictionRulePa
     .sort((a, b) => a.jurisdiction.localeCompare(b.jurisdiction) || a.version - b.version)
     .map(
       (pack) =>
-        `  (${sqlLiteral(pack.jurisdiction)}, ${pack.version}, ${sqlLiteral(pack.status)}, ` +
+        `  (${sqlLiteral(pack.jurisdiction)}, ${pack.version}, ` +
+        `DATE ${sqlLiteral(pack.effectiveOn)}, ${sqlLiteral(pack.status)}, ` +
         `${pack.counselSignoffRef ? sqlLiteral(pack.counselSignoffRef) : 'NULL'}, ` +
         `${sqlLiteral(pack.changeControlRef)}, true)`,
     );
@@ -559,11 +582,12 @@ export function renderJurisdictionSeedSection(packs: readonly JurisdictionRulePa
     '-- from jurisdictionPacksV1. Regenerate on any pack change; the drift test',
     '-- and the DB registry-sync test fail on divergence.',
     'INSERT INTO platform_core.jurisdiction_rule_pack',
-    '  (jurisdiction, version, status, counsel_signoff_ref, change_control_ref, synthetic)',
+    '  (jurisdiction, version, effective_on, status, counsel_signoff_ref, change_control_ref, synthetic)',
     'VALUES',
     packRows.join(',\n'),
     'ON CONFLICT (jurisdiction, version) DO UPDATE',
-    'SET status = EXCLUDED.status,',
+    'SET effective_on = EXCLUDED.effective_on,',
+    '    status = EXCLUDED.status,',
     '    counsel_signoff_ref = EXCLUDED.counsel_signoff_ref,',
     '    change_control_ref = EXCLUDED.change_control_ref,',
     '    synthetic = EXCLUDED.synthetic;',

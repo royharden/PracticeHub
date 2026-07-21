@@ -311,14 +311,19 @@ function testLocal(): void {
   }
 
   // WP-011: the jurisdiction registry is seeded and complete — the floor and
-  // unknown packs present, and every pack covering all 12 topics.
+  // unknown packs present AND effective (ADR-ADJ-002 semantics 3: the
+  // fail-closed substrate must be effective at every queriable as-of, so a
+  // future-dated-only floor/unknown is a failure, not a fallback), and every
+  // pack covering all 12 topics.
   const missingRequiredPacks = scalar(
     "SELECT count(*) FROM (VALUES ('floor'), ('unknown')) AS required(jurisdiction) " +
       'WHERE NOT EXISTS (SELECT FROM platform_core.jurisdiction_rule_pack p ' +
-      'WHERE p.jurisdiction = required.jurisdiction);',
+      'WHERE p.jurisdiction = required.jurisdiction AND p.effective_on <= current_date);',
   );
   if (missingRequiredPacks !== '0') {
-    throw new Error('jurisdiction registry is missing the floor and/or unknown safe-default pack');
+    throw new Error(
+      'jurisdiction registry is missing an effective floor and/or unknown safe-default pack',
+    );
   }
   const incompletePacks = scalar(
     'SELECT count(*) FROM platform_core.jurisdiction_rule_pack p ' +

@@ -6,15 +6,19 @@
 -- renderRlsMigrationSection('platform_core', jurisdictionRlsSpecs, platformCoreRlsSpecs);
 -- a drift test compares this file against a fresh emission.
 
--- Versioned, counsel-owned jurisdiction rule packs (jurisdiction x version).
--- Statutory reference data: law is tenant-independent, so these two tables are
--- declared platform-global in the RLS spec with a written justification.
--- Prior versions are retained; reverting a pack drops its newest version.
+-- Versioned, EFFECTIVE-DATED, counsel-owned jurisdiction rule packs
+-- (jurisdiction x version; ADR-ADJ-002). Statutory reference data: law is
+-- tenant-independent, so these two tables are declared platform-global in the
+-- RLS spec with a written justification. Prior versions are retained;
+-- reverting a pack drops its newest version. The active version as-of T is
+-- the highest version with effective_on <= T (selection lives in the
+-- resolver); a future-dated pack is pre-staged and inert until its date.
 CREATE TABLE IF NOT EXISTS platform_core.jurisdiction_rule_pack (
   jurisdiction text NOT NULL CHECK (
     jurisdiction ~ '^[A-Z]{2}$' OR jurisdiction IN ('floor', 'unknown')
   ),
   version integer NOT NULL CHECK (version >= 1),
+  effective_on date NOT NULL,
   status text NOT NULL CHECK (status IN ('draft', 'counsel-signed')),
   counsel_signoff_ref text,
   change_control_ref text NOT NULL CHECK (change_control_ref ~ '^[a-z0-9][a-z0-9-]{0,127}$'),
@@ -24,6 +28,17 @@ CREATE TABLE IF NOT EXISTS platform_core.jurisdiction_rule_pack (
   CONSTRAINT jurisdiction_pack_signed_requires_ref
     CHECK (status <> 'counsel-signed' OR counsel_signoff_ref IS NOT NULL)
 );
+
+-- Idempotent upgrade path (ADR-ADJ-002 remediation item 4, WP-010 precedent):
+-- a database whose registry predates effective dating gains the column here.
+-- The epoch backfill is exact, not a placeholder: under version-only
+-- semantics every existing row was active at every as-of, and the epoch
+-- sentinel preserves precisely that behavior until the regenerated seed
+-- upserts the pinned dates.
+ALTER TABLE platform_core.jurisdiction_rule_pack
+  ADD COLUMN IF NOT EXISTS effective_on date NOT NULL DEFAULT DATE '1970-01-01';
+ALTER TABLE platform_core.jurisdiction_rule_pack
+  ALTER COLUMN effective_on DROP DEFAULT;
 
 CREATE TABLE IF NOT EXISTS platform_core.jurisdiction_rule (
   jurisdiction text NOT NULL,
