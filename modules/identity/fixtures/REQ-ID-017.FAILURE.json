@@ -1,0 +1,40 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-017",
+  "class": "FAILURE",
+  "description": "AC-3: the wrong person receives outreach — the report stops the campaign for the disputed identity and resumption requires a human to resolve endpoint ownership; an unattributed report is refused.",
+  "associations": [
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-rivera-email",
+      "personId": "np-alex-rivera",
+      "relationship": "self",
+      "verification": "asserted",
+      "source": "synthetic-web-form",
+      "consentRef": "synthetic-consent-0001",
+      "synthetic": true
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-rivera-email",
+      "personId": "np-casey-rivera",
+      "relationship": "household",
+      "verification": "asserted",
+      "source": "synthetic-web-form",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "AC-3: a wrong-person report suppresses the disputed identity until human resolution",
+      "op": "dispute",
+      "dispute": {
+        "tenantId": "northwind-synthetic",
+        "endpointId": "nce-rivera-email",
+        "disputedPersonId": "np-casey-rivera",
+        "reportedBy": "synthetic-staff-001"
+      },
+      "expectSuppress": ["np-casey-rivera"]
+    }
+  ]
+}

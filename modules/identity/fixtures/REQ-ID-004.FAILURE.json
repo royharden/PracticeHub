@@ -1,0 +1,55 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-004",
+  "class": "FAILURE",
+  "description": "Exception 1: a payment-to-patient mismatch blocks the link (fulfillment consumers treat conflict-quarantined as a hard block; the owned reconciliation work item is forward obligation FWD-ID-004-RECON via M05 WorkItems, WP-022) and no PHI is copied into Stripe; a conversion against a foreign transaction is refused.",
+  "links": [
+    {
+      "tenantId": "northwind-synthetic",
+      "sourceSystem": "stripe",
+      "sourceValue": "cus_synthetic0001",
+      "personId": "np-alex-rivera",
+      "verification": "asserted",
+      "provenanceSource": "synthetic-stripe-webhook",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "exception 1: the same transaction reference cannot link to a second person — quarantined, existing link retained",
+      "op": "link-source",
+      "link": {
+        "tenantId": "northwind-synthetic",
+        "sourceSystem": "stripe",
+        "sourceValue": "cus_synthetic0001",
+        "personId": "np-jordan-kim",
+        "verification": "asserted",
+        "provenanceSource": "synthetic-stripe-webhook",
+        "synthetic": true
+      },
+      "expectOutcome": "conflict-quarantined",
+      "expectPersonId": "np-alex-rivera"
+    },
+    {
+      "name": "exception 1: converting a person against another person's transaction is refused",
+      "op": "conversion",
+      "personId": "np-jordan-kim",
+      "link": {
+        "tenantId": "northwind-synthetic",
+        "sourceSystem": "stripe",
+        "sourceValue": "cus_synthetic0001",
+        "personId": "np-alex-rivera",
+        "verification": "asserted",
+        "provenanceSource": "synthetic-stripe-webhook",
+        "synthetic": true
+      },
+      "attribution": {
+        "entitlementRef": "synthetic-entitlement-0001",
+        "paymentStateRef": "synthetic-payment-0001",
+        "leadSourceRef": "synthetic-lead-0001",
+        "communicationConsentRef": "synthetic-consent-0001"
+      },
+      "expectError": "linked to np-alex-rivera"
+    }
+  ]
+}

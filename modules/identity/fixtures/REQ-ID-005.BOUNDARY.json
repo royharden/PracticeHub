@@ -1,0 +1,53 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-005",
+  "class": "BOUNDARY",
+  "description": "AC-3 at the timeline boundary: a cross-location encounter appends to the identity timeline with actor, location, source, and timestamp; an entry missing its required provenance fields is refused.",
+  "trail": [
+    {
+      "entryId": "nti-fixture-0010",
+      "tenantId": "northwind-synthetic",
+      "personId": "np-alex-rivera",
+      "kind": "registered",
+      "actorRef": "synthetic-front-desk-001",
+      "locationId": "northwind-nv-henderson",
+      "source": "synthetic-intake",
+      "occurredAt": "2026-01-05T09:00:00Z",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "AC-3: a cross-location encounter appends with actor, location, source, and timestamp",
+      "op": "timeline-append",
+      "entry": {
+        "entryId": "nti-fixture-0011",
+        "tenantId": "northwind-synthetic",
+        "personId": "np-alex-rivera",
+        "kind": "cross-location-encounter",
+        "actorRef": "synthetic-provider-001",
+        "locationId": "northwind-fl-coral-gables",
+        "source": "synthetic-scheduling",
+        "occurredAt": "2026-02-10T15:30:00Z",
+        "synthetic": true
+      },
+      "expectTrailLength": 2
+    },
+    {
+      "name": "AC-3 boundary: an entry without an actor is refused",
+      "op": "timeline-append",
+      "entry": {
+        "entryId": "nti-fixture-0012",
+        "tenantId": "northwind-synthetic",
+        "personId": "np-alex-rivera",
+        "kind": "cross-location-encounter",
+        "actorRef": "",
+        "locationId": "northwind-fl-coral-gables",
+        "source": "synthetic-scheduling",
+        "occurredAt": "2026-02-10T15:31:00Z",
+        "synthetic": true
+      },
+      "expectError": "actor, source, and timestamp"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-015",
+  "class": "BOUNDARY",
+  "description": "AC-2 at the safety boundary: a context the patient marked unsafe for the affirmed name falls back to the legal name in THAT context only — every other patient-facing context keeps the affirmed default.",
+  "names": [
+    {
+      "tenantId": "northwind-synthetic",
+      "personId": "np-alex-rivera",
+      "kind": "affirmed",
+      "givenName": "Alex",
+      "familyName": "Rivera",
+      "source": "synthetic-patient-update",
+      "unsafeContexts": ["portal"],
+      "synthetic": true
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "personId": "np-alex-rivera",
+      "kind": "legal",
+      "givenName": "Alexander",
+      "familyName": "Rivera",
+      "source": "synthetic-intake",
+      "unsafeContexts": [],
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "AC-2: the unsafe-marked portal context renders the legal name",
+      "op": "name-render",
+      "context": "portal",
+      "expectKindUsed": "legal",
+      "expectGivenName": "Alexander"
+    },
+    {
+      "name": "AC-2: care stays on the affirmed default",
+      "op": "name-render",
+      "context": "care",
+      "expectKindUsed": "affirmed",
+      "expectGivenName": "Alex"
+    },
+    {
+      "name": "AC-3: laboratory matching still carries the legal identifier",
+      "op": "name-render",
+      "context": "laboratory",
+      "expectKindUsed": "legal",
+      "expectLegalIdentifierRequired": true
+    }
+  ]
+}

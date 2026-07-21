@@ -1,0 +1,55 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-003",
+  "class": "BOUNDARY",
+  "description": "AC-1 + AC-2 at the match boundary: exactly two agreeing attributes surface a staff-visible possible-match queue entry instead of a new record, and a two-attribute attributed comparison is the minimum lawful merge basis.",
+  "matchable": [
+    {
+      "person": {
+        "personId": "np-alex-rivera",
+        "tenantId": "northwind-synthetic",
+        "status": "verified",
+        "verificationEvidenceRef": "synthetic-idproof-0001",
+        "birthDate": "1980-03-14",
+        "provenance": { "source": "synthetic-intake", "capturedBy": "synthetic-front-desk-001" },
+        "synthetic": true
+      },
+      "names": [],
+      "attributes": {
+        "givenName": "Alex",
+        "familyName": "Rivera",
+        "birthDate": "1980-03-14"
+      }
+    }
+  ],
+  "cases": [
+    {
+      "name": "AC-1: two matching attributes quarantine into the possible-match queue, no new record",
+      "op": "register",
+      "inquiry": {
+        "tenantId": "northwind-synthetic",
+        "proposedPersonId": "np-inquiry-boundary",
+        "attributes": { "givenName": "Alex", "familyName": "Rivera" },
+        "provenance": { "source": "synthetic-web-form", "capturedBy": "synthetic-web-intake" }
+      },
+      "expectOutcome": "possible-match-queue",
+      "expectCandidateCount": 1,
+      "expectMatchedAttributes": ["given-name", "family-name"],
+      "expectStrong": true
+    },
+    {
+      "name": "AC-2: two compared attributes with an attributed decision maker is the minimum passing merge basis",
+      "op": "merge-basis",
+      "basis": {
+        "comparedAttributes": ["family-name", "birth-date"],
+        "decidedBy": "synthetic-staff-001"
+      }
+    },
+    {
+      "name": "AC-2: one compared attribute is below the floor and refused",
+      "op": "merge-basis",
+      "basis": { "comparedAttributes": ["birth-date"], "decidedBy": "synthetic-staff-001" },
+      "expectError": "at least two compared identity attributes"
+    }
+  ]
+}

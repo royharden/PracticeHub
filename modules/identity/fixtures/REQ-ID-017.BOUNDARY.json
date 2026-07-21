@@ -1,0 +1,61 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-017",
+  "class": "BOUNDARY",
+  "description": "AC-2 at the resolution boundary: verifying a permitted household role scopes access to the ROLE and keeps the people distinct — even fully verified, a two-person endpoint never resolves; the only resolving shape is a sole verified association.",
+  "associations": [
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-rivera-phone",
+      "personId": "np-alex-rivera",
+      "relationship": "self",
+      "verification": "verified",
+      "evidenceRef": "synthetic-endpoint-evidence-0001",
+      "source": "synthetic-intake",
+      "consentRef": "synthetic-consent-0001",
+      "synthetic": true
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-rivera-phone",
+      "personId": "np-casey-rivera",
+      "relationship": "household",
+      "verification": "verified",
+      "evidenceRef": "synthetic-endpoint-evidence-0002",
+      "source": "synthetic-intake",
+      "consentRef": "synthetic-consent-0002",
+      "synthetic": true
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "endpointId": "nce-solo-phone",
+      "personId": "np-jordan-kim",
+      "relationship": "self",
+      "verification": "verified",
+      "evidenceRef": "synthetic-endpoint-evidence-0003",
+      "source": "synthetic-intake",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "AC-2: both associations verified as roles — the persons remain two distinct records",
+      "op": "endpoint-persons",
+      "endpointId": "nce-rivera-phone",
+      "expectPersonIds": ["np-alex-rivera", "np-casey-rivera"]
+    },
+    {
+      "name": "AC-2: even fully verified, a two-person endpoint never resolves to one identity",
+      "op": "outreach",
+      "endpointId": "nce-rivera-phone",
+      "expectKind": "ambiguous"
+    },
+    {
+      "name": "boundary: a SOLE verified association is the only endpoint shape that resolves",
+      "op": "outreach",
+      "endpointId": "nce-solo-phone",
+      "expectKind": "resolved",
+      "expectPersonId": "np-jordan-kim"
+    }
+  ]
+}

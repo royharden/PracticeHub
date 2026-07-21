@@ -119,6 +119,14 @@ export const capabilityDefinitionsV1: readonly CapabilityDefinition[] = [
     dimensions: ['wave'],
     description: 'Wave-scoped data import; IC-6 dependent (prerequisite is the target module).',
   },
+  {
+    capabilityId: 'identity.person-model',
+    ownerRole: 'security',
+    dimensions: [],
+    description:
+      'Person/roles/endpoints/source-id crosswalk model (M02, WP-013); the IC-6 target-module ' +
+      'grant identity-bound wave imports check.',
+  },
 ];
 
 /** Exact mirror of docs/architecture/capability-edge-preconditions.csv (FROZEN). */
@@ -271,6 +279,16 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       rollbackRef: 'already-disabled',
       synthetic: true,
     },
+    {
+      capabilityId: 'identity.person-model',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
   ],
   events: [
     chainEvent(
@@ -328,6 +346,18 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       'disabled',
       'scaffolded',
       'synthetic-gate:rail-270-271-scaffold',
+    ),
+    // WP-013: the identity model lands at its package ceiling — `scaffolded`.
+    // The activation walk to `simulated` belongs to the package that takes
+    // M02 into the reference loops; the register-identity command (floored at
+    // `simulated`) therefore DENIES against this seed, by design.
+    chainEvent(
+      'synthetic-cap-evt-0008',
+      'identity.person-model',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-013-identity-scaffold',
     ),
   ],
 };

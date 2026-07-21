@@ -1,0 +1,66 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-004",
+  "class": "HAPPY",
+  "description": "AC-1 + AC-2: a completed purchase links to the patient identity through an opaque transaction reference (no clinical detail in the payment processor), and entitlement, payment state, lead source, and communication consent stay separately attributable after conversion. AC-3 (single fulfillment status without payment-card/clinical detail) renders on the fulfillment surface — forward obligation FWD-ID-031-STATUS, docs/contracts/identity-types.md.",
+  "links": [
+    {
+      "tenantId": "northwind-synthetic",
+      "sourceSystem": "stripe",
+      "sourceValue": "cus_synthetic0001",
+      "personId": "np-alex-rivera",
+      "verification": "asserted",
+      "provenanceSource": "synthetic-stripe-webhook",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "AC-1: the payment reference is an opaque token",
+      "op": "opaque-ref",
+      "system": "stripe",
+      "value": "cus_synthetic0001"
+    },
+    {
+      "name": "AC-1: a new opaque transaction reference links to the buyer's one identity",
+      "op": "link-source",
+      "link": {
+        "tenantId": "northwind-synthetic",
+        "sourceSystem": "stripe",
+        "sourceValue": "pi_synthetic0002",
+        "personId": "np-alex-rivera",
+        "verification": "asserted",
+        "provenanceSource": "synthetic-stripe-webhook",
+        "synthetic": true
+      },
+      "expectOutcome": "linked"
+    },
+    {
+      "name": "AC-2: conversion keeps entitlement, payment, lead source, and consent separately attributable",
+      "op": "conversion",
+      "personId": "np-alex-rivera",
+      "link": {
+        "tenantId": "northwind-synthetic",
+        "sourceSystem": "stripe",
+        "sourceValue": "cus_synthetic0001",
+        "personId": "np-alex-rivera",
+        "verification": "asserted",
+        "provenanceSource": "synthetic-stripe-webhook",
+        "synthetic": true
+      },
+      "attribution": {
+        "entitlementRef": "synthetic-entitlement-0001",
+        "paymentStateRef": "synthetic-payment-0001",
+        "leadSourceRef": "synthetic-lead-0001",
+        "communicationConsentRef": "synthetic-consent-0001"
+      }
+    },
+    {
+      "name": "AC-1: the transaction reference resolves to the linked identity",
+      "op": "resolve-source",
+      "system": "stripe",
+      "value": "cus_synthetic0001",
+      "expectPersonId": "np-alex-rivera"
+    }
+  ]
+}

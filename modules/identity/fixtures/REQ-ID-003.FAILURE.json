@@ -1,0 +1,56 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-003",
+  "class": "FAILURE",
+  "description": "Exception 1: an ambiguous multi-candidate match quarantines for staff resolution and exposes NEITHER record's values to the prospective patient; an unattributed merge decision is refused.",
+  "matchable": [
+    {
+      "person": {
+        "personId": "np-sam-aldana-1",
+        "tenantId": "northwind-synthetic",
+        "status": "verified",
+        "verificationEvidenceRef": "synthetic-idproof-0003",
+        "birthDate": "1980-03-14",
+        "provenance": { "source": "synthetic-intake", "capturedBy": "synthetic-front-desk-001" },
+        "synthetic": true
+      },
+      "names": [],
+      "attributes": { "givenName": "Sam", "familyName": "Aldana", "birthDate": "1980-03-14" }
+    },
+    {
+      "person": {
+        "personId": "np-sam-aldana-2",
+        "tenantId": "northwind-synthetic",
+        "status": "provisional",
+        "provenance": {
+          "source": "synthetic-acquisition-import",
+          "capturedBy": "synthetic-migration-engineer"
+        },
+        "synthetic": true
+      },
+      "names": [],
+      "attributes": { "givenName": "Sam", "familyName": "Aldana", "birthDate": "1979-05-20" }
+    }
+  ],
+  "cases": [
+    {
+      "name": "exception 1: conflicting candidates quarantine; candidate values never serialize into the outcome",
+      "op": "register",
+      "inquiry": {
+        "tenantId": "northwind-synthetic",
+        "proposedPersonId": "np-inquiry-ambiguous",
+        "attributes": { "givenName": "Sam", "familyName": "Aldana" },
+        "provenance": { "source": "synthetic-web-form", "capturedBy": "synthetic-web-intake" }
+      },
+      "expectOutcome": "possible-match-queue",
+      "expectCandidateCount": 2,
+      "expectSerializedExcludes": ["1980-03-14", "1979-05-20", "Aldana"]
+    },
+    {
+      "name": "AC-2: an unattributed merge decision is refused outright",
+      "op": "merge-basis",
+      "basis": { "comparedAttributes": ["family-name", "birth-date"], "decidedBy": "" },
+      "expectError": "attributed to its decision maker"
+    }
+  ]
+}

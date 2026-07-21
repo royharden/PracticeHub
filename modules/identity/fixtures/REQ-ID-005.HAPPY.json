@@ -1,0 +1,51 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-005",
+  "class": "HAPPY",
+  "description": "AC-1: the member resolves to ONE enterprise identity from any preserved source-system identifier, with each identifier's provenance intact. AC-2's membership-status display lands with M17 consumers (forward obligation FWD-ID-052-STATUS, docs/contracts/identity-types.md); clinical-record authority stays untouched (crosswalk is read-side).",
+  "links": [
+    {
+      "tenantId": "northwind-synthetic",
+      "sourceSystem": "athena",
+      "sourceValue": "ath-100234",
+      "personId": "np-alex-rivera",
+      "patientRecordId": "npr-alex-rivera",
+      "verification": "verified",
+      "evidenceRef": "synthetic-crosswalk-evidence-0001",
+      "provenanceSource": "synthetic-athena-adapter",
+      "synthetic": true
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "sourceSystem": "legacy-lakeside",
+      "sourceValue": "lg-000778",
+      "personId": "np-alex-rivera",
+      "verification": "asserted",
+      "provenanceSource": "synthetic-acquisition-import",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "AC-1: the athena identifier resolves to the one enterprise identity",
+      "op": "resolve-source",
+      "system": "athena",
+      "value": "ath-100234",
+      "expectPersonId": "np-alex-rivera"
+    },
+    {
+      "name": "AC-1: the acquired-clinic legacy identifier resolves to the SAME identity",
+      "op": "resolve-source",
+      "system": "legacy-lakeside",
+      "value": "lg-000778",
+      "expectPersonId": "np-alex-rivera"
+    },
+    {
+      "name": "AC-1: an unknown identifier resolves to nothing rather than guessing",
+      "op": "resolve-source",
+      "system": "athena",
+      "value": "ath-999999",
+      "expectPersonId": null
+    }
+  ]
+}

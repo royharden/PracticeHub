@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-015",
+  "class": "FAILURE",
+  "description": "Exception 2 + missing-data failure: an external rejection routes to identity reconciliation WITHOUT replacing the affirmed name in patient-facing care; a legal-matching transaction with no recorded legal identifier is a hard data error, never a silent fallback.",
+  "names": [
+    {
+      "tenantId": "northwind-synthetic",
+      "personId": "np-alex-rivera",
+      "kind": "affirmed",
+      "givenName": "Alex",
+      "familyName": "Rivera",
+      "source": "synthetic-patient-update",
+      "unsafeContexts": [],
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "exception 2: a laboratory rejection routes to reconciliation and retains the affirmed name",
+      "op": "name-rejection",
+      "system": "synthetic-lab",
+      "rejectionRef": "synthetic-rejection-0001"
+    },
+    {
+      "name": "AC-3 failure: a payer transaction without a recorded legal identifier fails closed",
+      "op": "name-render",
+      "context": "payer",
+      "expectError": "requires a legal matching identifier"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-004",
+  "class": "RECOVERY",
+  "description": "Exception 2: a duplicate purchase arrival holds for staff refund-or-apply review — the original link stays authoritative and no second assessment entitlement attaches; a conversion that collapses attributions is refused so the recovery path always has distinct references to work from.",
+  "links": [
+    {
+      "tenantId": "northwind-synthetic",
+      "sourceSystem": "stripe",
+      "sourceValue": "cus_synthetic0001",
+      "personId": "np-alex-rivera",
+      "verification": "asserted",
+      "provenanceSource": "synthetic-stripe-webhook",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "exception 2: duplicate arrival of a linked transaction holds for review, never a second attachment",
+      "op": "link-source",
+      "link": {
+        "tenantId": "northwind-synthetic",
+        "sourceSystem": "stripe",
+        "sourceValue": "cus_synthetic0001",
+        "personId": "np-alex-rivera",
+        "verification": "asserted",
+        "provenanceSource": "synthetic-stripe-webhook-replay",
+        "synthetic": true
+      },
+      "expectOutcome": "duplicate-held"
+    },
+    {
+      "name": "AC-2 under recovery: a conversion missing a distinct attribution reference fails closed",
+      "op": "conversion",
+      "personId": "np-alex-rivera",
+      "link": {
+        "tenantId": "northwind-synthetic",
+        "sourceSystem": "stripe",
+        "sourceValue": "cus_synthetic0001",
+        "personId": "np-alex-rivera",
+        "verification": "asserted",
+        "provenanceSource": "synthetic-stripe-webhook",
+        "synthetic": true
+      },
+      "attribution": {
+        "entitlementRef": "synthetic-entitlement-0001",
+        "paymentStateRef": "synthetic-payment-0001",
+        "leadSourceRef": "",
+        "communicationConsentRef": "synthetic-consent-0001"
+      },
+      "expectError": "attribute leadSourceRef distinctly"
+    }
+  ]
+}

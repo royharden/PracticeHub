@@ -1,6 +1,6 @@
 import { spawnSync, type SpawnSyncOptions } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
@@ -73,7 +73,13 @@ function psqlStdin(sql: string): void {
   );
 }
 
-/** Module migrations in path order, excluding rollback files (WP-010 pattern). */
+/**
+ * Module migrations excluding rollback files (WP-010 pattern), ordered by the
+ * numbered file name ACROSS modules (WP-013): the migration number is the
+ * global apply order, so a module whose directory sorts before another
+ * (identity < platform-core) still applies after the migrations it depends
+ * on. Path order breaks ties for deterministic output.
+ */
 function moduleMigrationFiles(): string[] {
   const modulesDir = join(repoRoot, 'modules');
   const files: string[] = [];
@@ -91,7 +97,10 @@ function moduleMigrationFiles(): string[] {
       }
     }
   }
-  return files.sort();
+  return files.sort((left, right) => {
+    const byName = basename(left).localeCompare(basename(right));
+    return byName !== 0 ? byName : left.localeCompare(right);
+  });
 }
 
 function migrate(): void {
@@ -152,6 +161,8 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/004-jurisdiction-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/005-capability-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/005-capability-seed.sql');
+  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/006-identity-seed.sql'), 'utf8'));
+  console.log('seeded infra/postgres/seed/006-identity-seed.sql');
 }
 
 function testLocal(): void {
@@ -235,14 +246,14 @@ function testLocal(): void {
       'pipe',
     ).trim();
 
-  // WP-010: RLS on every platform_core table (live coverage probe, T-06/T-07).
+  // WP-010/WP-013: RLS on every module-schema table (live coverage probe).
   const unprotected = scalar(
     'SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace ' +
-      "WHERE n.nspname = 'platform_core' AND c.relkind = 'r' " +
+      "WHERE n.nspname IN ('platform_core', 'identity') AND c.relkind = 'r' " +
       'AND (NOT c.relrowsecurity OR NOT c.relforcerowsecurity);',
   );
   if (unprotected !== '0') {
-    throw new Error(`platform_core has ${unprotected} table(s) without forced RLS`);
+    throw new Error(`module schemas have ${unprotected} table(s) without forced RLS`);
   }
 
   // WP-010/WP-011: synthetic watermark on every seeded platform_core row.
@@ -255,10 +266,20 @@ function testLocal(): void {
       '(SELECT count(*) FROM platform_core.jurisdiction_rule WHERE synthetic IS DISTINCT FROM true) + ' +
       '(SELECT count(*) FROM platform_core.location_capture WHERE synthetic IS DISTINCT FROM true) + ' +
       '(SELECT count(*) FROM platform_core.capability_event WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM platform_core.capability_grant WHERE synthetic IS DISTINCT FROM true);',
+      '(SELECT count(*) FROM platform_core.capability_grant WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.person WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.person_name WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.patient_record WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.staff_account WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.guarantor_role WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.proxy_grant WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.channel_endpoint WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.endpoint_association WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.source_identifier WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.identity_timeline WHERE synthetic IS DISTINCT FROM true);',
   );
   if (unwatermarked !== '0') {
-    throw new Error(`platform_core holds ${unwatermarked} row(s) without the synthetic watermark`);
+    throw new Error(`module schemas hold ${unwatermarked} row(s) without the synthetic watermark`);
   }
 
   // WP-011: the jurisdiction registry is seeded and complete — the floor and
@@ -318,15 +339,48 @@ function testLocal(): void {
     );
   }
 
+  // WP-013: the standing shared-endpoint proof — the seeded household phone
+  // and email each attach to exactly two DISTINCT persons, and both persons
+  // exist as separate rows (a shared endpoint is never a person).
+  const sharedEndpointPersons = scalar(
+    "SELECT string_agg(persons::text, ',' ORDER BY endpoint_id) FROM (" +
+      'SELECT a.endpoint_id, count(DISTINCT a.person_id) AS persons ' +
+      'FROM identity.endpoint_association a ' +
+      "WHERE a.tenant_id = 'northwind-synthetic' " +
+      "AND a.endpoint_id IN ('nce-rivera-email', 'nce-rivera-phone') " +
+      'GROUP BY a.endpoint_id) shared;',
+  );
+  if (sharedEndpointPersons !== '2,2') {
+    throw new Error(
+      `shared-endpoint standing proof broken: association counts ${sharedEndpointPersons}`,
+    );
+  }
+  const sharedEndpointDistinctPersons = scalar(
+    'SELECT count(*) FROM identity.person ' +
+      "WHERE tenant_id = 'northwind-synthetic' " +
+      "AND person_id IN ('np-alex-rivera', 'np-casey-rivera');",
+  );
+  if (sharedEndpointDistinctPersons !== '2') {
+    throw new Error(
+      'shared-endpoint standing proof broken: the household persons are not two distinct rows',
+    );
+  }
+
   // WP-010: the DB-level cross-tenant negative suite runs against the live stack.
   run('pnpm', ['--filter', '@practicehub/platform-core', 'run', 'test:db'], {
+    stdio: 'inherit',
+  });
+
+  // WP-013: the identity-schema DB suite (cross-tenant negatives, append-only
+  // timeline, crosswalk uniqueness, opaque payment refs) runs the same way.
+  run('pnpm', ['--filter', '@practicehub/identity', 'run', 'test:db'], {
     stdio: 'inherit',
   });
 
   console.log(
     `services_healthy=${services.size} tenants=${tenantRows.join(',')} ` +
       'rls_coverage=OK watermark=OK jurisdiction_packs=OK capability_registry=OK ' +
-      'cross_tenant_db_suite=OK synthetic_stack=OK',
+      'identity_model=OK cross_tenant_db_suite=OK synthetic_stack=OK',
   );
 }
 

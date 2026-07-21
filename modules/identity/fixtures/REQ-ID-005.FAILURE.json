@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-005",
+  "class": "FAILURE",
+  "description": "Exception 1: conflicting demographic data between source systems opens a review with BOTH values retained — no ingest-side overwrite; matching values raise nothing.",
+  "cases": [
+    {
+      "name": "exception 1: a conflicting birth date opens a review and retains source values",
+      "op": "reconcile",
+      "current": { "birth-date": "1980-03-14", "postal-code": "89011" },
+      "incoming": { "birth-date": "1980-03-15", "postal-code": "89011" },
+      "expectOutcome": "review-required",
+      "expectConflictFields": ["birth-date"]
+    },
+    {
+      "name": "exception 1: agreeing or complementary values pass without a review",
+      "op": "reconcile",
+      "current": { "birth-date": "1980-03-14" },
+      "incoming": { "postal-code": "89011" },
+      "expectOutcome": "no-conflict"
+    }
+  ]
+}

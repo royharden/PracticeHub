@@ -1,0 +1,76 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-015",
+  "class": "RECOVERY",
+  "description": "AC-4 + exception 1: unresolved external-system mismatches stay visible until every authoritative system acknowledges the update, and a person presenting their legal name while carrying a differing affirmed name still resolves to their ONE identity — a name difference can never create a second patient.",
+  "matchable": [
+    {
+      "person": {
+        "personId": "np-alex-rivera",
+        "tenantId": "northwind-synthetic",
+        "status": "verified",
+        "verificationEvidenceRef": "synthetic-idproof-0001",
+        "birthDate": "1980-03-14",
+        "provenance": { "source": "synthetic-intake", "capturedBy": "synthetic-front-desk-001" },
+        "synthetic": true
+      },
+      "names": [
+        {
+          "tenantId": "northwind-synthetic",
+          "personId": "np-alex-rivera",
+          "kind": "affirmed",
+          "givenName": "Alex",
+          "familyName": "Rivera",
+          "source": "synthetic-patient-update",
+          "unsafeContexts": [],
+          "synthetic": true
+        },
+        {
+          "tenantId": "northwind-synthetic",
+          "personId": "np-alex-rivera",
+          "kind": "legal",
+          "givenName": "Alexander",
+          "familyName": "Rivera",
+          "source": "synthetic-intake",
+          "unsafeContexts": [],
+          "synthetic": true
+        }
+      ],
+      "attributes": { "givenName": "Alex", "familyName": "Rivera", "birthDate": "1980-03-14" }
+    }
+  ],
+  "cases": [
+    {
+      "name": "AC-4: outstanding acknowledgments stay visible until each system confirms",
+      "op": "name-acks",
+      "requiredSystems": ["synthetic-athena", "synthetic-lab", "synthetic-payer"],
+      "acknowledgedSystems": ["synthetic-lab"],
+      "expectOutstanding": ["synthetic-athena", "synthetic-payer"]
+    },
+    {
+      "name": "AC-4: reconciliation completes when every system has acknowledged",
+      "op": "name-acks",
+      "requiredSystems": ["synthetic-athena", "synthetic-lab", "synthetic-payer"],
+      "acknowledgedSystems": ["synthetic-athena", "synthetic-lab", "synthetic-payer"],
+      "expectOutstanding": []
+    },
+    {
+      "name": "exception 1: presenting the LEGAL name resolves to the one identity — never a second patient",
+      "op": "register",
+      "inquiry": {
+        "tenantId": "northwind-synthetic",
+        "proposedPersonId": "np-inquiry-legal-name",
+        "attributes": {
+          "givenName": "Alexander",
+          "familyName": "Rivera",
+          "birthDate": "1980-03-14"
+        },
+        "provenance": { "source": "synthetic-front-desk", "capturedBy": "synthetic-front-desk-002" }
+      },
+      "expectOutcome": "possible-match-queue",
+      "expectCandidateCount": 1,
+      "expectMatchedAttributes": ["given-name", "family-name", "birth-date"],
+      "expectStrong": true
+    }
+  ]
+}

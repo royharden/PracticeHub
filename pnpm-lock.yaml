@@ -38,6 +38,25 @@ importers:
 
   apps/web: {}
 
+  modules/identity:
+    dependencies:
+      '@practicehub/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@practicehub/platform-core':
+        specifier: workspace:*
+        version: link:../platform-core
+    devDependencies:
+      '@practicehub/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+      '@types/pg':
+        specifier: 8.16.0
+        version: 8.16.0
+      pg:
+        specifier: 8.16.3
+        version: 8.16.3
+
   modules/platform-core:
     dependencies:
       '@practicehub/contracts':
@@ -59,6 +78,16 @@ importers:
   packages/platform: {}
 
   packages/testkit: {}
+
+  sims/idproof-sim:
+    dependencies:
+      '@practicehub/identity':
+        specifier: workspace:*
+        version: link:../../modules/identity
+    devDependencies:
+      '@practicehub/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
 
   sims/vendor-simulator: {}
 

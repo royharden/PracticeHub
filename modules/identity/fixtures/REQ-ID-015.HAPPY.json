@@ -1,0 +1,47 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-015",
+  "class": "HAPPY",
+  "description": "AC-1 + AC-2 + AC-3: affirmed and legal names live as distinct fields on one person; patient-facing contexts render the affirmed name by default; a legal-matching transaction carries the legal identifier only in its matching field.",
+  "names": [
+    {
+      "tenantId": "northwind-synthetic",
+      "personId": "np-alex-rivera",
+      "kind": "affirmed",
+      "givenName": "Alex",
+      "familyName": "Rivera",
+      "effectiveDate": "2026-01-05",
+      "source": "synthetic-patient-update",
+      "unsafeContexts": [],
+      "synthetic": true
+    },
+    {
+      "tenantId": "northwind-synthetic",
+      "personId": "np-alex-rivera",
+      "kind": "legal",
+      "givenName": "Alexander",
+      "familyName": "Rivera",
+      "source": "synthetic-intake",
+      "unsafeContexts": [],
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "AC-2: care renders the affirmed name by default",
+      "op": "name-render",
+      "context": "care",
+      "expectKindUsed": "affirmed",
+      "expectGivenName": "Alex",
+      "expectLegalIdentifierRequired": false
+    },
+    {
+      "name": "AC-3: a payer transaction uses the legal identifier only in the matching field",
+      "op": "name-render",
+      "context": "payer",
+      "expectKindUsed": "legal",
+      "expectGivenName": "Alexander",
+      "expectLegalIdentifierRequired": true
+    }
+  ]
+}

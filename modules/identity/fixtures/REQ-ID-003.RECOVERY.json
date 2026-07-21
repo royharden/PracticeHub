@@ -1,0 +1,76 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-003",
+  "class": "RECOVERY",
+  "description": "Exception 2 (model slice): a refused conflicting link retains the original source identifier so a mistaken linkage stays restorable, and the review trail is append-only — entries add, never rewrite. Reversible merge/unmerge execution with lineage is the WP-016 forward obligation (FWD-ID-016-UNMERGE, docs/contracts/identity-types.md).",
+  "links": [
+    {
+      "tenantId": "northwind-synthetic",
+      "sourceSystem": "legacy-lakeside",
+      "sourceValue": "lg-000441",
+      "personId": "np-casey-rivera",
+      "verification": "asserted",
+      "provenanceSource": "synthetic-acquisition-import",
+      "synthetic": true
+    }
+  ],
+  "trail": [
+    {
+      "entryId": "nti-fixture-0001",
+      "tenantId": "northwind-synthetic",
+      "personId": "np-casey-rivera",
+      "kind": "registered",
+      "actorRef": "synthetic-front-desk-001",
+      "source": "synthetic-intake",
+      "occurredAt": "2026-01-05T09:10:00Z",
+      "synthetic": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "exception 2: a conflicting relink is refused and the original source identifier survives for restore",
+      "op": "link-source",
+      "link": {
+        "tenantId": "northwind-synthetic",
+        "sourceSystem": "legacy-lakeside",
+        "sourceValue": "lg-000441",
+        "personId": "np-alex-rivera",
+        "verification": "asserted",
+        "provenanceSource": "synthetic-relink-attempt",
+        "synthetic": true
+      },
+      "expectOutcome": "conflict-quarantined",
+      "expectPersonId": "np-casey-rivera"
+    },
+    {
+      "name": "exception 2: the audit trail appends a review entry without rewriting history",
+      "op": "timeline-append",
+      "entry": {
+        "entryId": "nti-fixture-0002",
+        "tenantId": "northwind-synthetic",
+        "personId": "np-casey-rivera",
+        "kind": "review-opened",
+        "actorRef": "synthetic-staff-001",
+        "source": "synthetic-crosswalk-review",
+        "occurredAt": "2026-02-01T12:00:00Z",
+        "synthetic": true
+      },
+      "expectTrailLength": 2
+    },
+    {
+      "name": "exception 2: re-appending an existing entry id is refused — append-only means no rewrites",
+      "op": "timeline-append",
+      "entry": {
+        "entryId": "nti-fixture-0001",
+        "tenantId": "northwind-synthetic",
+        "personId": "np-casey-rivera",
+        "kind": "review-opened",
+        "actorRef": "synthetic-staff-001",
+        "source": "synthetic-crosswalk-review",
+        "occurredAt": "2026-02-01T12:05:00Z",
+        "synthetic": true
+      },
+      "expectError": "already exists"
+    }
+  ]
+}

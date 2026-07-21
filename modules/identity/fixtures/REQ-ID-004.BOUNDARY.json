@@ -1,0 +1,35 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-004",
+  "class": "BOUNDARY",
+  "description": "AC-1 at the opacity boundary: payment-rail references that carry contact detail, date-like content, or non-token shapes are refused at the model layer — clinical or identifying detail cannot reach the payment processor through the crosswalk.",
+  "cases": [
+    {
+      "name": "AC-1: an email-shaped payment reference is refused",
+      "op": "opaque-ref",
+      "system": "stripe",
+      "value": "alex@synthetic.invalid",
+      "expectError": "opaque token"
+    },
+    {
+      "name": "AC-1: a date-carrying payment reference is refused",
+      "op": "opaque-ref",
+      "system": "stripe",
+      "value": "dob-1980-03-14-alex",
+      "expectError": "opaque token"
+    },
+    {
+      "name": "AC-1: a short or spaced value is refused",
+      "op": "opaque-ref",
+      "system": "stripe",
+      "value": "a b",
+      "expectError": "opaque token"
+    },
+    {
+      "name": "boundary: non-payment systems keep their native id shapes",
+      "op": "opaque-ref",
+      "system": "athena",
+      "value": "ath-100234"
+    }
+  ]
+}

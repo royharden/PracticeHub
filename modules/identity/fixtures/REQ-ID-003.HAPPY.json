@@ -1,0 +1,43 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-003",
+  "class": "HAPPY",
+  "description": "AC-1 + AC-3: an inquiry with no matching identity yields exactly one provisional identity retaining source, capture, and consent provenance.",
+  "matchable": [
+    {
+      "person": {
+        "personId": "np-alex-rivera",
+        "tenantId": "northwind-synthetic",
+        "status": "verified",
+        "verificationEvidenceRef": "synthetic-idproof-0001",
+        "birthDate": "1980-03-14",
+        "provenance": { "source": "synthetic-intake", "capturedBy": "synthetic-front-desk-001" },
+        "synthetic": true
+      },
+      "names": [],
+      "attributes": {
+        "givenName": "Alex",
+        "familyName": "Rivera",
+        "birthDate": "1980-03-14",
+        "phone": "+15550100001"
+      }
+    }
+  ],
+  "cases": [
+    {
+      "name": "AC-1/AC-3: no match creates one provisional identity with provenance retained",
+      "op": "register",
+      "inquiry": {
+        "tenantId": "northwind-synthetic",
+        "proposedPersonId": "np-dana-okafor",
+        "attributes": { "givenName": "Dana", "familyName": "Okafor", "birthDate": "1992-11-30" },
+        "provenance": {
+          "source": "synthetic-web-form",
+          "capturedBy": "synthetic-web-intake",
+          "consentRef": "synthetic-consent-0009"
+        }
+      },
+      "expectOutcome": "provisional-created"
+    }
+  ]
+}
