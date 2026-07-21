@@ -173,6 +173,8 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/010-pdp-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/011-consent-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/011-consent-seed.sql');
+  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/012-events-seed.sql'), 'utf8'));
+  console.log('seeded infra/postgres/seed/012-events-seed.sql');
 }
 
 function testLocal(): void {
@@ -656,6 +658,35 @@ function testLocal(): void {
     );
   }
 
+  // WP-021: the event-spine capability sits at the package ceiling with the
+  // opposite-state tenant proof (northwind scaffolded, riverbend disabled).
+  const eventSpineCapabilityStates = scalar(
+    "SELECT string_agg(tenant_id || ':' || state, ',' ORDER BY tenant_id) " +
+      "FROM platform_core.capability_grant WHERE capability_id = 'platform.event-spine';",
+  );
+  if (
+    eventSpineCapabilityStates !== 'northwind-synthetic:scaffolded,riverbend-synthetic:disabled'
+  ) {
+    throw new Error(`event-spine capability tenant states differ: ${eventSpineCapabilityStates}`);
+  }
+
+  // WP-021: the seeded outbox posture holds at rest — three outbox events, two
+  // published deliveries, two inbox dedup rows, and every outbox event carries a
+  // delivery row (projection completeness; a published delivery is delivered
+  // exactly once and never re-sent on replay).
+  const eventSpinePosture = scalar(
+    "SELECT (SELECT count(*) FROM events.outbox WHERE tenant_id = 'northwind-synthetic')::text " +
+      "|| '|' || (SELECT count(*) FROM events.outbox_delivery " +
+      "WHERE tenant_id = 'northwind-synthetic' AND status = 'published')::text " +
+      "|| '|' || (SELECT count(*) FROM events.inbox WHERE tenant_id = 'northwind-synthetic')::text " +
+      "|| '|' || (SELECT count(*) FROM events.outbox o WHERE NOT EXISTS (" +
+      'SELECT FROM events.outbox_delivery d ' +
+      'WHERE d.tenant_id = o.tenant_id AND d.event_id = o.event_id))::text;',
+  );
+  if (eventSpinePosture !== '3|2|2|0') {
+    throw new Error(`event-spine posture differs: ${eventSpinePosture}`);
+  }
+
   // WP-010: the DB-level cross-tenant negative suite runs against the live stack.
   run('pnpm', ['--filter', '@practicehub/platform-core', 'run', 'test:db'], {
     stdio: 'inherit',
@@ -679,6 +710,13 @@ function testLocal(): void {
     stdio: 'inherit',
   });
 
+  // WP-021: the event-spine DB suite (same-commit crash over the outbox,
+  // exactly-once across a crash, inbox dedup, drain capability re-check,
+  // append-only postures + cross-tenant negatives) runs the same way.
+  run('pnpm', ['--filter', '@practicehub/events', 'run', 'test:db'], {
+    stdio: 'inherit',
+  });
+
   // WP-014: the dex federation e2e runs against the live compose dex —
   // discovery, mock-connector code flow, crosswalk mapping, and the
   // dark-by-registry denial proof.
@@ -690,7 +728,7 @@ function testLocal(): void {
     `services_healthy=${services.size} tenants=${tenantRows.join(',')} ` +
       'rls_coverage=OK watermark=OK jurisdiction_packs=OK capability_registry=OK ' +
       'identity_model=OK authn_model=OK merge_governance=OK pdp_model=OK ' +
-      'gipa_partition=OK audit_store=OK consent_ledger=OK ' +
+      'gipa_partition=OK audit_store=OK consent_ledger=OK event_spine=OK ' +
       'dex_federation=OK cross_tenant_db_suite=OK synthetic_stack=OK',
   );
 }

@@ -25,10 +25,63 @@ export interface TenancyContext {
 
 export type PhiClass = 'none' | 'demographic' | 'PHI' | 'PHI-restricted' | 'secret';
 
+/**
+ * The aggregate an event belongs to. `version` is the aggregate version AFTER
+ * this event — the sequence a projection replays in order (ADR-009 Decision 1).
+ */
+export interface AggregateRef {
+  readonly type: string;
+  readonly id: string;
+  readonly version: number;
+}
+
+/** Who produced the event: the module/adapter, and an optional actor reference. */
+export interface EventSource {
+  readonly module: string;
+  readonly actorRef?: string;
+}
+
+/**
+ * The command/event envelope — FROZEN by WP-021 (docs/contracts/event-spine.md).
+ * Architecture: ADR-009 Decision 1. The durable contract of the platform event
+ * spine: transport is swappable later (outbox -> broker) without changing this
+ * shape. Every field a producer sets is immutable once recorded; current state
+ * is always a projection, and out-of-order arrivals reconcile through the
+ * declared inbox + `effectiveAt`, never silently.
+ *
+ * - `eventId` is a ULID (lexicographically sortable by creation time) and the
+ *   idempotency anchor consumers dedup on.
+ * - `occurredAt`/`recordedAt`/`effectiveAt` separate domain time, system-record
+ *   time, and effective-dating so a late or corrected event reconciles
+ *   explicitly.
+ * - `correlationId` threads a choreography; `causationId` names the event that
+ *   caused this one.
+ * - `idempotencyKey` is the producer-side key (a ret/replay of the same intent
+ *   carries the same key).
+ * - `dataClassification` drives egress guards (RSK-09); `retentionClass` maps to
+ *   the audit-store record-class vocabulary.
+ * - `supersedesEventId`/`reversalOfEventId` are the supersession/reversal
+ *   pointers; `externalReceiptRef` records a vendor receipt where a rail
+ *   evidenced the effect.
+ */
 export interface EventEnvelope<TPayload> {
   readonly eventId: EventId;
   readonly tenantId: TenantId;
+  readonly legalEntityId?: LegalEntityId;
   readonly type: string;
+  readonly aggregate: AggregateRef;
+  readonly occurredAt: string;
+  readonly recordedAt: string;
+  readonly effectiveAt?: string;
+  readonly source: EventSource;
+  readonly correlationId?: string;
+  readonly causationId?: EventId;
+  readonly idempotencyKey: string;
+  readonly dataClassification: PhiClass;
+  readonly retentionClass?: string;
+  readonly supersedesEventId?: EventId;
+  readonly reversalOfEventId?: EventId;
+  readonly externalReceiptRef?: string;
   readonly payload: TPayload;
   readonly synthetic: true;
 }

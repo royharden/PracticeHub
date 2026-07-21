@@ -1,0 +1,26 @@
+{
+  "name": "@practicehub/events",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint src --max-warnings=0",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:db": "vitest run --config vitest.db.config.ts"
+  },
+  "dependencies": {
+    "@practicehub/audit-evidence": "workspace:*",
+    "@practicehub/contracts": "workspace:*",
+    "@practicehub/platform": "workspace:*",
+    "@practicehub/platform-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@practicehub/testkit": "workspace:*",
+    "@types/pg": "8.16.0",
+    "pg": "8.16.3"
+  }
+}

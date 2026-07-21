@@ -1,0 +1,50 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-018",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "at-least-once redelivery of an already-processed event dedups to skip",
+      "op": "dedup",
+      "seen": [{ "consumer": "audit-mirror", "eventId": "01H8XGJWBWBAQ4Z5Z5Z5Z5Z5Z6" }],
+      "consumer": "audit-mirror",
+      "eventId": "01H8XGJWBWBAQ4Z5Z5Z5Z5Z5Z6",
+      "expectDecision": "skip-duplicate"
+    },
+    {
+      "name": "a redelivered pending event marks published without re-running the side effect",
+      "op": "drain",
+      "delivery": { "status": "pending", "attempts": 1 },
+      "capabilityAllowed": true,
+      "inbox": "skip-duplicate",
+      "expectAction": "skip-duplicate"
+    },
+    {
+      "name": "one attempt below the retry budget still retries",
+      "op": "failure",
+      "delivery": { "status": "failed", "attempts": 2 },
+      "maxAttempts": 3,
+      "expectFailure": "retry-later"
+    },
+    {
+      "name": "exactly at the retry budget it dead-letters",
+      "op": "failure",
+      "delivery": { "status": "failed", "attempts": 3 },
+      "maxAttempts": 3,
+      "expectFailure": "dead-letter"
+    },
+    {
+      "name": "a millisecond-precision UTC instant is on the boundary of the accepted format",
+      "op": "envelope",
+      "envelope": { "occurredAt": "2026-03-15T00:00:00.250Z" },
+      "expectValid": true
+    },
+    {
+      "name": "a not-yet-delivered effect is the only replay that is resend-safe",
+      "op": "replay",
+      "delivery": { "status": "pending", "attempts": 0 },
+      "alreadyConsumed": false,
+      "expectResend": "resend-safe"
+    }
+  ]
+}

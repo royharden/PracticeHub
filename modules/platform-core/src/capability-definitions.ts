@@ -161,6 +161,17 @@ export const capabilityDefinitionsV1: readonly CapabilityDefinition[] = [
       'GIPA partition enforcement, deceased chart lock. Authority-increasing commands ' +
       'floor at simulated; protective revocations are never gate-blocked.',
   },
+  {
+    capabilityId: 'platform.event-spine',
+    ownerRole: 'architecture',
+    dimensions: [],
+    description:
+      'Platform event spine (M05, WP-021): transactional outbox, per-consumer inbox ' +
+      'dedup, replay/reconciliation. Replay commands floor at simulated; an enqueue ' +
+      "rides the producing command's own capability, and the drain re-checks each " +
+      "event's consumer capability at checkpoint drain. audit.emit over the outbox is " +
+      'never gated.',
+  },
 ];
 
 /** Exact mirror of docs/architecture/capability-edge-preconditions.csv (FROZEN). */
@@ -383,6 +394,16 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       rollbackRef: 'already-disabled',
       synthetic: true,
     },
+    {
+      capabilityId: 'platform.event-spine',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
   ],
   events: [
     chainEvent(
@@ -523,6 +544,19 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       'disabled',
       'scaffolded',
       'synthetic-gate:wp-018-consent-scaffold',
+    ),
+    // WP-021: the event spine lands at its package ceiling — `scaffolded`. The
+    // replay-outbox command (floored at `simulated`) therefore DENIES against
+    // this seed, by design; enqueue rides a producing command's own capability,
+    // the drain re-checks each event's consumer capability, and audit.emit over
+    // the outbox is never gated. Riverbend stays the opposite-state proof.
+    chainEvent(
+      'synthetic-cap-evt-0015',
+      'platform.event-spine',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-021-event-spine-scaffold',
     ),
   ],
 };

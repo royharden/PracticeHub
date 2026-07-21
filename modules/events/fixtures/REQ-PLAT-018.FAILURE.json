@@ -1,0 +1,48 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-018",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a delivery that exhausts its retries dead-letters (a WorkItem, never a silent drop)",
+      "op": "failure",
+      "delivery": { "status": "failed", "attempts": 5 },
+      "maxAttempts": 5,
+      "expectFailure": "dead-letter"
+    },
+    {
+      "name": "a capability denied AT DRAIN parks a first sighting — the side effect never fires",
+      "op": "drain",
+      "delivery": { "status": "pending", "attempts": 0 },
+      "capabilityAllowed": false,
+      "inbox": "process",
+      "expectAction": "park-denied"
+    },
+    {
+      "name": "a drain denial dominates even a duplicate — still parked, still no side effect",
+      "op": "drain",
+      "delivery": { "status": "pending", "attempts": 1 },
+      "capabilityAllowed": false,
+      "inbox": "skip-duplicate",
+      "expectAction": "park-denied"
+    },
+    {
+      "name": "an event id that is not a ULID is refused",
+      "op": "envelope",
+      "envelope": { "eventId": "nce-0001" },
+      "expectError": "eventId"
+    },
+    {
+      "name": "a non-synthetic envelope is refused at the boundary",
+      "op": "envelope",
+      "envelope": { "synthetic": false },
+      "expectError": "synthetic"
+    },
+    {
+      "name": "an unknown data classification is refused",
+      "op": "envelope",
+      "envelope": { "dataClassification": "top-secret" },
+      "expectError": "dataClassification"
+    }
+  ]
+}

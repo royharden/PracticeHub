@@ -1,0 +1,43 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-018",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "a well-formed event envelope validates",
+      "op": "envelope",
+      "expectValid": true
+    },
+    {
+      "name": "a first-sighting pending delivery whose capability passes publishes",
+      "op": "drain",
+      "delivery": { "status": "pending", "attempts": 0 },
+      "capabilityAllowed": true,
+      "inbox": "process",
+      "expectAction": "publish"
+    },
+    {
+      "name": "the consumer has not seen the event, so it processes it",
+      "op": "dedup",
+      "seen": [],
+      "consumer": "thread-projector",
+      "eventId": "01H8XGJWBWBAQ4Z5Z5Z5Z5Z5Z5",
+      "expectDecision": "process"
+    },
+    {
+      "name": "once recorded in the inbox, a redelivery of the same event skips",
+      "op": "dedup",
+      "seen": [{ "consumer": "thread-projector", "eventId": "01H8XGJWBWBAQ4Z5Z5Z5Z5Z5Z5" }],
+      "consumer": "thread-projector",
+      "eventId": "01H8XGJWBWBAQ4Z5Z5Z5Z5Z5Z5",
+      "expectDecision": "skip-duplicate"
+    },
+    {
+      "name": "a published, consumed effect is never re-sent on replay (delivered exactly once)",
+      "op": "replay",
+      "delivery": { "status": "published", "attempts": 1 },
+      "alreadyConsumed": true,
+      "expectResend": "reconciled-no-resend"
+    }
+  ]
+}

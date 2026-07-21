@@ -1,11 +1,6 @@
-export interface SyntheticBoundaryInput {
-  readonly synthetic?: boolean;
-}
-
-export function requireSyntheticInput(
-  input: SyntheticBoundaryInput,
-): asserts input is { synthetic: true } {
-  if (input.synthetic !== true) {
-    throw new Error('Local PracticeHub boundaries accept synthetic data only.');
-  }
-}
+export * from './synthetic.js';
+export * from './ulid.js';
+export * from './envelope.js';
+export * from './inbox.js';
+export * from './outbox.js';
+export * from './replay.js';

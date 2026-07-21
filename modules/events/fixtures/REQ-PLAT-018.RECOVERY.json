@@ -1,0 +1,67 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-018",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "replay across a restore never re-sends a published effect (recovery-epoch fence)",
+      "op": "replay",
+      "delivery": { "status": "published", "attempts": 1 },
+      "alreadyConsumed": false,
+      "expectResend": "reconciled-no-resend"
+    },
+    {
+      "name": "replay never re-sends an effect the consumer already recorded",
+      "op": "replay",
+      "delivery": { "status": "pending", "attempts": 1 },
+      "alreadyConsumed": true,
+      "expectResend": "reconciled-no-resend"
+    },
+    {
+      "name": "an unknown outcome with a receipt reconciles to published (never guessed)",
+      "op": "reconcile",
+      "delivery": { "status": "unknown", "attempts": 1 },
+      "receiptFound": true,
+      "expectStatus": "published"
+    },
+    {
+      "name": "an unknown outcome without a receipt reconciles to failed (safe to retry)",
+      "op": "reconcile",
+      "delivery": { "status": "unknown", "attempts": 1 },
+      "receiptFound": false,
+      "expectStatus": "failed"
+    },
+    {
+      "name": "a dead reconciliation is not a clean night — it alarms",
+      "op": "reconcile",
+      "expectedVolume": 12,
+      "observedVolume": 0,
+      "ran": false,
+      "expectAlarm": true
+    },
+    {
+      "name": "observing fewer effects than expected alarms on silent loss",
+      "op": "reconcile",
+      "expectedVolume": 12,
+      "observedVolume": 11,
+      "ran": true,
+      "expectAlarm": true
+    },
+    {
+      "name": "an exact reconciliation is quiet",
+      "op": "reconcile",
+      "expectedVolume": 12,
+      "observedVolume": 12,
+      "ran": true,
+      "expectAlarm": false
+    },
+    {
+      "name": "after a crash the delivery is still pending and unconsumed — the replay re-drives it once",
+      "op": "drain",
+      "delivery": { "status": "pending", "attempts": 1 },
+      "capabilityAllowed": true,
+      "inbox": "process",
+      "expectAction": "publish"
+    }
+  ]
+}
