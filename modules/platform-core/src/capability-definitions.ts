@@ -135,6 +135,14 @@ export const capabilityDefinitionsV1: readonly CapabilityDefinition[] = [
       'Platform-owned authentication (M02, WP-014): sessions, MFA, portal magic-link/OTP, ' +
       'lockout/ATO machinery. Session issuance commands floor at simulated.',
   },
+  {
+    capabilityId: 'identity.merge-governance',
+    ownerRole: 'security',
+    dimensions: [],
+    description:
+      'Merge governance (M02, WP-016): merge cases, reversible merge/unmerge with lineage, ' +
+      'cache invalidation. Merge/unmerge commands floor at simulated.',
+  },
 ];
 
 /** Exact mirror of docs/architecture/capability-edge-preconditions.csv (FROZEN). */
@@ -307,6 +315,16 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       rollbackRef: 'already-disabled',
       synthetic: true,
     },
+    {
+      capabilityId: 'identity.merge-governance',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
   ],
   events: [
     chainEvent(
@@ -387,6 +405,17 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       'disabled',
       'scaffolded',
       'synthetic-gate:wp-014-authn-scaffold',
+    ),
+    // WP-016: merge governance lands at its package ceiling — `scaffolded`.
+    // The merge/unmerge commands (floored at `simulated`) therefore DENY
+    // against this seed, by design; Riverbend stays the opposite-state proof.
+    chainEvent(
+      'synthetic-cap-evt-0010',
+      'identity.merge-governance',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-016-merge-scaffold',
     ),
   ],
 };

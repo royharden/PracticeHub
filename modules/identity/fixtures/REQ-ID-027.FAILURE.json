@@ -1,0 +1,39 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-027",
+  "class": "FAILURE",
+  "description": "AC-2/AC-3 + EX-2: wrong-recipient releases open a wrong-disclosure incident on the PHI-breach workflow; the clinician harm review is tasked and a materialized clinical decision escalates immediately.",
+  "cases": [
+    {
+      "name": "AC-2: a result released to the wrong patient opens a wrong-disclosure incident linked to the PHI-breach workflow",
+      "op": "propagate",
+      "exposures": [
+        {
+          "system": "portal-results",
+          "ref": "fx-res-wrong",
+          "exposedTo": "survivor",
+          "correct": "merged",
+          "status": "released",
+          "electronic": true
+        }
+      ],
+      "expectIncidentRefs": ["fx-res-wrong"]
+    },
+    {
+      "name": "AC-3 + EX-2: the harm review is tasked; a materialized clinical decision escalates immediately to the treating provider",
+      "op": "propagate",
+      "exposures": [
+        {
+          "system": "referrals",
+          "ref": "fx-rx-wrong",
+          "exposedTo": "survivor",
+          "correct": "merged",
+          "status": "active",
+          "electronic": true,
+          "materialized": true
+        }
+      ],
+      "expectEscalationRefs": ["fx-rx-wrong"]
+    }
+  ]
+}

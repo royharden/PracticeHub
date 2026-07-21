@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-026",
+  "class": "FAILURE",
+  "description": "EX-1: missing lineage blocks auto-split and opens manual chart review. EX-3: a midway failure rolls back to the merged state with a P0 alert. AC-4: unapproved unmerges are refused.",
+  "cases": [
+    {
+      "name": "EX-1: no retained lineage — auto-split refused, manual chart-review workflow opened",
+      "op": "unmerge",
+      "withLineage": false,
+      "expectOutcome": "blocked-no-lineage"
+    },
+    {
+      "name": "EX-3: a midway restore failure rolls back to the merged state with a P0 data-integrity alert",
+      "op": "unmerge",
+      "failAtRestoreIndex": 2,
+      "expectOutcome": "rolled-back-to-merged"
+    },
+    {
+      "name": "AC-4: an unmerge without an attributed operator is refused",
+      "op": "unmerge",
+      "approvedBy": "",
+      "expectError": "attributed operator"
+    }
+  ]
+}

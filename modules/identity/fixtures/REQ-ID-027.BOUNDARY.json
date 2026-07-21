@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-027",
+  "class": "BOUNDARY",
+  "description": "EX-1: a claim already adjudicated/paid routes to RCM void/rebill and refund handling rather than silent edit.",
+  "cases": [
+    {
+      "name": "EX-1: an adjudicated/paid claim routes to RCM void/rebill + refund — never a silent edit",
+      "op": "propagate",
+      "exposures": [
+        {
+          "system": "claims",
+          "ref": "fx-clm-paid",
+          "exposedTo": "survivor",
+          "correct": "merged",
+          "status": "adjudicated-paid",
+          "electronic": true
+        }
+      ],
+      "expectActions": {
+        "fx-clm-paid": "rcm-void-rebill-refund"
+      }
+    }
+  ]
+}

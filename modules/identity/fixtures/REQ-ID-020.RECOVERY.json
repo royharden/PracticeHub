@@ -1,0 +1,37 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-020",
+  "class": "RECOVERY",
+  "description": "AC-4: once every link reconciles the banner clears and per-source contribution provenance renders; new evidence re-opens a dismissed pair.",
+  "cases": [
+    {
+      "name": "AC-4: reconciled — banner cleared, unified identity with per-source provenance",
+      "op": "banner",
+      "links": [
+        {
+          "sourceSystem": "legacy-lakeside",
+          "sourceValue": "lg-000441",
+          "migrationStatus": "reconciled",
+          "contributedFields": ["demographics", "allergies"]
+        },
+        {
+          "sourceSystem": "athena",
+          "sourceValue": "ath-100234",
+          "migrationStatus": "reconciled",
+          "contributedFields": ["problem-list"]
+        }
+      ],
+      "expectReconciled": true,
+      "expectProvenanceSystems": ["legacy-lakeside", "athena"]
+    },
+    {
+      "name": "EX: new evidence re-opens a dismissed pair",
+      "op": "reflag",
+      "priorResolution": {
+        "doNotReflag": true
+      },
+      "newEvidenceRef": "synthetic-new-evidence-0001",
+      "expectReflag": true
+    }
+  ]
+}

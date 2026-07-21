@@ -1,0 +1,39 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-020",
+  "class": "HAPPY",
+  "description": "AC-1/AC-2: an unreconciled foreign chart shows a banner naming its source system and migration status; likely duplicates surface as a side-by-side comparison, never silently merged or hidden.",
+  "cases": [
+    {
+      "name": "AC-1: an unreconciled foreign chart renders the banner naming source system and status",
+      "op": "banner",
+      "links": [
+        {
+          "sourceSystem": "legacy-lakeside",
+          "sourceValue": "lg-000441",
+          "migrationStatus": "unreconciled",
+          "contributedFields": ["demographics"]
+        }
+      ],
+      "expectReconciled": false,
+      "expectSourceSystems": ["legacy-lakeside"],
+      "expectMigrationStatus": "unreconciled"
+    },
+    {
+      "name": "AC-2: a likely duplicate surfaces as a blocking side-by-side comparison",
+      "op": "checkin",
+      "entered": {
+        "givenName": "Sam",
+        "familyName": "Porter",
+        "birthDate": "1975-09-21"
+      },
+      "existingAttributes": {
+        "givenName": "Sam",
+        "familyName": "Porter",
+        "birthDate": "1975-09-21"
+      },
+      "expectOutcome": "duplicate-warning",
+      "expectBlocks": true
+    }
+  ]
+}

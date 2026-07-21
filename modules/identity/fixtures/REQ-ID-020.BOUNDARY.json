@@ -1,0 +1,37 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-020",
+  "class": "BOUNDARY",
+  "description": "Boundary states: any outstanding link keeps the banner (in-review is not reconciled); a dismissed pair does not re-flag on unchanged evidence.",
+  "cases": [
+    {
+      "name": "boundary: a mix of reconciled and in-review links keeps the banner at in-review",
+      "op": "banner",
+      "links": [
+        {
+          "sourceSystem": "legacy-lakeside",
+          "sourceValue": "lg-000441",
+          "migrationStatus": "reconciled",
+          "contributedFields": ["demographics"]
+        },
+        {
+          "sourceSystem": "athena",
+          "sourceValue": "ath-100234",
+          "migrationStatus": "in-review",
+          "contributedFields": ["problem-list"]
+        }
+      ],
+      "expectReconciled": false,
+      "expectSourceSystems": ["athena"],
+      "expectMigrationStatus": "in-review"
+    },
+    {
+      "name": "EX boundary: a reviewed-and-dismissed pair is not re-flagged on the same evidence",
+      "op": "reflag",
+      "priorResolution": {
+        "doNotReflag": true
+      },
+      "expectReflag": false
+    }
+  ]
+}

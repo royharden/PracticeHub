@@ -31,8 +31,17 @@ export const authnRlsSpecs: readonly RlsTableSpec[] = [
   { schema: 'identity', table: 'account_lockdown', kind: 'tenant-scoped' },
 ];
 
+/** Tables created by 0006-merge.sql (WP-016) — that migration's DDL scope. */
+export const mergeRlsSpecs: readonly RlsTableSpec[] = [
+  { schema: 'identity', table: 'merge_case', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'merge_case_person', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'merge_event', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'merge_lineage', kind: 'tenant-scoped' },
+];
+
 /** The full identity-schema registry — every migration's coverage guard declares it. */
 export const identitySchemaRlsSpecs: readonly RlsTableSpec[] = [
   ...identityRlsSpecs,
   ...authnRlsSpecs,
+  ...mergeRlsSpecs,
 ];

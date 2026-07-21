@@ -10,5 +10,7 @@ export * from './authn.js';
 export * from './ato.js';
 export * from './elevation.js';
 export * from './federation.js';
+export * from './merge.js';
 export * from './commands/register-identity.command.js';
 export * from './commands/issue-session.command.js';
+export * from './commands/merge-governance.command.js';

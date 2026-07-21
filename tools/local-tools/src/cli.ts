@@ -165,6 +165,8 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/006-identity-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/007-authn-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/007-authn-seed.sql');
+  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/008-merge-seed.sql'), 'utf8'));
+  console.log('seeded infra/postgres/seed/008-merge-seed.sql');
 }
 
 function testLocal(): void {
@@ -283,7 +285,11 @@ function testLocal(): void {
       '(SELECT count(*) FROM identity.auth_device WHERE synthetic IS DISTINCT FROM true) + ' +
       '(SELECT count(*) FROM identity.auth_session WHERE synthetic IS DISTINCT FROM true) + ' +
       '(SELECT count(*) FROM identity.auth_challenge WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.account_lockdown WHERE synthetic IS DISTINCT FROM true);',
+      '(SELECT count(*) FROM identity.account_lockdown WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.merge_case WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.merge_case_person WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.merge_event WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM identity.merge_lineage WHERE synthetic IS DISTINCT FROM true);',
   );
   if (unwatermarked !== '0') {
     throw new Error(`module schemas hold ${unwatermarked} row(s) without the synthetic watermark`);
@@ -405,6 +411,72 @@ function testLocal(): void {
     throw new Error(`authn capability tenant states differ: ${authnCapabilityStates}`);
   }
 
+  // WP-016: merge governance standing proofs. Case posture — one resolved
+  // acquisition merge plus one open specialized-pattern collision on tenant 1,
+  // one open Riverbend case for the cross-tenant negatives.
+  const mergeCaseStates = scalar(
+    "SELECT string_agg(tenant_id || ':' || status, ',' ORDER BY tenant_id, case_id) " +
+      'FROM identity.merge_case;',
+  );
+  const expectedMergeCaseStates =
+    'northwind-synthetic:resolved-merged,northwind-synthetic:open,riverbend-synthetic:open';
+  if (mergeCaseStates !== expectedMergeCaseStates) {
+    throw new Error(`merge case posture differs: ${mergeCaseStates}`);
+  }
+
+  // WP-016: alias preservation — the merged-away legacy identifier still
+  // resolves, to the SURVIVOR, and its re-attribution lineage row exists
+  // (REQ-ID-009 AC-2; the merge stays reversible from its lineage).
+  const aliasProof = scalar(
+    "SELECT s.person_id || '|' || (" +
+      'SELECT count(*) FROM identity.merge_lineage l ' +
+      "WHERE l.artifact_kind = 'source-identifier' " +
+      "AND l.artifact_ref = 'legacy-lakeside:lg-000778' " +
+      "AND l.disposition = 're-attributed') " +
+      'FROM identity.source_identifier s ' +
+      "WHERE s.source_system = 'legacy-lakeside' AND s.source_value = 'lg-000778';",
+  );
+  if (aliasProof !== 'np-sam-porter|1') {
+    throw new Error(`merge alias-preservation proof broken: ${aliasProof}`);
+  }
+
+  // WP-016: case<->event projection sync, both directions — every
+  // resolved-merged case names a matching merge event; every merge event's
+  // case is resolved-merged naming it back.
+  const orphanMergedCases = scalar(
+    'SELECT count(*) FROM identity.merge_case c ' +
+      "WHERE c.status = 'resolved-merged' AND NOT EXISTS (" +
+      'SELECT FROM identity.merge_event e ' +
+      'WHERE e.tenant_id = c.tenant_id AND e.event_id = c.merge_event_id ' +
+      "AND e.kind = 'merge' AND e.case_id = c.case_id);",
+  );
+  const orphanMergeEvents = scalar(
+    'SELECT count(*) FROM identity.merge_event e ' +
+      "WHERE e.kind = 'merge' " +
+      'AND NOT EXISTS (SELECT FROM identity.merge_event u ' +
+      "WHERE u.kind = 'unmerge' AND u.tenant_id = e.tenant_id " +
+      'AND u.reverses_event_id = e.event_id) ' +
+      'AND NOT EXISTS (SELECT FROM identity.merge_case c ' +
+      'WHERE c.tenant_id = e.tenant_id AND c.case_id = e.case_id ' +
+      "AND c.status = 'resolved-merged' AND c.merge_event_id = e.event_id);",
+  );
+  if (orphanMergedCases !== '0' || orphanMergeEvents !== '0') {
+    throw new Error(
+      `merge projection out of sync: orphan_cases=${orphanMergedCases} ` +
+        `orphan_events=${orphanMergeEvents}`,
+    );
+  }
+
+  // WP-016: the merge-governance capability sits at the package ceiling with
+  // the opposite-state tenant proof (northwind scaffolded, riverbend disabled).
+  const mergeCapabilityStates = scalar(
+    "SELECT string_agg(tenant_id || ':' || state, ',' ORDER BY tenant_id) " +
+      "FROM platform_core.capability_grant WHERE capability_id = 'identity.merge-governance';",
+  );
+  if (mergeCapabilityStates !== 'northwind-synthetic:scaffolded,riverbend-synthetic:disabled') {
+    throw new Error(`merge capability tenant states differ: ${mergeCapabilityStates}`);
+  }
+
   // WP-010: the DB-level cross-tenant negative suite runs against the live stack.
   run('pnpm', ['--filter', '@practicehub/platform-core', 'run', 'test:db'], {
     stdio: 'inherit',
@@ -426,8 +498,8 @@ function testLocal(): void {
   console.log(
     `services_healthy=${services.size} tenants=${tenantRows.join(',')} ` +
       'rls_coverage=OK watermark=OK jurisdiction_packs=OK capability_registry=OK ' +
-      'identity_model=OK authn_model=OK dex_federation=OK cross_tenant_db_suite=OK ' +
-      'synthetic_stack=OK',
+      'identity_model=OK authn_model=OK merge_governance=OK dex_federation=OK ' +
+      'cross_tenant_db_suite=OK synthetic_stack=OK',
   );
 }
 

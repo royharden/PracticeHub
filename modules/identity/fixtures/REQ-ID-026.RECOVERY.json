@@ -1,0 +1,35 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-026",
+  "class": "RECOVERY",
+  "description": "AC-3: the reconciliation report shows every artifact pre/post owner and flags indeterminates; the redirect model keeps merged-away ids resolvable; identity caches invalidate across the merge.",
+  "cases": [
+    {
+      "name": "AC-3: the reconciliation report shows pre/post owners and flags indeterminates for manual adjudication",
+      "op": "unmerge",
+      "postMergeArtifacts": [
+        {
+          "ref": "fx-post-note",
+          "references": ["survivor", "merged"]
+        }
+      ],
+      "expectOutcome": "unmerged",
+      "expectIndeterminateRefs": ["fx-post-note"]
+    },
+    {
+      "name": "while merged the merged-away id resolves to the survivor — nothing 404s",
+      "op": "alias-resolution",
+      "expectResolvedTo": "survivor",
+      "expectRedirected": true
+    },
+    {
+      "name": "recovery invariant: identity caches written before the merge are refused after it",
+      "op": "cache",
+      "sequence": ["merge"],
+      "cachePersonKey": "merged",
+      "cacheAtStep": 0,
+      "readAtStep": 1,
+      "expectServed": false
+    }
+  ]
+}

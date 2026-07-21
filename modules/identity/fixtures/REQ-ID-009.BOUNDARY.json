@@ -1,0 +1,24 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-009",
+  "class": "BOUNDARY",
+  "description": "The merge-authorization floor from both sides: exactly two compared attributes with one merge-sufficient pass; any number of agreeing endpoint/household attributes still fail (REQ-ID-017 exception).",
+  "cases": [
+    {
+      "name": "boundary: exactly two compared attributes with one merge-sufficient meet the floor",
+      "op": "merge",
+      "mergeSetup": {
+        "basisAttributes": ["family-name", "phone"]
+      },
+      "expectResolvedStatus": "resolved-merged"
+    },
+    {
+      "name": "boundary: three agreeing endpoint/household attributes can never authorize",
+      "op": "merge",
+      "mergeSetup": {
+        "basisAttributes": ["phone", "email", "postal-address"]
+      },
+      "expectError": "can never authorize"
+    }
+  ]
+}

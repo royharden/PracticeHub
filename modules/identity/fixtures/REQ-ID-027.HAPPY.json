@@ -1,0 +1,79 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-027",
+  "class": "HAPPY",
+  "description": "AC-1/AC-4: propagation yields a correction directive with a named owner per affected system, and the closure report confirms each system reflects the corrected identities.",
+  "cases": [
+    {
+      "name": "AC-1: every affected downstream artifact gets a correction directive with a named owner per system",
+      "op": "propagate",
+      "exposures": [
+        {
+          "system": "claims",
+          "ref": "fx-clm-1",
+          "exposedTo": "survivor",
+          "correct": "survivor",
+          "status": "submitted",
+          "electronic": true
+        },
+        {
+          "system": "messages",
+          "ref": "fx-msg-1",
+          "exposedTo": "survivor",
+          "correct": "survivor",
+          "status": "sent",
+          "electronic": true
+        },
+        {
+          "system": "portal-results",
+          "ref": "fx-res-1",
+          "exposedTo": "survivor",
+          "correct": "survivor",
+          "status": "released",
+          "electronic": true
+        },
+        {
+          "system": "referrals",
+          "ref": "fx-ref-1",
+          "exposedTo": "survivor",
+          "correct": "survivor",
+          "status": "active",
+          "electronic": true
+        }
+      ],
+      "expectOwners": {
+        "fx-clm-1": "rcm",
+        "fx-msg-1": "comms",
+        "fx-res-1": "clinical",
+        "fx-ref-1": "clinical"
+      }
+    },
+    {
+      "name": "AC-4: the closure report completes when every directive carries its confirmation",
+      "op": "closure",
+      "exposures": [
+        {
+          "system": "claims",
+          "ref": "fx-clm-1",
+          "exposedTo": "survivor",
+          "correct": "merged",
+          "status": "submitted",
+          "electronic": true
+        },
+        {
+          "system": "messages",
+          "ref": "fx-msg-1",
+          "exposedTo": "survivor",
+          "correct": "merged",
+          "status": "sent",
+          "electronic": true
+        }
+      ],
+      "confirmations": {
+        "fx-clm-1": "synthetic-confirmation-0001",
+        "fx-msg-1": "synthetic-confirmation-0002"
+      },
+      "expectComplete": true
+    }
+  ]
+}

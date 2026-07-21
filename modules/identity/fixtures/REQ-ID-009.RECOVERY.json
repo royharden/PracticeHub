@@ -1,0 +1,47 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-009",
+  "class": "RECOVERY",
+  "description": "AC-3: a wrong link later found unmerges from lineage — affected artifacts identified for remediation, downstream corrections owned per system, and the merged-away identity resolves to itself again.",
+  "cases": [
+    {
+      "name": "AC-3: unmerge identifies every affected artifact for remediation from retained lineage",
+      "op": "unmerge",
+      "expectOutcome": "unmerged",
+      "expectRestoredCount": 3
+    },
+    {
+      "name": "AC-3: affected communications and payments get owned correction directives",
+      "op": "propagate",
+      "exposures": [
+        {
+          "system": "claims",
+          "ref": "fx-clm-1",
+          "exposedTo": "survivor",
+          "correct": "merged",
+          "status": "submitted",
+          "electronic": true
+        },
+        {
+          "system": "messages",
+          "ref": "fx-msg-1",
+          "exposedTo": "survivor",
+          "correct": "merged",
+          "status": "sent",
+          "electronic": true
+        }
+      ],
+      "expectOwners": {
+        "fx-clm-1": "rcm",
+        "fx-msg-1": "comms"
+      }
+    },
+    {
+      "name": "AC-2: reversibility — after unmerge the merged-away identity resolves to itself again",
+      "op": "alias-resolution",
+      "afterUnmerge": true,
+      "expectResolvedTo": "merged",
+      "expectRedirected": false
+    }
+  ]
+}

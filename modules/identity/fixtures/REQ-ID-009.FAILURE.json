@@ -1,0 +1,43 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-009",
+  "class": "FAILURE",
+  "description": "EX: minor/proxy, shared-household, name-change, sponsor-roster, and duplicate payment-rail email patterns require specialized checks and block automated outreach while unresolved; unattributed resolutions are refused.",
+  "cases": [
+    {
+      "name": "EX: a minor/proxy pattern blocks link until its specialized checks are recorded",
+      "op": "resolve-case",
+      "caseSetup": {
+        "specializedPatterns": ["minor-or-proxy"]
+      },
+      "resolution": {
+        "kind": "linked",
+        "decidedBy": "synthetic-front-desk-001",
+        "reason": "synthetic verification",
+        "evidenceRef": "synthetic-evidence-0002"
+      },
+      "expectError": "specialized"
+    },
+    {
+      "name": "EX: specialized patterns suppress automated outreach to every person under review while unresolved",
+      "op": "outreach-suppression",
+      "cases": [
+        {
+          "specializedPatterns": ["shared-household-contact", "duplicate-payment-rail-email"],
+          "contactRisk": true
+        }
+      ],
+      "expectSuppressedKeys": ["survivor", "merged"]
+    },
+    {
+      "name": "AC-2 guard: an unattributed resolution is refused",
+      "op": "resolve-case",
+      "resolution": {
+        "kind": "dismissed",
+        "decidedBy": "",
+        "reason": "synthetic"
+      },
+      "expectError": "attributed"
+    }
+  ]
+}

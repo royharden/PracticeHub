@@ -1,0 +1,21 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-020",
+  "class": "FAILURE",
+  "description": "AC-3: staff flag suspected duplicates into the data-migration reconciliation queue; a resolution that did not record do-not-reflag gives no suppression.",
+  "cases": [
+    {
+      "name": "AC-3: staff flag a suspected duplicate straight to the data-migration reconciliation queue",
+      "op": "flag-duplicate",
+      "expectRoutedTo": "data-migration-reconciliation-queue"
+    },
+    {
+      "name": "failure guard: without do-not-reflag the pair re-flags",
+      "op": "reflag",
+      "priorResolution": {
+        "doNotReflag": false
+      },
+      "expectReflag": true
+    }
+  ]
+}

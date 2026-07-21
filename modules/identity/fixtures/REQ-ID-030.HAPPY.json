@@ -1,0 +1,33 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-030",
+  "class": "HAPPY",
+  "description": "AC-1/AC-2: matching demographics raise a side-by-side duplicate warning before check-in completes; confirming the same person proceeds on the existing record, logged.",
+  "cases": [
+    {
+      "name": "AC-1: entered demographics matching an existing record raise a blocking side-by-side warning before completion",
+      "op": "checkin",
+      "entered": {
+        "givenName": "Sam",
+        "familyName": "Porter",
+        "birthDate": "1975-09-21"
+      },
+      "existingAttributes": {
+        "givenName": "Sam",
+        "familyName": "Porter",
+        "birthDate": "1975-09-21"
+      },
+      "expectOutcome": "duplicate-warning",
+      "expectBlocks": true
+    },
+    {
+      "name": "AC-2: confirming the same person proceeds on the EXISTING record — no duplicate chart — and is logged",
+      "op": "checkin-confirm",
+      "confirmation": {
+        "decision": "same-person",
+        "decidedBy": "synthetic-front-desk-001"
+      },
+      "expectOutcome": "proceed-existing-record"
+    }
+  ]
+}

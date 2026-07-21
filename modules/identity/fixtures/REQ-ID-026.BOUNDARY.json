@@ -1,0 +1,37 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-026",
+  "class": "BOUNDARY",
+  "description": "EX-2 boundary: a post-merge artifact referencing exactly one identity is assigned; one referencing both quarantines as indeterminate for clinician review.",
+  "cases": [
+    {
+      "name": "EX-2 boundary: single-reference post-merge artifacts assign; both-reference artifacts quarantine",
+      "op": "unmerge",
+      "postMergeArtifacts": [
+        {
+          "ref": "fx-post-single",
+          "references": ["survivor"]
+        },
+        {
+          "ref": "fx-post-both",
+          "references": ["survivor", "merged"]
+        }
+      ],
+      "expectOutcome": "unmerged",
+      "expectRestoredCount": 3,
+      "expectIndeterminateRefs": ["fx-post-both"]
+    },
+    {
+      "name": "boundary: a clean merged chart raises no wrong-merge signal",
+      "op": "detect",
+      "facts": {
+        "birthDates": ["1975-09-21", "1975-09-21"],
+        "sexes": ["female"],
+        "divergentContactHistory": false,
+        "activeInsuranceCount": 1
+      },
+      "expectFlagged": false,
+      "expectDisposition": "none"
+    }
+  ]
+}

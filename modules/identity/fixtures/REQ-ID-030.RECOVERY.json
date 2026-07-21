@@ -1,0 +1,35 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-030",
+  "class": "RECOVERY",
+  "description": "AC-4/AC-5: unresolved duplicates pause check-in with billing and clinical documentation blocked; acquired-clinic duplicates route to the data-migration merge queue; post-hoc duplicates with activity route to the merge-review queue.",
+  "cases": [
+    {
+      "name": "AC-5: an unresolved duplicate pauses check-in — no billing, no clinical documentation, routed to merge review",
+      "op": "checkin-confirm",
+      "confirmation": {
+        "decision": "unresolved",
+        "decidedBy": ""
+      },
+      "expectOutcome": "check-in-paused",
+      "expectRoutedTo": "merge-review-queue"
+    },
+    {
+      "name": "AC-5: an acquired-clinic duplicate routes to the data-migration merge queue, never desk resolution",
+      "op": "checkin-confirm",
+      "confirmation": {
+        "decision": "unresolved",
+        "decidedBy": "",
+        "acquiredClinicDuplicate": true
+      },
+      "expectOutcome": "check-in-paused",
+      "expectRoutedTo": "data-migration-merge-queue"
+    },
+    {
+      "name": "AC-4: a post-hoc duplicate with activity on both records routes to the merge-review queue",
+      "op": "posthoc-route",
+      "bothActive": true,
+      "expectRoutedTo": "merge-review-queue"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-027",
+  "class": "RECOVERY",
+  "description": "EX-3/AC-4: systems that cannot accept electronic correction get manual tracked tasks; closure stays open naming every unconfirmed directive so no loop is left open.",
+  "cases": [
+    {
+      "name": "EX-3: a non-electronic system gets a manual correction task with tracked confirmation",
+      "op": "propagate",
+      "exposures": [
+        {
+          "system": "referrals",
+          "ref": "fx-ref-fax",
+          "exposedTo": "survivor",
+          "correct": "merged",
+          "status": "active",
+          "electronic": false
+        }
+      ],
+      "expectActions": {
+        "fx-ref-fax": "manual-correction-task"
+      }
+    },
+    {
+      "name": "AC-4: closure stays open naming every unconfirmed directive",
+      "op": "closure",
+      "exposures": [
+        {
+          "system": "claims",
+          "ref": "fx-clm-1",
+          "exposedTo": "survivor",
+          "correct": "merged",
+          "status": "submitted",
+          "electronic": true
+        },
+        {
+          "system": "messages",
+          "ref": "fx-msg-1",
+          "exposedTo": "survivor",
+          "correct": "merged",
+          "status": "sent",
+          "electronic": true
+        }
+      ],
+      "confirmations": {
+        "fx-clm-1": "synthetic-confirmation-0001"
+      },
+      "expectComplete": false,
+      "expectOutstanding": ["fx-msg-1"]
+    }
+  ]
+}

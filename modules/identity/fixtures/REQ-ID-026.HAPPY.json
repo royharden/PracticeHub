@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-026",
+  "class": "HAPPY",
+  "description": "AC-1/AC-2: detection flags candidate wrong-merges for human review; a confirmed wrong-merge re-attributes every artifact to its originating patient from retained lineage.",
+  "cases": [
+    {
+      "name": "AC-1: conflicting DOB/sex, divergent contact history, and dual insurance flag for human review — never auto-unmerge",
+      "op": "detect",
+      "facts": {
+        "birthDates": ["1975-09-21", "1976-01-02"],
+        "sexes": ["female", "male"],
+        "divergentContactHistory": true,
+        "activeInsuranceCount": 2
+      },
+      "expectFlagged": true,
+      "expectSignals": [
+        "conflicting-birth-date",
+        "conflicting-sex",
+        "divergent-contact-history",
+        "multiple-active-insurances"
+      ],
+      "expectDisposition": "human-review-required"
+    },
+    {
+      "name": "AC-2: a confirmed wrong-merge re-attributes every merged artifact using retained lineage",
+      "op": "unmerge",
+      "expectOutcome": "unmerged",
+      "expectRestoredCount": 3
+    }
+  ]
+}

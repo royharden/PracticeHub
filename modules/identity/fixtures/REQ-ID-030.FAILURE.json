@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-030",
+  "class": "FAILURE",
+  "description": "EX-1: the system can never silently auto-merge — a merge without an explicit attributed human decision is unrepresentable; dismissals require a recorded reason.",
+  "cases": [
+    {
+      "name": "EX-1: a merge without an attributed human decision is unrepresentable",
+      "op": "merge",
+      "mergeSetup": {
+        "decidedBy": ""
+      },
+      "expectError": "attributed"
+    },
+    {
+      "name": "AC-3 guard: dismissing a near-match without a recorded reason is refused",
+      "op": "checkin-confirm",
+      "confirmation": {
+        "decision": "different-person",
+        "decidedBy": "synthetic-front-desk-001"
+      },
+      "expectError": "reason"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-009",
+  "class": "HAPPY",
+  "description": "AC-1/AC-2: a detected collision quarantines into a workspace case with source ids, matching and conflicting fields, confidence, contact risk, and pending operations; staff resolve with approved evidence — link and merge decisions are attributed, reversible, aliases preserved.",
+  "cases": [
+    {
+      "name": "AC-1: a collision opens a quarantined case carrying the full workspace surface, with no automatic merge",
+      "op": "open-case",
+      "caseSetup": {
+        "conflictingAttributes": ["birth-date"],
+        "contactRisk": true,
+        "pendingOperations": ["synthetic-crm-campaign-0001"],
+        "sourceIdRefs": ["hubspot:hs-88121"]
+      },
+      "expectStatus": "open"
+    },
+    {
+      "name": "AC-2: staff verify with approved evidence — the link decision is attributed",
+      "op": "resolve-case",
+      "resolution": {
+        "kind": "linked",
+        "decidedBy": "synthetic-front-desk-001",
+        "reason": "synthetic identity verified against license evidence",
+        "evidenceRef": "synthetic-evidence-0001"
+      },
+      "expectStatus": "resolved-linked"
+    },
+    {
+      "name": "AC-2: a merge decision is attributed and reversible — lineage per artifact, all aliases preserved",
+      "op": "merge",
+      "expectLineageCount": 3,
+      "expectResolvedStatus": "resolved-merged",
+      "expectAliases": ["legacy-lakeside:fx-0001"]
+    }
+  ]
+}

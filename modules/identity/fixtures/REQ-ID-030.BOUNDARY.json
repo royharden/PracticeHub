@@ -1,0 +1,37 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-030",
+  "class": "BOUNDARY",
+  "description": "EX-2/EX-3 + AC-3: household-shared phone/address weigh below name+DOB (a guardian/minor pair never false-positives into a block); a genuinely different person proceeds with the near-match logged reviewed-and-dismissed.",
+  "cases": [
+    {
+      "name": "EX-2: a minor sharing the guardian phone/address is advisory only — never a blocking false positive",
+      "op": "checkin",
+      "entered": {
+        "givenName": "Riley",
+        "familyName": "Chen",
+        "birthDate": "2014-02-11",
+        "phone": "+15550100003",
+        "postalAddress": "12 synthetic way"
+      },
+      "existingAttributes": {
+        "givenName": "Sam",
+        "familyName": "Porter",
+        "birthDate": "1975-09-21",
+        "phone": "+15550100003",
+        "postalAddress": "12 synthetic way"
+      },
+      "expectOutcome": "advisory-only"
+    },
+    {
+      "name": "AC-3 + EX-3: a genuinely different person proceeds as a new record, reviewed-and-dismissed with the name-change note carried in the reason",
+      "op": "checkin-confirm",
+      "confirmation": {
+        "decision": "different-person",
+        "decidedBy": "synthetic-front-desk-001",
+        "reason": "guardian and child share the household phone; legal name change since the acquired-clinic record noted"
+      },
+      "expectOutcome": "proceed-new-record"
+    }
+  ]
+}
