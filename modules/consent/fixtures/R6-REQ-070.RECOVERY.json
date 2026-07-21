@@ -1,0 +1,35 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-070",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "a renew after an opt-out restores the send permission",
+      "op": "cansend",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+          "action": "grant",
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        },
+        {
+          "id": "ce-2",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+          "action": "revoke",
+          "source": "sms_keyword",
+          "effectiveAt": "2026-03-01T00:00:00Z"
+        },
+        {
+          "id": "ce-3",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+          "action": "renew",
+          "effectiveAt": "2026-04-01T00:00:00Z"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+      "expectAllow": true,
+      "expectReason": "allowed"
+    }
+  ]
+}

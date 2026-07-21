@@ -1,0 +1,109 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-042",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "recipient granularity: revoking one recipient's disclosure leaves the other intact (A)",
+      "op": "fold",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": {
+            "type": "disclosure",
+            "purpose": "treatment",
+            "recipient": "synthetic-recipient:a",
+            "recordType": "general"
+          },
+          "action": "grant",
+          "source": "paper_form",
+          "evidence": true,
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        },
+        {
+          "id": "ce-2",
+          "scope": {
+            "type": "disclosure",
+            "purpose": "treatment",
+            "recipient": "synthetic-recipient:b",
+            "recordType": "general"
+          },
+          "action": "grant",
+          "source": "paper_form",
+          "evidence": true,
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        },
+        {
+          "id": "ce-3",
+          "scope": {
+            "type": "disclosure",
+            "purpose": "treatment",
+            "recipient": "synthetic-recipient:a",
+            "recordType": "general"
+          },
+          "action": "revoke",
+          "source": "staff_entry",
+          "effectiveAt": "2026-03-01T00:00:00Z"
+        }
+      ],
+      "scope": {
+        "type": "disclosure",
+        "purpose": "treatment",
+        "recipient": "synthetic-recipient:a",
+        "recordType": "general"
+      },
+      "expectState": "opted_out"
+    },
+    {
+      "name": "recipient granularity: the untouched recipient stays opted_in (B)",
+      "op": "fold",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": {
+            "type": "disclosure",
+            "purpose": "treatment",
+            "recipient": "synthetic-recipient:a",
+            "recordType": "general"
+          },
+          "action": "grant",
+          "source": "paper_form",
+          "evidence": true,
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        },
+        {
+          "id": "ce-2",
+          "scope": {
+            "type": "disclosure",
+            "purpose": "treatment",
+            "recipient": "synthetic-recipient:b",
+            "recordType": "general"
+          },
+          "action": "grant",
+          "source": "paper_form",
+          "evidence": true,
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        },
+        {
+          "id": "ce-3",
+          "scope": {
+            "type": "disclosure",
+            "purpose": "treatment",
+            "recipient": "synthetic-recipient:a",
+            "recordType": "general"
+          },
+          "action": "revoke",
+          "source": "staff_entry",
+          "effectiveAt": "2026-03-01T00:00:00Z"
+        }
+      ],
+      "scope": {
+        "type": "disclosure",
+        "purpose": "treatment",
+        "recipient": "synthetic-recipient:b",
+        "recordType": "general"
+      },
+      "expectState": "opted_in"
+    }
+  ]
+}

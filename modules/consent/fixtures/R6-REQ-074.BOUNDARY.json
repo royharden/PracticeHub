@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-074",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "a live-voice opt-in does NOT satisfy an ai_voice send (distinct channel)",
+      "op": "cansend",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "voice", "purpose": "treatment" },
+          "action": "grant",
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "ai_voice", "purpose": "treatment" },
+      "expectAllow": false,
+      "expectReason": "no-consent-on-record"
+    }
+  ]
+}

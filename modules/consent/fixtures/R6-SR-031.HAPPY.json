@@ -1,0 +1,24 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-031",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "a genetic disclosure with specific written authorization is granted",
+      "op": "port",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "genetic" },
+          "action": "grant",
+          "source": "paper_form",
+          "evidence": true,
+          "effectiveAt": "2026-02-01T00:00:00Z",
+          "partitionTags": ["gipa-genetic"]
+        }
+      ],
+      "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "genetic" },
+      "expectAnswer": "granted"
+    }
+  ]
+}

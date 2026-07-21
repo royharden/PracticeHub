@@ -1,0 +1,30 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-072",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "START re-grants transactional purposes only (marketing needs an affirmative opt-in)",
+      "op": "keyword",
+      "keyword": "START",
+      "expectKind": "grant",
+      "expectPurposes": ["operations", "payment"]
+    },
+    {
+      "name": "urgent treatment overrides quiet hours",
+      "op": "cansend",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+          "action": "grant",
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+      "localHour": 23,
+      "urgency": "urgent",
+      "expectAllow": true
+    }
+  ]
+}

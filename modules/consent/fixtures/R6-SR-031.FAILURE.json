@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-031",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a genetic grant without written authorization evidence is unrepresentable",
+      "op": "append",
+      "event": {
+        "id": "ce-1",
+        "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "genetic" },
+        "action": "grant",
+        "source": "paper_form",
+        "effectiveAt": "2026-02-01T00:00:00Z",
+        "partitionTags": ["gipa-genetic"]
+      },
+      "expectError": "genetic"
+    }
+  ]
+}

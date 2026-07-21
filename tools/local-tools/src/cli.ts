@@ -171,6 +171,8 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/009-audit-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/010-pdp-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/010-pdp-seed.sql');
+  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/011-consent-seed.sql'), 'utf8'));
+  console.log('seeded infra/postgres/seed/011-consent-seed.sql');
 }
 
 function testLocal(): void {
@@ -254,57 +256,48 @@ function testLocal(): void {
       'pipe',
     ).trim();
 
-  // WP-010/WP-013/WP-020: RLS on every module-schema table (live coverage probe).
+  // NR-022 (ADR-ADJ-008 §5): RLS coverage and watermark are derived from the
+  // LIVE CATALOG, never a hand-maintained list — a module schema is one that
+  // carries a `synthetic`-column base table, so a new module's tables are
+  // covered by construction. A hand-extended probe list is a REOPEN-class
+  // finding; these two queries are the mechanical carrier.
+  const moduleSchemaSubquery =
+    'SELECT DISTINCT n2.nspname FROM pg_attribute a ' +
+    'JOIN pg_class c2 ON c2.oid = a.attrelid ' +
+    'JOIN pg_namespace n2 ON n2.oid = c2.relnamespace ' +
+    "WHERE a.attname = 'synthetic' AND a.attnum > 0 AND NOT a.attisdropped AND c2.relkind = 'r'";
+
+  // WP-010/WP-013/WP-020/WP-018: forced RLS on every table in every module
+  // schema (module schemas derived from the catalog).
   const unprotected = scalar(
     'SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace ' +
-      "WHERE n.nspname IN ('platform_core', 'identity', 'audit_evidence') AND c.relkind = 'r' " +
+      "WHERE c.relkind = 'r' " +
+      `AND n.nspname IN (${moduleSchemaSubquery}) ` +
       'AND (NOT c.relrowsecurity OR NOT c.relforcerowsecurity);',
   );
   if (unprotected !== '0') {
     throw new Error(`module schemas have ${unprotected} table(s) without forced RLS`);
   }
 
-  // WP-010/WP-011: synthetic watermark on every seeded platform_core row.
+  // Synthetic watermark on every seeded row of every catalog-declared
+  // synthetic-carrying table (union built from the catalog, not by hand).
+  const watermarkTables = scalar(
+    "SELECT string_agg(quote_ident(n.nspname) || '.' || quote_ident(c.relname), '|' " +
+      'ORDER BY n.nspname, c.relname) ' +
+      'FROM pg_attribute a ' +
+      'JOIN pg_class c ON c.oid = a.attrelid ' +
+      'JOIN pg_namespace n ON n.oid = c.relnamespace ' +
+      "WHERE a.attname = 'synthetic' AND a.attnum > 0 AND NOT a.attisdropped AND c.relkind = 'r';",
+  )
+    .split('|')
+    .filter(Boolean);
+  if (watermarkTables.length === 0) {
+    throw new Error('watermark probe found no synthetic-carrying module tables');
+  }
   const unwatermarked = scalar(
-    'SELECT (SELECT count(*) FROM platform_core.tenant WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM platform_core.legal_entity WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM platform_core.location WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM platform_core.tenant_config WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM platform_core.jurisdiction_rule_pack WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM platform_core.jurisdiction_rule WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM platform_core.location_capture WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM platform_core.capability_event WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM platform_core.capability_grant WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.person WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.person_name WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.patient_record WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.staff_account WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.guarantor_role WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.proxy_grant WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.channel_endpoint WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.endpoint_association WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.source_identifier WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.identity_timeline WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.auth_credential WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.auth_device WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.auth_session WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.auth_challenge WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.account_lockdown WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.merge_case WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.merge_case_person WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.merge_event WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.merge_lineage WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.role_template WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.role_assignment WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.access_override WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.authority_record WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.person_flag WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.partition_tag WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.gipa_authorization WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM audit_evidence.audit_event WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM audit_evidence.retention_schedule WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM audit_evidence.legal_hold WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM audit_evidence.destruction_evidence WHERE synthetic IS DISTINCT FROM true);',
+    `SELECT ${watermarkTables
+      .map((table) => `(SELECT count(*) FROM ${table} WHERE synthetic IS DISTINCT FROM true)`)
+      .join(' + ')};`,
   );
   if (unwatermarked !== '0') {
     throw new Error(`module schemas hold ${unwatermarked} row(s) without the synthetic watermark`);
@@ -602,6 +595,67 @@ function testLocal(): void {
     throw new Error(`audit capability tenant states differ: ${auditCapabilityStates}`);
   }
 
+  // WP-018: the consent-operational capability sits at the package ceiling with
+  // the opposite-state tenant proof (northwind scaffolded, riverbend disabled).
+  const consentCapabilityStates = scalar(
+    "SELECT string_agg(tenant_id || ':' || state, ',' ORDER BY tenant_id) " +
+      "FROM platform_core.capability_grant WHERE capability_id = 'consent.operational';",
+  );
+  if (consentCapabilityStates !== 'northwind-synthetic:scaffolded,riverbend-synthetic:disabled') {
+    throw new Error(`consent capability tenant states differ: ${consentCapabilityStates}`);
+  }
+
+  // WP-018: STOP standing proof — the seeded sms/marketing consent is opted_out
+  // by a STOP keyword (R6-REQ-072 / REQ-COMM-005), while sms/treatment stays
+  // opted_in (care is not dropped).
+  const stopPosture = scalar(
+    "SELECT string_agg(purpose || '=' || current_state, ',' ORDER BY purpose) " +
+      'FROM consent.consent_state ' +
+      "WHERE person_ref = 'np-sam-porter' AND channel = 'sms';",
+  );
+  if (stopPosture !== 'marketing=opted_out,treatment=opted_in') {
+    throw new Error(`consent STOP standing proof broken: ${stopPosture}`);
+  }
+
+  // WP-018: genetic disclosure authorization standing proof (R6-SR-031) — a
+  // genetic grant exists and carries specific written authorization evidence;
+  // and the MHRA lapsed-consent standing proof (R6-SR-041) — a disclosure
+  // consent past its expiry is on record (canSend/port treat it expired).
+  const consentObligationProof = scalar(
+    "SELECT (SELECT count(*) FROM consent.consent_event WHERE record_type = 'genetic' " +
+      "AND action = 'grant' AND evidence_ref IS NOT NULL)::text || '|' || " +
+      '(SELECT count(*) FROM consent.consent_state ' +
+      "WHERE scope_type = 'disclosure' AND expires_at IS NOT NULL AND expires_at <= now())::text;",
+  );
+  if (!/^[1-9][0-9]*\|[1-9][0-9]*$/.test(consentObligationProof)) {
+    throw new Error(`consent obligation standing proof broken: ${consentObligationProof}`);
+  }
+
+  // WP-018: the consent projection matches the folded event log — every state
+  // row names the latest-effective event for its (person, scope) AND carries
+  // that event's resulting state; every scope in the log has a state row.
+  const orphanConsentStates = scalar(
+    'SELECT count(*) FROM consent.consent_state s WHERE NOT EXISTS (' +
+      'SELECT FROM consent.consent_event e WHERE e.tenant_id = s.tenant_id ' +
+      'AND e.consent_event_id = s.last_event_id AND e.person_ref = s.person_ref ' +
+      'AND e.scope_key = s.scope_key AND e.resulting_state = s.current_state ' +
+      'AND e.effective_at = (SELECT max(e2.effective_at) FROM consent.consent_event e2 ' +
+      'WHERE e2.tenant_id = s.tenant_id AND e2.person_ref = s.person_ref ' +
+      'AND e2.scope_key = s.scope_key));',
+  );
+  const orphanConsentScopes = scalar(
+    'SELECT count(*) FROM (SELECT DISTINCT tenant_id, person_ref, scope_key ' +
+      'FROM consent.consent_event) e WHERE NOT EXISTS (' +
+      'SELECT FROM consent.consent_state s WHERE s.tenant_id = e.tenant_id ' +
+      'AND s.person_ref = e.person_ref AND s.scope_key = e.scope_key);',
+  );
+  if (orphanConsentStates !== '0' || orphanConsentScopes !== '0') {
+    throw new Error(
+      `consent projection out of sync: orphan_states=${orphanConsentStates} ` +
+        `orphan_scopes=${orphanConsentScopes}`,
+    );
+  }
+
   // WP-010: the DB-level cross-tenant negative suite runs against the live stack.
   run('pnpm', ['--filter', '@practicehub/platform-core', 'run', 'test:db'], {
     stdio: 'inherit',
@@ -619,6 +673,12 @@ function testLocal(): void {
     stdio: 'inherit',
   });
 
+  // WP-018: the consent DB suite (cross-tenant negatives, append-only event
+  // log, structural scope/action CHECKs, projection sync) runs the same way.
+  run('pnpm', ['--filter', '@practicehub/consent', 'run', 'test:db'], {
+    stdio: 'inherit',
+  });
+
   // WP-014: the dex federation e2e runs against the live compose dex —
   // discovery, mock-connector code flow, crosswalk mapping, and the
   // dark-by-registry denial proof.
@@ -630,7 +690,7 @@ function testLocal(): void {
     `services_healthy=${services.size} tenants=${tenantRows.join(',')} ` +
       'rls_coverage=OK watermark=OK jurisdiction_packs=OK capability_registry=OK ' +
       'identity_model=OK authn_model=OK merge_governance=OK pdp_model=OK ' +
-      'gipa_partition=OK audit_store=OK ' +
+      'gipa_partition=OK audit_store=OK consent_ledger=OK ' +
       'dex_federation=OK cross_tenant_db_suite=OK synthetic_stack=OK',
   );
 }

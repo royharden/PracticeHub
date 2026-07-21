@@ -57,6 +57,28 @@ importers:
         specifier: 8.16.3
         version: 8.16.3
 
+  modules/consent:
+    dependencies:
+      '@practicehub/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@practicehub/platform-core':
+        specifier: workspace:*
+        version: link:../platform-core
+    devDependencies:
+      '@practicehub/audit-evidence':
+        specifier: workspace:*
+        version: link:../audit-evidence
+      '@practicehub/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+      '@types/pg':
+        specifier: 8.16.0
+        version: 8.16.0
+      pg:
+        specifier: 8.16.3
+        version: 8.16.3
+
   modules/identity:
     dependencies:
       '@practicehub/contracts':

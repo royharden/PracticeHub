@@ -1,0 +1,41 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-031",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "re-authorizing a revoked genetic disclosure with fresh written authorization grants again",
+      "op": "port",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "genetic" },
+          "action": "grant",
+          "source": "paper_form",
+          "evidence": true,
+          "effectiveAt": "2026-02-01T00:00:00Z",
+          "partitionTags": ["gipa-genetic"]
+        },
+        {
+          "id": "ce-2",
+          "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "genetic" },
+          "action": "revoke",
+          "source": "staff_entry",
+          "effectiveAt": "2026-03-01T00:00:00Z",
+          "partitionTags": ["gipa-genetic"]
+        },
+        {
+          "id": "ce-3",
+          "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "genetic" },
+          "action": "grant",
+          "source": "paper_form",
+          "evidence": true,
+          "effectiveAt": "2026-04-01T00:00:00Z",
+          "partitionTags": ["gipa-genetic"]
+        }
+      ],
+      "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "genetic" },
+      "expectAnswer": "granted"
+    }
+  ]
+}

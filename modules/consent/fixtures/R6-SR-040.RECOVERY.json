@@ -1,0 +1,41 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-040",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "a fresh written re-consent after a revoke grants the release again",
+      "op": "port",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "general" },
+          "action": "grant",
+          "source": "paper_form",
+          "evidence": true,
+          "effectiveAt": "2026-02-01T00:00:00Z",
+          "jurisdiction": "MN"
+        },
+        {
+          "id": "ce-2",
+          "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "general" },
+          "action": "revoke",
+          "source": "staff_entry",
+          "effectiveAt": "2026-03-01T00:00:00Z",
+          "jurisdiction": "MN"
+        },
+        {
+          "id": "ce-3",
+          "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "general" },
+          "action": "grant",
+          "source": "paper_form",
+          "evidence": true,
+          "effectiveAt": "2026-04-01T00:00:00Z",
+          "jurisdiction": "MN"
+        }
+      ],
+      "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "general" },
+      "expectAnswer": "granted"
+    }
+  ]
+}

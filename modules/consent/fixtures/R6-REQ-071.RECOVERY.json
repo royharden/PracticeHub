@@ -1,0 +1,50 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-071",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "replaying the log reproduces the state at a past instant",
+      "op": "reconstruct",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+          "action": "grant",
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        },
+        {
+          "id": "ce-2",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+          "action": "revoke",
+          "source": "sms_keyword",
+          "effectiveAt": "2026-03-01T00:00:00Z"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+      "asOf": "2026-02-15T00:00:00Z",
+      "expectState": "opted_in"
+    },
+    {
+      "name": "and the current fold reflects the latest event",
+      "op": "fold",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+          "action": "grant",
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        },
+        {
+          "id": "ce-2",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+          "action": "revoke",
+          "source": "sms_keyword",
+          "effectiveAt": "2026-03-01T00:00:00Z"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+      "expectState": "opted_out"
+    }
+  ]
+}

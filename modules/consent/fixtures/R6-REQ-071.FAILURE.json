@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-071",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "reconstructing before the first event yields nothing (fail-closed)",
+      "op": "reconstruct",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+          "action": "grant",
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+      "asOf": "2026-01-01T00:00:00Z",
+      "expectState": null
+    }
+  ]
+}

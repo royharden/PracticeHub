@@ -1,0 +1,34 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-020",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a bundled (non-affirmative) marketing grant is unrepresentable",
+      "op": "append",
+      "event": {
+        "id": "ce-1",
+        "scope": { "type": "communication", "channel": "sms", "purpose": "marketing" },
+        "action": "grant",
+        "source": "api_import",
+        "evidence": true,
+        "effectiveAt": "2026-02-01T00:00:00Z",
+        "jurisdiction": "NV"
+      },
+      "expectError": "affirmative"
+    },
+    {
+      "name": "an affirmative source with no evidence is also refused",
+      "op": "append",
+      "event": {
+        "id": "ce-2",
+        "scope": { "type": "communication", "channel": "sms", "purpose": "marketing" },
+        "action": "grant",
+        "source": "double_optin",
+        "effectiveAt": "2026-02-01T00:00:00Z",
+        "jurisdiction": "NV"
+      },
+      "expectError": "affirmative"
+    }
+  ]
+}

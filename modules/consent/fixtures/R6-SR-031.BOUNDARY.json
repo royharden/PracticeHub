@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-031",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "an opted-in genetic disclosure without written authorization on record is denied",
+      "op": "port",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "genetic" },
+          "action": "grant",
+          "source": "paper_form",
+          "evidence": true,
+          "effectiveAt": "2026-02-01T00:00:00Z",
+          "partitionTags": ["gipa-genetic"]
+        }
+      ],
+      "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "genetic" },
+      "writtenAuthorizationOnRecord": false,
+      "expectAnswer": "denied"
+    }
+  ]
+}

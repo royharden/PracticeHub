@@ -1,0 +1,37 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-070",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "a treatment opt-in does NOT authorize a different channel/purpose (per-scope granularity)",
+      "op": "cansend",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+          "action": "grant",
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "email", "purpose": "marketing" },
+      "expectAllow": false,
+      "expectReason": "no-consent-on-record"
+    },
+    {
+      "name": "the same opt-in channel with a different purpose is also uncovered",
+      "op": "cansend",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+          "action": "grant",
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "operations" },
+      "expectAllow": false,
+      "expectReason": "no-consent-on-record"
+    }
+  ]
+}

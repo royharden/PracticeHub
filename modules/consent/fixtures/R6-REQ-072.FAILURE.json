@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-072",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "HELP returns the org template and writes nothing to the ledger",
+      "op": "keyword",
+      "keyword": "HELP",
+      "expectKind": "help"
+    },
+    {
+      "name": "an unrecognized keyword is inert",
+      "op": "keyword",
+      "keyword": "banana",
+      "expectKind": "unrecognized"
+    }
+  ]
+}

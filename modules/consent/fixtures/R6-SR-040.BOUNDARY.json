@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-040",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "a revoked records disclosure is denied at the port",
+      "op": "port",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "general" },
+          "action": "grant",
+          "source": "paper_form",
+          "evidence": true,
+          "effectiveAt": "2026-02-01T00:00:00Z",
+          "jurisdiction": "MN"
+        },
+        {
+          "id": "ce-2",
+          "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "general" },
+          "action": "revoke",
+          "source": "staff_entry",
+          "effectiveAt": "2026-03-01T00:00:00Z",
+          "jurisdiction": "MN"
+        }
+      ],
+      "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "general" },
+      "expectAnswer": "denied"
+    }
+  ]
+}

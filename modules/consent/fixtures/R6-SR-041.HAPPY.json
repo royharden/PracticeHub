@@ -1,0 +1,24 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-041",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "a consent within its expiry window permits the send",
+      "op": "cansend",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "operations" },
+          "action": "grant",
+          "effectiveAt": "2026-02-01T00:00:00Z",
+          "expiresAt": "2027-01-01T00:00:00Z",
+          "jurisdiction": "MN"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "operations" },
+      "asOf": "2026-06-01T00:00:00Z",
+      "expectAllow": true
+    }
+  ]
+}

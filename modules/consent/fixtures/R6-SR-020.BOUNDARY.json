@@ -1,0 +1,27 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-020",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "an NV marketing send refuses when the governing opt-in is not affirmative (migrated gap)",
+      "op": "cansend",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "marketing" },
+          "action": "grant",
+          "source": "double_optin",
+          "evidence": true,
+          "effectiveAt": "2026-02-01T00:00:00Z",
+          "jurisdiction": "NV"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "marketing" },
+      "overlayFrom": { "jurisdiction": "NV" },
+      "governingSourceAffirmative": false,
+      "expectAllow": false,
+      "expectReason": "chd-opt-in-required"
+    }
+  ]
+}

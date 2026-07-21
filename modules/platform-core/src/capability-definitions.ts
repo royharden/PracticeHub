@@ -373,6 +373,16 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       rollbackRef: 'already-disabled',
       synthetic: true,
     },
+    {
+      capabilityId: 'consent.operational',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
   ],
   events: [
     chainEvent(
@@ -500,6 +510,19 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       'disabled',
       'scaffolded',
       'synthetic-gate:wp-015-gipa-partition-scaffold',
+    ),
+    // WP-018: the consent ledger lands at its package ceiling — `scaffolded`.
+    // The recordConsentGrant command (floored at `simulated`) therefore DENIES
+    // against this seed, by design; protective revoke/expire/block and canSend
+    // are never gated. Riverbend stays the opposite-state proof. This is the
+    // IC-1 prerequisite (podium number porting stays capped until it walks up).
+    chainEvent(
+      'synthetic-cap-evt-0014',
+      'consent.operational',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-018-consent-scaffold',
     ),
   ],
 };

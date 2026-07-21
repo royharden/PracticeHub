@@ -1,0 +1,69 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-072",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "07:00 local is inside quiet hours and defers",
+      "op": "cansend",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "operations" },
+          "action": "grant",
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "operations" },
+      "localHour": 7,
+      "expectAllow": false,
+      "expectReason": "quiet-hours-deferred"
+    },
+    {
+      "name": "08:00 local is the first permitted hour",
+      "op": "cansend",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "operations" },
+          "action": "grant",
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "operations" },
+      "localHour": 8,
+      "expectAllow": true
+    },
+    {
+      "name": "20:00 local is still permitted",
+      "op": "cansend",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "operations" },
+          "action": "grant",
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "operations" },
+      "localHour": 20,
+      "expectAllow": true
+    },
+    {
+      "name": "21:00 local re-enters quiet hours and defers",
+      "op": "cansend",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "operations" },
+          "action": "grant",
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "operations" },
+      "localHour": 21,
+      "expectAllow": false,
+      "expectReason": "quiet-hours-deferred"
+    }
+  ]
+}

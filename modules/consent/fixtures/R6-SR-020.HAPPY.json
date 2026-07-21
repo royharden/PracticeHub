@@ -1,0 +1,29 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-020",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "an affirmative, evidenced marketing opt-in is accepted (CHD opt-in floor)",
+      "op": "append",
+      "event": {
+        "id": "ce-1",
+        "scope": { "type": "communication", "channel": "sms", "purpose": "marketing" },
+        "action": "grant",
+        "source": "double_optin",
+        "evidence": true,
+        "effectiveAt": "2026-02-01T00:00:00Z",
+        "jurisdiction": "NV"
+      },
+      "expectResultingState": "opted_in",
+      "expectScopeKey": "communication|channel=sms|purpose=marketing"
+    },
+    {
+      "name": "NV marketing requires CHD opt-in per the packs",
+      "op": "overlay",
+      "scope": { "type": "communication", "channel": "sms", "purpose": "marketing" },
+      "overlayFrom": { "jurisdiction": "NV" },
+      "expectChdOptIn": true
+    }
+  ]
+}

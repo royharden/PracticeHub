@@ -1,0 +1,27 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-071",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "two events at the same effective instant fold to the later append",
+      "op": "fold",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+          "action": "grant",
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        },
+        {
+          "id": "ce-2",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+          "action": "block",
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+      "expectState": "blocked"
+    }
+  ]
+}

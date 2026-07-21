@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-041",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "a renewal resets the expiry and restores the send path",
+      "op": "cansend",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "operations" },
+          "action": "grant",
+          "effectiveAt": "2026-01-01T00:00:00Z",
+          "expiresAt": "2026-01-15T00:00:00Z",
+          "jurisdiction": "MN"
+        },
+        {
+          "id": "ce-2",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "operations" },
+          "action": "renew",
+          "effectiveAt": "2026-06-15T00:00:00Z",
+          "expiresAt": "2027-06-15T00:00:00Z",
+          "jurisdiction": "MN"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "operations" },
+      "asOf": "2026-07-01T00:00:00Z",
+      "expectAllow": true
+    }
+  ]
+}

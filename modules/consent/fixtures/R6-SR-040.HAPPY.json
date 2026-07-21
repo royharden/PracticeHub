@@ -1,0 +1,24 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-040",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "a records disclosure with written consent is granted (MHRA routine release)",
+      "op": "port",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "general" },
+          "action": "grant",
+          "source": "paper_form",
+          "evidence": true,
+          "effectiveAt": "2026-02-01T00:00:00Z",
+          "jurisdiction": "MN"
+        }
+      ],
+      "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "general" },
+      "expectAnswer": "granted"
+    }
+  ]
+}

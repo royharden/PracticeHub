@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-040",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a records disclosure grant without written consent is unrepresentable",
+      "op": "append",
+      "event": {
+        "id": "ce-1",
+        "scope": { "type": "disclosure", "purpose": "treatment", "recordType": "general" },
+        "action": "grant",
+        "source": "paper_form",
+        "effectiveAt": "2026-02-01T00:00:00Z",
+        "jurisdiction": "MN"
+      },
+      "expectError": "written consent"
+    }
+  ]
+}

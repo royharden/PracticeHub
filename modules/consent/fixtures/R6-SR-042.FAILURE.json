@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-042",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a point-in-time reconstruction before any event yields nothing",
+      "op": "reconstruct",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+          "action": "grant",
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "treatment" },
+      "asOf": "2025-12-31T00:00:00Z",
+      "expectState": null
+    }
+  ]
+}

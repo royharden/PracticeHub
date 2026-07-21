@@ -1,0 +1,38 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-072",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "STOP revokes the channel across non-treatment purposes, carrying the inbound evidence",
+      "op": "keyword",
+      "keyword": "STOP",
+      "expectKind": "revoke",
+      "expectPurposes": ["marketing", "operations", "payment"]
+    },
+    {
+      "name": "a STOP-driven revoke makes the next marketing send fail closed",
+      "op": "cansend",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "marketing" },
+          "action": "grant",
+          "source": "double_optin",
+          "evidence": true,
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        },
+        {
+          "id": "ce-2",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "marketing" },
+          "action": "revoke",
+          "source": "sms_keyword",
+          "effectiveAt": "2026-03-01T00:00:00Z"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "marketing" },
+      "expectAllow": false,
+      "expectReason": "opted-out"
+    }
+  ]
+}

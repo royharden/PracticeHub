@@ -1,0 +1,28 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-074",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "an explicit ai_voice opt-in permits an ai_voice send",
+      "op": "cansend",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "ai_voice", "purpose": "treatment" },
+          "action": "grant",
+          "effectiveAt": "2026-02-01T00:00:00Z"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "ai_voice", "purpose": "treatment" },
+      "expectAllow": true
+    },
+    {
+      "name": "the ai_voice channel pulls the FCC AI-disclosure obligation",
+      "op": "overlay",
+      "scope": { "type": "communication", "channel": "ai_voice", "purpose": "treatment" },
+      "overlayFrom": { "jurisdiction": "NV" },
+      "expectAiDisclosure": true
+    }
+  ]
+}

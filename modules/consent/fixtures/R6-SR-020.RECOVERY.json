@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-020",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "an affirmative re-opt-in restores the NV marketing send path",
+      "op": "cansend",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "marketing" },
+          "action": "grant",
+          "source": "double_optin",
+          "evidence": true,
+          "effectiveAt": "2026-02-01T00:00:00Z",
+          "jurisdiction": "NV"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "marketing" },
+      "overlayFrom": { "jurisdiction": "NV" },
+      "expectAllow": true
+    }
+  ]
+}

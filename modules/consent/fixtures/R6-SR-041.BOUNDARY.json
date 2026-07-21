@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-041",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "on the expiry instant the consent is treated expired (inclusive boundary auto-block)",
+      "op": "cansend",
+      "events": [
+        {
+          "id": "ce-1",
+          "scope": { "type": "communication", "channel": "sms", "purpose": "operations" },
+          "action": "grant",
+          "effectiveAt": "2026-02-01T00:00:00Z",
+          "expiresAt": "2026-06-01T00:00:00Z",
+          "jurisdiction": "MN"
+        }
+      ],
+      "scope": { "type": "communication", "channel": "sms", "purpose": "operations" },
+      "asOf": "2026-06-01T00:00:00Z",
+      "expectAllow": false,
+      "expectReason": "consent-expired"
+    }
+  ]
+}
