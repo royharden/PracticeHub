@@ -1,0 +1,28 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-001",
+  "class": "RECOVERY",
+  "description": "Loss is evident, not silent: a removed link is detected as a gap; a crashed audited operation leaves nothing behind and a clean retry re-establishes the chain.",
+  "cases": [
+    {
+      "name": "a removed mid-chain record is detected as a gap — loss is evidence, never silence",
+      "op": "chain-tamper",
+      "sequence": [
+        { "kind": "access", "auditId": "fx-r1-0301", "occurredAt": "2026-03-22T09:00:00Z" },
+        { "kind": "access", "auditId": "fx-r1-0302", "occurredAt": "2026-03-22T09:05:00Z" },
+        { "kind": "access", "auditId": "fx-r1-0303", "occurredAt": "2026-03-22T09:10:00Z" }
+      ],
+      "removeAuditId": "fx-r1-0302",
+      "expectValid": false,
+      "expectBreakReason": "gap",
+      "expectBreakSeq": 3
+    },
+    {
+      "name": "a crashed operation emits nothing; the retry lands a clean genesis chain",
+      "op": "audited-operation",
+      "input": { "kind": "access", "auditId": "fx-r1-0304" },
+      "operationCrash": true,
+      "retry": true
+    }
+  ]
+}

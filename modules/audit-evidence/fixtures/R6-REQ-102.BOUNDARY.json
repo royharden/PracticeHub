@@ -1,0 +1,35 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-102",
+  "class": "BOUNDARY",
+  "description": "Interleaved subjects separate exactly at reconstruction; AI records chain beside other streams in the same tenant-day without bleeding.",
+  "cases": [
+    {
+      "name": "two subjects' interleaved interactions reconstruct into disjoint per-patient trails",
+      "op": "ai-roundtrip",
+      "sequence": [
+        { "kind": "ai", "auditId": "fx-r102-0101", "occurredAt": "2026-03-22T09:00:00Z" },
+        {
+          "kind": "ai",
+          "auditId": "fx-r102-0102",
+          "occurredAt": "2026-03-22T09:05:00Z",
+          "subjectRef": "np-fx-other"
+        },
+        { "kind": "ai", "auditId": "fx-r102-0103", "occurredAt": "2026-03-22T09:10:00Z" }
+      ],
+      "subjectRef": "np-fx-subject",
+      "expectAuditIds": ["fx-r102-0101", "fx-r102-0103"]
+    },
+    {
+      "name": "AI records share the tenant-day chain with other streams and the chain verifies",
+      "op": "chain-tamper",
+      "sequence": [
+        { "kind": "access", "auditId": "fx-r102-0104", "occurredAt": "2026-03-22T09:00:00Z" },
+        { "kind": "ai", "auditId": "fx-r102-0105", "occurredAt": "2026-03-22T09:05:00Z" },
+        { "kind": "disclosure", "auditId": "fx-r102-0106", "occurredAt": "2026-03-22T09:10:00Z" }
+      ],
+      "expectValid": true,
+      "expectChains": 1
+    }
+  ]
+}

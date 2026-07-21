@@ -1,0 +1,28 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-052",
+  "class": "FAILURE",
+  "description": "A record inside its retention schedule cannot be destroyed on any path — the clock refuses outright, one day early included.",
+  "cases": [
+    {
+      "name": "destruction one day BEFORE clock expiry is refused",
+      "op": "destruction",
+      "recordClass": "gfe-record",
+      "providerState": "NV",
+      "patientState": "NV",
+      "recordDate": "2019-01-15",
+      "asOf": "2025-01-14",
+      "expectOutcome": "refused-clock-active"
+    },
+    {
+      "name": "destruction far inside the schedule is refused",
+      "op": "destruction",
+      "recordClass": "gfe-record",
+      "providerState": "NV",
+      "patientState": "NV",
+      "recordDate": "2024-06-01",
+      "asOf": "2026-03-22",
+      "expectOutcome": "refused-clock-active"
+    }
+  ]
+}

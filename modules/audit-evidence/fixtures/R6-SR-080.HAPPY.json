@@ -1,0 +1,41 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-080",
+  "class": "HAPPY",
+  "description": "Each record class resolves a retention clock by governing state through the jurisdiction packs — per-state clocks with the strictest (longest) cascade.",
+  "cases": [
+    {
+      "name": "a Nevada clinical record resolves the NV pack clock (5)",
+      "op": "resolve-clock",
+      "recordClass": "clinical-record",
+      "providerState": "NV",
+      "patientState": "NV",
+      "expectYears": 5,
+      "expectDefaultsApplied": false
+    },
+    {
+      "name": "an Illinois clinical record resolves the longer IL clock (10)",
+      "op": "resolve-clock",
+      "recordClass": "clinical-record",
+      "providerState": "IL",
+      "patientState": "IL",
+      "expectYears": 10
+    },
+    {
+      "name": "a multi-state basis takes the LONGEST applicable clock (NV provider, IL patient: 10)",
+      "op": "resolve-clock",
+      "recordClass": "clinical-record",
+      "providerState": "NV",
+      "patientState": "IL",
+      "expectYears": 10
+    },
+    {
+      "name": "a Minnesota clinical record resolves the MN clock (7)",
+      "op": "resolve-clock",
+      "recordClass": "clinical-record",
+      "providerState": "MN",
+      "patientState": "MN",
+      "expectYears": 7
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-080",
+  "class": "BOUNDARY",
+  "description": "Unknown governing states fail toward the longest known clock; a minor's clock anchors at the later of record date and age-of-majority plus the adult clock.",
+  "cases": [
+    {
+      "name": "an unknown patient state fails toward the longest known clock with defaults flagged",
+      "op": "resolve-clock",
+      "recordClass": "clinical-record",
+      "providerState": "NV",
+      "patientState": null,
+      "expectYears": 10,
+      "expectDefaultsApplied": true
+    },
+    {
+      "name": "a minor's clinical record anchors at age-of-majority plus the adult clock",
+      "op": "not-before",
+      "recordClass": "clinical-record",
+      "providerState": "NV",
+      "patientState": "NV",
+      "minor": true,
+      "recordDate": "2020-06-01",
+      "birthDate": "2015-03-10",
+      "expectNotBefore": "2038-03-10",
+      "expectMinorExtended": true
+    },
+    {
+      "name": "an adult's identical record keeps the record-date anchor",
+      "op": "resolve-clock",
+      "recordClass": "clinical-record",
+      "providerState": "NV",
+      "patientState": "NV",
+      "minor": false,
+      "expectAnchor": "record-date"
+    },
+    {
+      "name": "a near-majority minor still extends: the anchor is the LATER date, never the earlier",
+      "op": "not-before",
+      "recordClass": "clinical-record",
+      "providerState": "IL",
+      "patientState": "IL",
+      "minor": true,
+      "recordDate": "2010-01-01",
+      "birthDate": "2009-06-15",
+      "expectNotBefore": "2037-06-15",
+      "expectMinorExtended": true
+    }
+  ]
+}

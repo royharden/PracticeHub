@@ -143,6 +143,15 @@ export const capabilityDefinitionsV1: readonly CapabilityDefinition[] = [
       'Merge governance (M02, WP-016): merge cases, reversible merge/unmerge with lineage, ' +
       'cache invalidation. Merge/unmerge commands floor at simulated.',
   },
+  {
+    capabilityId: 'platform.audit-store',
+    ownerRole: 'security',
+    dimensions: [],
+    description:
+      'Audit-evidence store (M04, WP-020): hash-chained append-only streams, retention ' +
+      'schedules, legal holds. Governance commands (destruction, hold release) floor at ' +
+      'simulated; audit.emit itself is never capability-gated.',
+  },
 ];
 
 /** Exact mirror of docs/architecture/capability-edge-preconditions.csv (FROZEN). */
@@ -325,6 +334,16 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       rollbackRef: 'already-disabled',
       synthetic: true,
     },
+    {
+      capabilityId: 'platform.audit-store',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
   ],
   events: [
     chainEvent(
@@ -416,6 +435,18 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       'disabled',
       'scaffolded',
       'synthetic-gate:wp-016-merge-scaffold',
+    ),
+    // WP-020: the audit store lands at its package ceiling — `scaffolded`.
+    // The governance commands (floored at `simulated`) therefore DENY against
+    // this seed, by design; audit.emit is never gated. Riverbend stays the
+    // opposite-state proof.
+    chainEvent(
+      'synthetic-cap-evt-0011',
+      'platform.audit-store',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-020-audit-scaffold',
     ),
   ],
 };

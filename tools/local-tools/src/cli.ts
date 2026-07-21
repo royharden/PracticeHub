@@ -167,6 +167,8 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/007-authn-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/008-merge-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/008-merge-seed.sql');
+  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/009-audit-seed.sql'), 'utf8'));
+  console.log('seeded infra/postgres/seed/009-audit-seed.sql');
 }
 
 function testLocal(): void {
@@ -250,10 +252,10 @@ function testLocal(): void {
       'pipe',
     ).trim();
 
-  // WP-010/WP-013: RLS on every module-schema table (live coverage probe).
+  // WP-010/WP-013/WP-020: RLS on every module-schema table (live coverage probe).
   const unprotected = scalar(
     'SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace ' +
-      "WHERE n.nspname IN ('platform_core', 'identity') AND c.relkind = 'r' " +
+      "WHERE n.nspname IN ('platform_core', 'identity', 'audit_evidence') AND c.relkind = 'r' " +
       'AND (NOT c.relrowsecurity OR NOT c.relforcerowsecurity);',
   );
   if (unprotected !== '0') {
@@ -289,7 +291,11 @@ function testLocal(): void {
       '(SELECT count(*) FROM identity.merge_case WHERE synthetic IS DISTINCT FROM true) + ' +
       '(SELECT count(*) FROM identity.merge_case_person WHERE synthetic IS DISTINCT FROM true) + ' +
       '(SELECT count(*) FROM identity.merge_event WHERE synthetic IS DISTINCT FROM true) + ' +
-      '(SELECT count(*) FROM identity.merge_lineage WHERE synthetic IS DISTINCT FROM true);',
+      '(SELECT count(*) FROM identity.merge_lineage WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM audit_evidence.audit_event WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM audit_evidence.retention_schedule WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM audit_evidence.legal_hold WHERE synthetic IS DISTINCT FROM true) + ' +
+      '(SELECT count(*) FROM audit_evidence.destruction_evidence WHERE synthetic IS DISTINCT FROM true);',
   );
   if (unwatermarked !== '0') {
     throw new Error(`module schemas hold ${unwatermarked} row(s) without the synthetic watermark`);
@@ -477,6 +483,61 @@ function testLocal(): void {
     throw new Error(`merge capability tenant states differ: ${mergeCapabilityStates}`);
   }
 
+  // WP-020: the audit hash chains are LINKED at rest — no forged genesis, no
+  // gap, no prev-hash that fails to name its predecessor's entry hash (the
+  // full sha-256 recompute runs in the audit DB suite).
+  const chainBreaks = scalar(
+    'SELECT count(*) FROM audit_evidence.audit_event e ' +
+      "WHERE (e.chain_seq = 1 AND e.prev_hash <> 'genesis') " +
+      'OR (e.chain_seq > 1 AND NOT EXISTS (' +
+      'SELECT FROM audit_evidence.audit_event p ' +
+      'WHERE p.tenant_id = e.tenant_id AND p.chain_day = e.chain_day ' +
+      'AND p.chain_seq = e.chain_seq - 1 AND p.entry_hash = e.prev_hash));',
+  );
+  if (chainBreaks !== '0') {
+    throw new Error(`audit chain linkage broken on ${chainBreaks} row(s) — tamper evidence`);
+  }
+
+  // WP-020: standing stream proofs — the seeded access DENY is recorded
+  // (deny paths are audited, R6-REQ-001) and the seeded AI interaction
+  // carries its model version (R6-REQ-102).
+  const auditStreamProof = scalar(
+    "SELECT (SELECT decision FROM audit_evidence.audit_event WHERE tenant_id = 'northwind-synthetic' AND audit_id = 'nae-0002') " +
+      "|| '|' || (SELECT model_version FROM audit_evidence.audit_event WHERE tenant_id = 'northwind-synthetic' AND audit_id = 'nae-0003');",
+  );
+  if (auditStreamProof !== 'deny|claude-sonnet-5-synthetic') {
+    throw new Error(`audit stream standing proof broken: ${auditStreamProof}`);
+  }
+
+  // WP-020: legal-hold posture — Northwind carries the ACTIVE hold (destruction
+  // suspended), Riverbend the RELEASED hold retaining its evidence.
+  const holdPosture = scalar(
+    "SELECT string_agg(tenant_id || ':' || status, ',' ORDER BY tenant_id) " +
+      'FROM audit_evidence.legal_hold;',
+  );
+  if (holdPosture !== 'northwind-synthetic:active,riverbend-synthetic:released') {
+    throw new Error(`legal-hold posture differs: ${holdPosture}`);
+  }
+
+  // WP-020: the counsel-owned retention registry is seeded complete — every
+  // record class carries its v1 entry.
+  const retentionClasses = scalar(
+    'SELECT count(*) FROM audit_evidence.retention_schedule WHERE version = 1;',
+  );
+  if (retentionClasses !== '6') {
+    throw new Error(`retention schedule covers ${retentionClasses} of 6 record classes`);
+  }
+
+  // WP-020: the audit-store capability sits at the package ceiling with the
+  // opposite-state tenant proof (northwind scaffolded, riverbend disabled).
+  const auditCapabilityStates = scalar(
+    "SELECT string_agg(tenant_id || ':' || state, ',' ORDER BY tenant_id) " +
+      "FROM platform_core.capability_grant WHERE capability_id = 'platform.audit-store';",
+  );
+  if (auditCapabilityStates !== 'northwind-synthetic:scaffolded,riverbend-synthetic:disabled') {
+    throw new Error(`audit capability tenant states differ: ${auditCapabilityStates}`);
+  }
+
   // WP-010: the DB-level cross-tenant negative suite runs against the live stack.
   run('pnpm', ['--filter', '@practicehub/platform-core', 'run', 'test:db'], {
     stdio: 'inherit',
@@ -485,6 +546,12 @@ function testLocal(): void {
   // WP-013: the identity-schema DB suite (cross-tenant negatives, append-only
   // timeline, crosswalk uniqueness, opaque payment refs) runs the same way.
   run('pnpm', ['--filter', '@practicehub/identity', 'run', 'test:db'], {
+    stdio: 'inherit',
+  });
+
+  // WP-020: the audit-evidence DB suite (append-only postures, per-stream
+  // CHECKs, same-commit crash test, chain recompute) runs the same way.
+  run('pnpm', ['--filter', '@practicehub/audit-evidence', 'run', 'test:db'], {
     stdio: 'inherit',
   });
 
@@ -498,8 +565,8 @@ function testLocal(): void {
   console.log(
     `services_healthy=${services.size} tenants=${tenantRows.join(',')} ` +
       'rls_coverage=OK watermark=OK jurisdiction_packs=OK capability_registry=OK ' +
-      'identity_model=OK authn_model=OK merge_governance=OK dex_federation=OK ' +
-      'cross_tenant_db_suite=OK synthetic_stack=OK',
+      'identity_model=OK authn_model=OK merge_governance=OK audit_store=OK ' +
+      'dex_federation=OK cross_tenant_db_suite=OK synthetic_stack=OK',
   );
 }
 

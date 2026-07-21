@@ -1,0 +1,58 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-001",
+  "class": "FAILURE",
+  "description": "Incomplete access records and raw-value payloads are structurally refused; any edit to a chained field is named as tamper at its exact sequence.",
+  "cases": [
+    {
+      "name": "an access record without a reason-for-access is refused",
+      "op": "emit",
+      "input": { "kind": "access", "auditId": "fx-r1-0201", "drop": ["reason"] },
+      "expectError": "reason"
+    },
+    {
+      "name": "an access record without a subject is refused",
+      "op": "emit",
+      "input": { "kind": "access", "auditId": "fx-r1-0202", "drop": ["subjectRef"] },
+      "expectError": "subjectRef"
+    },
+    {
+      "name": "prose in a payload value is refused — raw PHI has no field to land in",
+      "op": "emit",
+      "input": {
+        "kind": "access",
+        "auditId": "fx-r1-0203",
+        "detail": { "note": "Sam Porter asked about lab results" }
+      },
+      "expectError": "never prose or raw values"
+    },
+    {
+      "name": "editing a chained field is named as hash-mismatch at its sequence",
+      "op": "chain-tamper",
+      "sequence": [
+        { "kind": "access", "auditId": "fx-r1-0204", "occurredAt": "2026-03-22T09:00:00Z" },
+        { "kind": "access", "auditId": "fx-r1-0205", "occurredAt": "2026-03-22T09:05:00Z" }
+      ],
+      "tamper": { "auditId": "fx-r1-0204", "field": "actorRef", "value": "synthetic-staff:forged" },
+      "expectValid": false,
+      "expectBreakReason": "hash-mismatch",
+      "expectBreakSeq": 1
+    },
+    {
+      "name": "a forged link is named as link-mismatch",
+      "op": "chain-tamper",
+      "sequence": [
+        { "kind": "access", "auditId": "fx-r1-0206", "occurredAt": "2026-03-22T09:00:00Z" },
+        { "kind": "access", "auditId": "fx-r1-0207", "occurredAt": "2026-03-22T09:05:00Z" }
+      ],
+      "tamper": {
+        "auditId": "fx-r1-0207",
+        "field": "prevHash",
+        "value": "efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefef"
+      },
+      "expectValid": false,
+      "expectBreakReason": "link-mismatch",
+      "expectBreakSeq": 2
+    }
+  ]
+}

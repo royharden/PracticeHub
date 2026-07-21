@@ -1,0 +1,49 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-001",
+  "class": "BOUNDARY",
+  "description": "The deny path is a first-class audit record; the tenant-day boundary opens a fresh genesis chain; an authority deny maps to a recorded deny.",
+  "cases": [
+    {
+      "name": "a DENIED access is recorded exactly like an allow — deny paths are never skipped",
+      "op": "emit",
+      "input": {
+        "kind": "access",
+        "auditId": "fx-r1-0101",
+        "decision": "deny",
+        "reason": "operations"
+      },
+      "expectDecision": "deny"
+    },
+    {
+      "name": "crossing the tenant-day boundary opens a second chain at genesis and both verify",
+      "op": "chain-tamper",
+      "sequence": [
+        { "kind": "access", "auditId": "fx-r1-0102", "occurredAt": "2026-03-22T23:59:59Z" },
+        { "kind": "access", "auditId": "fx-r1-0103", "occurredAt": "2026-03-23T00:00:00Z" }
+      ],
+      "expectValid": true,
+      "expectChains": 2
+    },
+    {
+      "name": "a capability DENY maps to a valid deny audit record — the deny is not droppable",
+      "op": "authority-audit",
+      "allowed": false,
+      "expectDecision": "deny"
+    },
+    {
+      "name": "a partition-tagged record exports with its tag intact (GIPA survives the boundary)",
+      "op": "export",
+      "sequence": [
+        {
+          "kind": "access",
+          "auditId": "fx-r1-0104",
+          "occurredAt": "2026-03-22T09:00:00Z",
+          "partitionTags": ["gipa-genetic"]
+        }
+      ],
+      "expectRecordIds": ["fx-r1-0104"],
+      "expectPartitionTags": ["gipa-genetic"]
+    }
+  ]
+}

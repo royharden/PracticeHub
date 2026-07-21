@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-102",
+  "class": "FAILURE",
+  "description": "An AI interaction below the evidentiary floor — missing model version, subject, or a prompt/output ref+hash pair — is unrepresentable.",
+  "cases": [
+    {
+      "name": "an AI interaction without its model version is refused",
+      "op": "emit",
+      "input": { "kind": "ai", "auditId": "fx-r102-0201", "drop": ["modelVersion"] },
+      "expectError": "modelVersion"
+    },
+    {
+      "name": "an AI interaction without its prompt hash is refused",
+      "op": "emit",
+      "input": { "kind": "ai", "auditId": "fx-r102-0202", "drop": ["promptHash"] },
+      "expectError": "promptHash"
+    },
+    {
+      "name": "an AI interaction without its output ref is refused",
+      "op": "emit",
+      "input": { "kind": "ai", "auditId": "fx-r102-0203", "drop": ["outputRef"] },
+      "expectError": "outputRef"
+    },
+    {
+      "name": "an AI interaction without a patient subject is refused",
+      "op": "emit",
+      "input": { "kind": "ai", "auditId": "fx-r102-0204", "drop": ["subjectRef"] },
+      "expectError": "subjectRef"
+    }
+  ]
+}

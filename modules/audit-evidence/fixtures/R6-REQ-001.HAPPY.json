@@ -1,0 +1,39 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-001",
+  "class": "HAPPY",
+  "description": "Every PHI access lands as an append-only, hash-chained record with actor, subject, and reason; the chain verifies; the trail exports independently with the export itself audited.",
+  "cases": [
+    {
+      "name": "an allowed chart view emits a chained access record with actor, subject, and reason",
+      "op": "emit",
+      "input": { "kind": "access", "auditId": "fx-r1-0001" },
+      "expectDecision": "allow"
+    },
+    {
+      "name": "a multi-record tenant-day chain verifies end to end",
+      "op": "chain-tamper",
+      "sequence": [
+        { "kind": "access", "auditId": "fx-r1-0002", "occurredAt": "2026-03-22T09:00:00Z" },
+        { "kind": "access", "auditId": "fx-r1-0003", "occurredAt": "2026-03-22T09:05:00Z" },
+        { "kind": "ai", "auditId": "fx-r1-0004", "occurredAt": "2026-03-22T09:10:00Z" }
+      ],
+      "expectValid": true,
+      "expectChains": 1
+    },
+    {
+      "name": "an audited operation commits the operation and its audit record together",
+      "op": "audited-operation",
+      "input": { "kind": "access", "auditId": "fx-r1-0005" }
+    },
+    {
+      "name": "the trail exports independently: chain heads included, export audited with recipient and purpose",
+      "op": "export",
+      "sequence": [
+        { "kind": "access", "auditId": "fx-r1-0006", "occurredAt": "2026-03-22T09:00:00Z" },
+        { "kind": "access", "auditId": "fx-r1-0007", "occurredAt": "2026-03-22T09:05:00Z" }
+      ],
+      "expectRecordIds": ["fx-r1-0006", "fx-r1-0007"]
+    }
+  ]
+}

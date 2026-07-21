@@ -1,0 +1,27 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-052",
+  "class": "HAPPY",
+  "description": "GFE records carry their scheduled retention clock (WP-020 slice: the gfe-record class resolves per schedule and the retained trail is retrievable; the GFE/claim boundary itself is WP-051).",
+  "cases": [
+    {
+      "name": "the gfe-record class resolves its fixed federal clock from the schedule data",
+      "op": "resolve-clock",
+      "recordClass": "gfe-record",
+      "providerState": "NV",
+      "patientState": "NV",
+      "expectYears": 6,
+      "expectDefaultsApplied": false
+    },
+    {
+      "name": "a retained record's trail is retrievable by subject across its lifecycle",
+      "op": "trail",
+      "sequence": [
+        { "kind": "access", "auditId": "fx-r52-0001", "occurredAt": "2026-03-22T09:00:00Z" },
+        { "kind": "disclosure", "auditId": "fx-r52-0002", "occurredAt": "2026-03-22T10:00:00Z" }
+      ],
+      "subjectRef": "np-fx-subject",
+      "expectAuditIds": ["fx-r52-0001", "fx-r52-0002"]
+    }
+  ]
+}

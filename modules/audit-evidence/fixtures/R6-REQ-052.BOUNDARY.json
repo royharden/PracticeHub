@@ -1,0 +1,29 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-052",
+  "class": "BOUNDARY",
+  "description": "The retention clock boundary is exact to the day: destruction on the not-before date proceeds; any earlier date refuses.",
+  "cases": [
+    {
+      "name": "destruction exactly ON the clock-expiry date proceeds (2019-01-15 + 6 = 2025-01-15)",
+      "op": "destruction",
+      "recordClass": "gfe-record",
+      "providerState": "NV",
+      "patientState": "NV",
+      "recordDate": "2019-01-15",
+      "asOf": "2025-01-15",
+      "expectOutcome": "destroyed",
+      "expectManifestHash": true
+    },
+    {
+      "name": "the not-before date computes exactly from the schedule clock",
+      "op": "not-before",
+      "recordClass": "gfe-record",
+      "providerState": "NV",
+      "patientState": "NV",
+      "recordDate": "2019-01-15",
+      "expectNotBefore": "2025-01-15",
+      "expectMinorExtended": false
+    }
+  ]
+}

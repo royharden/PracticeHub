@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-102",
+  "class": "HAPPY",
+  "description": "Every AI prompt/output pair lands immutably with subject, actor, time, and model + version; the interaction history reconstructs per patient from the store alone.",
+  "cases": [
+    {
+      "name": "an AI interaction emits with model + version and prompt/output ref+hash pairs",
+      "op": "emit",
+      "input": { "kind": "ai", "auditId": "fx-r102-0001" }
+    },
+    {
+      "name": "the per-patient round-trip reconstructs every interaction with its model version",
+      "op": "ai-roundtrip",
+      "sequence": [
+        { "kind": "ai", "auditId": "fx-r102-0002", "occurredAt": "2026-03-22T09:00:00Z" },
+        { "kind": "access", "auditId": "fx-r102-0003", "occurredAt": "2026-03-22T09:05:00Z" },
+        { "kind": "ai", "auditId": "fx-r102-0004", "occurredAt": "2026-03-22T09:10:00Z" }
+      ],
+      "subjectRef": "np-fx-subject",
+      "expectAuditIds": ["fx-r102-0002", "fx-r102-0004"],
+      "expectModelVersion": "claude-sonnet-5-synthetic"
+    }
+  ]
+}

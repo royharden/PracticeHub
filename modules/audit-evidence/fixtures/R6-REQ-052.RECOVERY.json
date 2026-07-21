@@ -1,0 +1,28 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-052",
+  "class": "RECOVERY",
+  "description": "After a lawful destruction the evidence survives the record: what, why, authority, and manifest hash are retained and audited, so the disposition remains reconstructable.",
+  "cases": [
+    {
+      "name": "a lawful destruction produces retained evidence with manifest hash and audited disposition",
+      "op": "destruction",
+      "recordClass": "gfe-record",
+      "providerState": "NV",
+      "patientState": "NV",
+      "recordDate": "2018-06-01",
+      "asOf": "2026-03-22",
+      "expectOutcome": "destroyed",
+      "expectManifestHash": true
+    },
+    {
+      "name": "a governed export past expiry purges only while no hold applies (expiry recovery path)",
+      "op": "export-expiry",
+      "recordClass": "gfe-record",
+      "expiresOn": "2026-01-01",
+      "asOf": "2026-03-22",
+      "expectExpired": true,
+      "expectSuspended": false
+    }
+  ]
+}

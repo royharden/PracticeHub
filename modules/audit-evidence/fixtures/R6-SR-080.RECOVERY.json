@@ -1,0 +1,57 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-080",
+  "class": "RECOVERY",
+  "description": "The purge-vs-hold race resolves to the hold; releasing the hold with evidence restores the destruction path; export-expiry stays suspended while a hold is active.",
+  "cases": [
+    {
+      "name": "THE RACE: a hold placed between eligibility scan and execution suspends the purge",
+      "op": "destruction",
+      "recordClass": "clinical-record",
+      "providerState": "NV",
+      "patientState": "NV",
+      "recordDate": "2018-06-01",
+      "asOf": "2026-03-22",
+      "holdAtEvaluation": false,
+      "holdAtExecution": true,
+      "expectOutcome": "suspended-by-hold",
+      "expectHoldRefs": ["fxh-0001"]
+    },
+    {
+      "name": "after an evidenced release the destruction proceeds with retained evidence",
+      "op": "destruction",
+      "recordClass": "clinical-record",
+      "providerState": "NV",
+      "patientState": "NV",
+      "recordDate": "2018-06-01",
+      "asOf": "2026-03-22",
+      "holdAtExecution": true,
+      "releaseExecutionHold": true,
+      "expectOutcome": "destroyed",
+      "expectManifestHash": true
+    },
+    {
+      "name": "a hold release without evidence is refused — the hold survives",
+      "op": "hold-release",
+      "holdStatus": "active",
+      "evidenceRef": "  ",
+      "expectError": "release evidence"
+    },
+    {
+      "name": "an evidenced release lands with its own audit record",
+      "op": "hold-release",
+      "holdStatus": "active",
+      "expectStatus": "released"
+    },
+    {
+      "name": "export-expiry is suspended while an applicable hold is active",
+      "op": "export-expiry",
+      "recordClass": "clinical-record",
+      "expiresOn": "2026-01-01",
+      "asOf": "2026-03-22",
+      "holdAtEvaluation": true,
+      "expectExpired": false,
+      "expectSuspended": true
+    }
+  ]
+}

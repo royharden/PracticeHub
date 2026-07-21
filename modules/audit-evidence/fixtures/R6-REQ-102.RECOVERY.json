@@ -1,0 +1,40 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-102",
+  "class": "RECOVERY",
+  "description": "Tampering with logged AI evidence is detected at the exact record, and the immutable trail remains queryable for reconstruction afterward.",
+  "cases": [
+    {
+      "name": "an edited output hash on a logged interaction is named as tamper at its sequence",
+      "op": "chain-tamper",
+      "sequence": [
+        { "kind": "ai", "auditId": "fx-r102-0301", "occurredAt": "2026-03-22T09:00:00Z" },
+        { "kind": "ai", "auditId": "fx-r102-0302", "occurredAt": "2026-03-22T09:05:00Z" }
+      ],
+      "tamper": {
+        "auditId": "fx-r102-0302",
+        "field": "outputHash",
+        "value": "abababababababababababababababababababababababababababababababab"
+      },
+      "expectValid": false,
+      "expectBreakReason": "hash-mismatch",
+      "expectBreakSeq": 2
+    },
+    {
+      "name": "the subject trail stays retrievable across streams for post-incident reconstruction",
+      "op": "trail",
+      "sequence": [
+        { "kind": "ai", "auditId": "fx-r102-0303", "occurredAt": "2026-03-22T09:00:00Z" },
+        { "kind": "access", "auditId": "fx-r102-0304", "occurredAt": "2026-03-22T09:05:00Z" },
+        {
+          "kind": "ai",
+          "auditId": "fx-r102-0305",
+          "occurredAt": "2026-03-22T09:10:00Z",
+          "subjectRef": "np-fx-other"
+        }
+      ],
+      "subjectRef": "np-fx-subject",
+      "expectAuditIds": ["fx-r102-0303", "fx-r102-0304"]
+    }
+  ]
+}

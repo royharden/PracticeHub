@@ -1,0 +1,41 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-080",
+  "class": "FAILURE",
+  "description": "The engine fails toward retention: no purge before the clock, no minor anchor without a birth date, and an active applicable hold blocks destruction outright.",
+  "cases": [
+    {
+      "name": "a record inside its clock cannot be destroyed",
+      "op": "destruction",
+      "recordClass": "clinical-record",
+      "providerState": "IL",
+      "patientState": "IL",
+      "recordDate": "2020-06-01",
+      "asOf": "2026-03-22",
+      "expectOutcome": "refused-clock-active"
+    },
+    {
+      "name": "a minor-anchored clock without a birth date refuses rather than guessing",
+      "op": "not-before",
+      "recordClass": "clinical-record",
+      "providerState": "NV",
+      "patientState": "NV",
+      "minor": true,
+      "recordDate": "2020-06-01",
+      "expectError": "fails toward retention"
+    },
+    {
+      "name": "an active hold at evaluation blocks an otherwise expired record",
+      "op": "destruction",
+      "recordClass": "clinical-record",
+      "providerState": "NV",
+      "patientState": "NV",
+      "recordDate": "2018-06-01",
+      "asOf": "2026-03-22",
+      "holdAtEvaluation": true,
+      "holdAtExecution": true,
+      "expectOutcome": "suspended-by-hold",
+      "expectHoldRefs": ["fxh-0001"]
+    }
+  ]
+}
