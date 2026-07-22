@@ -172,6 +172,17 @@ export const capabilityDefinitionsV1: readonly CapabilityDefinition[] = [
       "event's consumer capability at checkpoint drain. audit.emit over the outbox is " +
       'never gated.',
   },
+  {
+    capabilityId: 'consent.policy-clocks',
+    ownerRole: 'compliance',
+    dimensions: [],
+    description:
+      'Policy/disclosure registry + obligation-clock engine (M03, WP-019): ' +
+      'effective-dated policy documents and legally-clocked duties (breach/renewal/' +
+      'access/statute-tracker). Recording a clock satisfaction (evidence-of-completion) ' +
+      'floors at simulated; protective/automatic writes (trigger, escalate, cancel, ' +
+      'auto-expire) are never gated.',
+  },
 ];
 
 /** Exact mirror of docs/architecture/capability-edge-preconditions.csv (FROZEN). */
@@ -404,6 +415,16 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       rollbackRef: 'already-disabled',
       synthetic: true,
     },
+    {
+      capabilityId: 'consent.policy-clocks',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
   ],
   events: [
     chainEvent(
@@ -557,6 +578,18 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       'disabled',
       'scaffolded',
       'synthetic-gate:wp-021-event-spine-scaffold',
+    ),
+    // WP-019: the policy/clock engine lands at its package ceiling — `scaffolded`.
+    // The recordClockSatisfaction command (floored at `simulated`) therefore
+    // DENIES against this seed, by design; trigger/escalate/cancel/auto-expire
+    // are never gated. Riverbend stays the opposite-state proof.
+    chainEvent(
+      'synthetic-cap-evt-0016',
+      'consent.policy-clocks',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-019-policy-clocks-scaffold',
     ),
   ],
 };

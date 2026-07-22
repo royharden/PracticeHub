@@ -1,0 +1,42 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-010",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "a records-access request clock is a 30-day duration owned by compliance",
+      "op": "trigger",
+      "clock": {
+        "obligationType": "records-request-closure",
+        "providerState": "IL",
+        "patientState": "IL"
+      },
+      "expectDueOffsetDays": 30,
+      "expectStatus": "pending",
+      "expectOwnerRole": "compliance"
+    },
+    {
+      "name": "the access policy resolves 30-day / 10-day lead with counsel review pending",
+      "op": "policy-resolve",
+      "obligationType": "records-request-closure",
+      "providerState": "IL",
+      "patientState": "IL",
+      "expectDurationDays": 30,
+      "expectEscalationLeadDays": 10,
+      "expectCounselReviewPending": true
+    },
+    {
+      "name": "releasing the records before the deadline closes the clock with audited evidence",
+      "op": "lifecycle",
+      "clock": {
+        "obligationType": "records-request-closure",
+        "providerState": "IL",
+        "patientState": "IL"
+      },
+      "escalateAt": "2026-01-21T00:00:00.000Z",
+      "satisfyAt": "2026-01-25T00:00:00.000Z",
+      "expectStatus": "satisfied",
+      "expectAuditAction": "obligation-clock-satisfied"
+    }
+  ]
+}

@@ -20,7 +20,7 @@
  */
 
 import type { JurisdictionRulePack } from './jurisdiction.js';
-import { epochEffectiveOn } from './jurisdiction.js';
+import { epochEffectiveOn } from './effective-dating.js';
 
 const sm = (row: string): string => `state-matrix ${row}`;
 

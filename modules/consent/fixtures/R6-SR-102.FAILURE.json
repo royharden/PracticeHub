@@ -1,0 +1,27 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-102",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "an unpacked state falls to the federal floor duration — statute tracking never lapses to a gap",
+      "op": "policy-resolve",
+      "obligationType": "rule-pack-review",
+      "providerState": "CA",
+      "patientState": "CA",
+      "expectDurationDays": 90,
+      "expectDefaultsApplied": true
+    },
+    {
+      "name": "before the escalation point no re-derivation worklist fires (no premature statute churn)",
+      "op": "workitem",
+      "clock": {
+        "obligationType": "rule-pack-review",
+        "subjectRef": "rule-pack-scope:all-jurisdictions"
+      },
+      "asOf": "2026-01-15T00:00:00.000Z",
+      "expectStatus": "pending",
+      "expectDirective": "re-derive statutes and bump"
+    }
+  ]
+}

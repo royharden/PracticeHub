@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-031",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "at the exact expiry instant the disclosure consent is treated expired (inclusive auto-block)",
+      "op": "consent-enforce",
+      "consent": [
+        { "effectiveAt": "2026-01-15T00:00:00.000Z", "expiresAt": "2027-01-15T00:00:00.000Z" }
+      ],
+      "asOf": "2027-01-15T00:00:00.000Z",
+      "expectAnswer": "denied"
+    },
+    {
+      "name": "one day before expiry the disclosure consent still authorizes",
+      "op": "consent-enforce",
+      "consent": [
+        { "effectiveAt": "2026-01-15T00:00:00.000Z", "expiresAt": "2027-01-15T00:00:00.000Z" }
+      ],
+      "asOf": "2027-01-14T00:00:00.000Z",
+      "expectAnswer": "granted"
+    }
+  ]
+}

@@ -175,6 +175,8 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/011-consent-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/012-events-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/012-events-seed.sql');
+  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/013-policy-clocks-seed.sql'), 'utf8'));
+  console.log('seeded infra/postgres/seed/013-policy-clocks-seed.sql');
 }
 
 function testLocal(): void {
@@ -687,6 +689,63 @@ function testLocal(): void {
     throw new Error(`event-spine posture differs: ${eventSpinePosture}`);
   }
 
+  // WP-019: the policy/clock capability sits at the package ceiling with the
+  // opposite-state tenant proof (northwind scaffolded, riverbend disabled).
+  const policyClockCapabilityStates = scalar(
+    "SELECT string_agg(tenant_id || ':' || state, ',' ORDER BY tenant_id) " +
+      "FROM platform_core.capability_grant WHERE capability_id = 'consent.policy-clocks';",
+  );
+  if (
+    policyClockCapabilityStates !== 'northwind-synthetic:scaffolded,riverbend-synthetic:disabled'
+  ) {
+    throw new Error(
+      `policy-clocks capability tenant states differ: ${policyClockCapabilityStates}`,
+    );
+  }
+
+  // WP-019: the obligation-clock policy registry is seeded complete — every
+  // obligation type carries an EFFECTIVE floor policy (ADR-ADJ-002 semantics 3:
+  // the federal fail-closed floor must be effective at every queriable as-of).
+  const missingClockFloors = scalar(
+    "SELECT count(*) FROM (VALUES ('breach-notification'), ('mhra-renewal'), " +
+      "('records-request-closure'), ('rule-pack-review')) AS required(obligation_type) " +
+      'WHERE NOT EXISTS (SELECT FROM consent.obligation_clock_policy p ' +
+      'WHERE p.obligation_type = required.obligation_type AND p.jurisdiction = ' +
+      "'floor' " +
+      'AND p.effective_on <= current_date);',
+  );
+  if (missingClockFloors !== '0') {
+    throw new Error(
+      'obligation-clock policy registry is missing an effective floor policy for an obligation type',
+    );
+  }
+
+  // WP-019: clock standing proofs — the FL breach clock runs the stricter 30-day
+  // window (C-05 obligation × jurisdiction beats the 60-day floor), the
+  // statute-tracker clock is escalated (its worklist opened, R6-SR-102), and the
+  // records-access clock is satisfied with closure evidence (R6-REQ-010).
+  const clockPosture = scalar(
+    'SELECT (SELECT EXTRACT(DAY FROM (due_at - triggered_at))::int::text ' +
+      "FROM consent.obligation_clock WHERE clock_id = 'ncl-breach-0001') || '|' || " +
+      "(SELECT status FROM consent.obligation_clock WHERE clock_id = 'ncl-tracker-0001') || '|' || " +
+      "(SELECT status FROM consent.obligation_clock WHERE clock_id = 'ncl-access-0001');",
+  );
+  if (clockPosture !== '30|escalated|satisfied') {
+    throw new Error(`obligation-clock standing posture differs: ${clockPosture}`);
+  }
+
+  // WP-019: the clock projection matches the append-only event log — every clock
+  // names its latest event in the same tenant (materialized read model, not a
+  // second source of truth).
+  const orphanClocks = scalar(
+    'SELECT count(*) FROM consent.obligation_clock c WHERE NOT EXISTS (' +
+      'SELECT FROM consent.obligation_clock_event e WHERE e.tenant_id = c.tenant_id ' +
+      'AND e.clock_event_id = c.last_event_id AND e.clock_id = c.clock_id);',
+  );
+  if (orphanClocks !== '0') {
+    throw new Error(`obligation-clock projection out of sync: orphan_clocks=${orphanClocks}`);
+  }
+
   // WP-010: the DB-level cross-tenant negative suite runs against the live stack.
   run('pnpm', ['--filter', '@practicehub/platform-core', 'run', 'test:db'], {
     stdio: 'inherit',
@@ -729,7 +788,7 @@ function testLocal(): void {
       'rls_coverage=OK watermark=OK jurisdiction_packs=OK capability_registry=OK ' +
       'identity_model=OK authn_model=OK merge_governance=OK pdp_model=OK ' +
       'gipa_partition=OK audit_store=OK consent_ledger=OK event_spine=OK ' +
-      'dex_federation=OK cross_tenant_db_suite=OK synthetic_stack=OK',
+      'policy_clocks=OK dex_federation=OK cross_tenant_db_suite=OK synthetic_stack=OK',
   );
 }
 

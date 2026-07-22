@@ -1,0 +1,30 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-031",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "a live MHRA release consent within its window authorizes third-party disclosure",
+      "op": "consent-enforce",
+      "consent": [
+        { "effectiveAt": "2026-01-15T00:00:00.000Z", "expiresAt": "2027-01-15T00:00:00.000Z" }
+      ],
+      "asOf": "2026-06-01T00:00:00.000Z",
+      "expectAnswer": "granted"
+    },
+    {
+      "name": "the renewal clock anchors on the consent expiry and auto-fires the expire event when it lapses",
+      "op": "renewal-expiry",
+      "clock": {
+        "obligationType": "mhra-renewal",
+        "providerState": "MN",
+        "patientState": "MN",
+        "anchorDueAt": "2027-01-15T00:00:00.000Z"
+      },
+      "asOf": "2027-01-15T00:00:00.000Z",
+      "renewalRecorded": false,
+      "expectFired": true,
+      "expectExpireAction": "expire"
+    }
+  ]
+}

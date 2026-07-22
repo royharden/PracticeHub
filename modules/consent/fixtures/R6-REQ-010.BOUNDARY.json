@@ -1,0 +1,40 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-010",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "the near-deadline worklist opens exactly at the escalation point (due minus 10 days)",
+      "op": "status",
+      "clock": {
+        "obligationType": "records-request-closure",
+        "providerState": "IL",
+        "patientState": "IL"
+      },
+      "asOf": "2026-01-21T00:00:00.000Z",
+      "expectStatus": "escalated"
+    },
+    {
+      "name": "one day before the escalation point the request is still pending",
+      "op": "status",
+      "clock": {
+        "obligationType": "records-request-closure",
+        "providerState": "IL",
+        "patientState": "IL"
+      },
+      "asOf": "2026-01-20T00:00:00.000Z",
+      "expectStatus": "pending"
+    },
+    {
+      "name": "at the access deadline instant the request is overdue (inclusive boundary)",
+      "op": "status",
+      "clock": {
+        "obligationType": "records-request-closure",
+        "providerState": "IL",
+        "patientState": "IL"
+      },
+      "asOf": "2026-01-31T00:00:00.000Z",
+      "expectStatus": "overdue"
+    }
+  ]
+}

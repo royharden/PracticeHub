@@ -1,0 +1,34 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-031",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "a recorded renewal restores third-party disclosure authorization after a prior lapse",
+      "op": "consent-enforce",
+      "consent": [
+        { "effectiveAt": "2024-01-15T00:00:00.000Z", "expiresAt": "2025-01-15T00:00:00.000Z" },
+        {
+          "action": "renew",
+          "effectiveAt": "2026-01-01T00:00:00.000Z",
+          "expiresAt": "2027-01-01T00:00:00.000Z"
+        }
+      ],
+      "asOf": "2026-06-01T00:00:00.000Z",
+      "expectAnswer": "granted"
+    },
+    {
+      "name": "recording the renewal before due cancels the auto-fire so the consent never lapses",
+      "op": "renewal-expiry",
+      "clock": {
+        "obligationType": "mhra-renewal",
+        "providerState": "MN",
+        "patientState": "MN",
+        "anchorDueAt": "2027-01-15T00:00:00.000Z"
+      },
+      "asOf": "2027-01-15T00:00:00.000Z",
+      "renewalRecorded": true,
+      "expectFired": false
+    }
+  ]
+}

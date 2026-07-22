@@ -15,6 +15,7 @@
  * pre-staged and inert until its date.
  */
 
+import { epochEffectiveOn, isEffectiveDate, selectEffectiveVersion } from './effective-dating.js';
 import { TenancyInvariantError } from './tenancy.js';
 
 /** Frozen topic vocabulary (ADR-005 §5) — extending it is a contract revision. */
@@ -110,32 +111,13 @@ export const jurisdictionScalarDirections: Readonly<Record<string, 'min' | 'max'
 export const floorJurisdiction = 'floor';
 export const unknownJurisdiction = 'unknown';
 
-/**
- * Epoch sentinel (ADR-ADJ-002 semantics 3): the earliest `floor`/`unknown`
- * version carries this `effectiveOn` so the fail-closed substrate is
- * effective at every queriable as-of date.
- */
-export const epochEffectiveOn = '1970-01-01';
-
+// The epoch sentinel (ADR-ADJ-002 semantics 3) and the calendar-date /
+// version-selection helpers live in `effective-dating.ts` so this resolver and
+// the WP-019 policy/clock registries share ONE effective-dating model
+// (FWD-SR-019-TEMPORAL). `epochEffectiveOn` is re-exported to consumers through
+// the package index via that module.
 const stateCodePattern = /^[A-Z]{2}$/;
 const refPattern = /^[a-z0-9][a-z0-9-]{0,127}$/;
-const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
-
-/**
- * Calendar-date check (ADR-ADJ-002 semantics 5): ISO `YYYY-MM-DD`, compared
- * as strings on a UTC basis; day granularity is deliberate — counsel
- * effective dates are day-granular.
- */
-function isCalendarDate(value: string): boolean {
-  if (!isoDatePattern.test(value)) {
-    return false;
-  }
-  const parsed = Date.parse(`${value}T00:00:00Z`);
-  if (Number.isNaN(parsed)) {
-    return false;
-  }
-  return new Date(parsed).toISOString().slice(0, 10) === value;
-}
 
 export type PackStatus = 'draft' | 'counsel-signed';
 
@@ -197,7 +179,7 @@ export function assertJurisdictionRulePackWellFormed(pack: JurisdictionRulePack)
   if (!Number.isInteger(pack.version) || pack.version < 1) {
     throw new JurisdictionError(`pack ${label}: version must be a positive integer`);
   }
-  if (!isCalendarDate(pack.effectiveOn)) {
+  if (!isEffectiveDate(pack.effectiveOn)) {
     throw new JurisdictionError(
       `pack ${label}: effectiveOn must be a calendar date (YYYY-MM-DD); ` +
         `received ${JSON.stringify(pack.effectiveOn)}`,
@@ -315,9 +297,10 @@ function activePackAsOf(
   jurisdiction: string,
   asOf: string,
 ): JurisdictionRulePack | undefined {
-  return packs
-    .filter((pack) => pack.jurisdiction === jurisdiction && pack.effectiveOn <= asOf)
-    .sort((left, right) => right.version - left.version)[0];
+  return selectEffectiveVersion(
+    packs.filter((pack) => pack.jurisdiction === jurisdiction),
+    asOf,
+  );
 }
 
 /**
@@ -442,7 +425,7 @@ export function resolveJurisdiction(
     throw new JurisdictionError(`unknown jurisdiction topic ${JSON.stringify(topic)}`);
   }
   const resolvedAsOf = asOf ?? new Date().toISOString().slice(0, 10);
-  if (!isCalendarDate(resolvedAsOf)) {
+  if (!isEffectiveDate(resolvedAsOf)) {
     throw new JurisdictionError(
       `asOf must be a calendar date (YYYY-MM-DD); received ${JSON.stringify(resolvedAsOf)}`,
     );

@@ -1,0 +1,30 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-102",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "a completed re-derivation cycle closes the tracker with evidence and an audited attestation",
+      "op": "lifecycle",
+      "clock": {
+        "obligationType": "rule-pack-review",
+        "subjectRef": "rule-pack-scope:all-jurisdictions"
+      },
+      "escalateAt": "2026-03-18T00:00:00.000Z",
+      "satisfyAt": "2026-03-25T00:00:00.000Z",
+      "expectStatus": "satisfied",
+      "expectAuditAction": "obligation-clock-satisfied"
+    },
+    {
+      "name": "the next cycle re-triggers a fresh 90-day tracker after the prior one closes",
+      "op": "trigger",
+      "clock": {
+        "obligationType": "rule-pack-review",
+        "subjectRef": "rule-pack-scope:all-jurisdictions",
+        "triggeredAt": "2026-04-01T00:00:00.000Z"
+      },
+      "expectDueOffsetDays": 90,
+      "expectStatus": "pending"
+    }
+  ]
+}

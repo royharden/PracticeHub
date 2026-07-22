@@ -1,0 +1,37 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-102",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "the re-derivation worklist opens exactly at the escalation point (due minus 14 days)",
+      "op": "status",
+      "clock": {
+        "obligationType": "rule-pack-review",
+        "subjectRef": "rule-pack-scope:all-jurisdictions"
+      },
+      "asOf": "2026-03-18T00:00:00.000Z",
+      "expectStatus": "escalated"
+    },
+    {
+      "name": "one day before the escalation point the tracker is still pending",
+      "op": "status",
+      "clock": {
+        "obligationType": "rule-pack-review",
+        "subjectRef": "rule-pack-scope:all-jurisdictions"
+      },
+      "asOf": "2026-03-17T00:00:00.000Z",
+      "expectStatus": "pending"
+    },
+    {
+      "name": "at the due instant the tracker cycle is overdue (inclusive boundary)",
+      "op": "status",
+      "clock": {
+        "obligationType": "rule-pack-review",
+        "subjectRef": "rule-pack-scope:all-jurisdictions"
+      },
+      "asOf": "2026-04-01T00:00:00.000Z",
+      "expectStatus": "overdue"
+    }
+  ]
+}

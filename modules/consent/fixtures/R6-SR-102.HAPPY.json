@@ -1,0 +1,41 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-102",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "the statute-tracker clock is a 90-day duration owned by compliance (quarterly-class cadence)",
+      "op": "trigger",
+      "clock": {
+        "obligationType": "rule-pack-review",
+        "subjectRef": "rule-pack-scope:all-jurisdictions"
+      },
+      "expectDueOffsetDays": 90,
+      "expectStatus": "pending",
+      "expectOwnerRole": "compliance"
+    },
+    {
+      "name": "the tracker policy resolves the federal floor duration with counsel review pending",
+      "op": "policy-resolve",
+      "obligationType": "rule-pack-review",
+      "providerState": null,
+      "patientState": null,
+      "expectDurationDays": 90,
+      "expectDefaultsApplied": true,
+      "expectCounselReviewPending": true
+    },
+    {
+      "name": "at the escalation point it surfaces the rule-pack-review WorkItem class naming its scope",
+      "op": "workitem",
+      "clock": {
+        "obligationType": "rule-pack-review",
+        "subjectRef": "rule-pack-scope:all-jurisdictions"
+      },
+      "asOf": "2026-03-18T00:00:00.000Z",
+      "expectStatus": "escalated",
+      "expectDirective": "re-derive statutes and bump",
+      "expectOwnerRole": "compliance",
+      "expectRulePackScope": "rule-pack-scope:all-jurisdictions"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-031",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a lapsed MHRA release consent blocks third-party disclosure (expiry enforcement)",
+      "op": "consent-enforce",
+      "consent": [
+        { "effectiveAt": "2024-01-15T00:00:00.000Z", "expiresAt": "2025-01-15T00:00:00.000Z" }
+      ],
+      "asOf": "2026-06-01T00:00:00.000Z",
+      "expectAnswer": "denied"
+    },
+    {
+      "name": "no release consent on record fails closed to unavailable (never a permissive disclosure)",
+      "op": "consent-enforce",
+      "consent": [],
+      "asOf": "2026-06-01T00:00:00.000Z",
+      "expectAnswer": "unavailable"
+    }
+  ]
+}

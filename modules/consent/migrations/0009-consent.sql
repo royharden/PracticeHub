@@ -190,7 +190,7 @@ BEGIN
      AND c.relkind = 'r'
      AND (NOT c.relrowsecurity
           OR NOT c.relforcerowsecurity
-          OR c.relname NOT IN ('consent_event', 'consent_state'));
+          OR c.relname NOT IN ('consent_event', 'consent_state', 'obligation_clock', 'obligation_clock_event', 'obligation_clock_policy', 'policy_document'));
   IF offender IS NOT NULL THEN
     RAISE EXCEPTION 'rls coverage failure in schema consent: %', offender;
   END IF;

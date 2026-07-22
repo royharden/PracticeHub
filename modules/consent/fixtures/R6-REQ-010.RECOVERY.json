@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-010",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "a late release after the deadline still records closure evidence — the clock closes on evidence",
+      "op": "lifecycle",
+      "clock": {
+        "obligationType": "records-request-closure",
+        "providerState": "IL",
+        "patientState": "IL"
+      },
+      "escalateAt": "2026-01-21T00:00:00.000Z",
+      "satisfyAt": "2026-02-15T00:00:00.000Z",
+      "expectStatus": "satisfied",
+      "expectAuditAction": "obligation-clock-satisfied"
+    },
+    {
+      "name": "a withdrawn request cancels the clock with a reason and an audited attestation",
+      "op": "lifecycle",
+      "clock": {
+        "obligationType": "records-request-closure",
+        "providerState": "IL",
+        "patientState": "IL"
+      },
+      "escalateAt": "2026-01-21T00:00:00.000Z",
+      "cancelAt": "2026-01-22T00:00:00.000Z",
+      "expectAuditAction": "obligation-clock-cancelled"
+    }
+  ]
+}

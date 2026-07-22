@@ -1,0 +1,27 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-010",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "an unknown location falls to the federal access floor (30-day), never a permissive gap",
+      "op": "policy-resolve",
+      "obligationType": "records-request-closure",
+      "providerState": null,
+      "patientState": null,
+      "expectDurationDays": 30,
+      "expectDefaultsApplied": true
+    },
+    {
+      "name": "past the deadline with no release the request surfaces overdue — never silently closed",
+      "op": "status",
+      "clock": {
+        "obligationType": "records-request-closure",
+        "providerState": "IL",
+        "patientState": "IL"
+      },
+      "asOf": "2026-02-15T00:00:00.000Z",
+      "expectStatus": "overdue"
+    }
+  ]
+}
