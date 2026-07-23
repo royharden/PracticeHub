@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-002",
+  "class": "BOUNDARY",
+  "description": "Two distinct locations reach the credential-sharing threshold; a single quiet sighting raises nothing.",
+  "cases": [
+    {
+      "name": "two distinct locations raise a credential-sharing (credential-stuffing) signal",
+      "op": "detect-session-anomaly",
+      "sightings": [
+        { "deviceId": "nde-1", "locationRef": "us-west", "observedAt": "2026-03-25T10:00:00Z" },
+        { "deviceId": "nde-2", "locationRef": "eu-central", "observedAt": "2026-03-25T18:00:00Z" }
+      ],
+      "expectSignalKinds": ["credential-stuffing"]
+    },
+    {
+      "name": "a single quiet sighting raises no signal",
+      "op": "detect-session-anomaly",
+      "sightings": [
+        { "deviceId": "nde-1", "locationRef": "us-west", "observedAt": "2026-03-25T10:00:00Z" }
+      ],
+      "expectSignalKinds": []
+    }
+  ]
+}

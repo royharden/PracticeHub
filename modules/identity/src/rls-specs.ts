@@ -50,10 +50,21 @@ export const pdpRlsSpecs: readonly RlsTableSpec[] = [
   { schema: 'identity', table: 'gipa_authorization', kind: 'tenant-scoped' },
 ];
 
+/** Tables created by 0013-elevation.sql (WP-017) — that migration's DDL scope. */
+export const elevationRlsSpecs: readonly RlsTableSpec[] = [
+  { schema: 'identity', table: 'break_glass_grant', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'break_glass_review', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'offboarding_case', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'offboarding_reassignment', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'access_anomaly_case', kind: 'tenant-scoped' },
+  { schema: 'identity', table: 'access_recertification', kind: 'tenant-scoped' },
+];
+
 /** The full identity-schema registry — every migration's coverage guard declares it. */
 export const identitySchemaRlsSpecs: readonly RlsTableSpec[] = [
   ...identityRlsSpecs,
   ...authnRlsSpecs,
   ...mergeRlsSpecs,
   ...pdpRlsSpecs,
+  ...elevationRlsSpecs,
 ];

@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-019",
+  "class": "HAPPY",
+  "description": "A snooping access (no treatment relationship, no assignment basis) is flagged and opens an investigation.",
+  "cases": [
+    {
+      "name": "an access with neither a treatment relationship nor an assignment basis is flagged",
+      "op": "detect-snooping",
+      "accesses": [
+        { "accessRef": "access-1", "hadTreatmentRelationship": true, "withinAssignment": true },
+        { "accessRef": "access-2", "hadTreatmentRelationship": false, "withinAssignment": false }
+      ],
+      "expectFlagged": ["access-2"]
+    },
+    {
+      "name": "a snooping investigation opens against the workforce member",
+      "op": "open-anomaly",
+      "pattern": "snooping-access",
+      "expectStatus": "open"
+    }
+  ]
+}

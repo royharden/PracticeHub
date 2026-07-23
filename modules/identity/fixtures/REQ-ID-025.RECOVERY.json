@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-025",
+  "class": "RECOVERY",
+  "description": "With every owned item given a target and a context package, the offboarding completes atomically — zero orphaned.",
+  "cases": [
+    {
+      "name": "a fully-targeted offboarding completes with all three owned items reassigned",
+      "op": "offboard",
+      "kind": "planned",
+      "ownedWork": [
+        { "ownedRef": "thread:th-0001", "ownedKind": "thread" },
+        { "ownedRef": "panel:pn-north", "ownedKind": "panel" },
+        { "ownedRef": "task:tk-0007", "ownedKind": "task" }
+      ],
+      "expectReassignments": 3
+    }
+  ]
+}

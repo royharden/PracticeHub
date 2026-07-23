@@ -1,0 +1,40 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-019",
+  "class": "BOUNDARY",
+  "description": "The snooping boundary: an access with EITHER a treatment relationship OR an assignment basis is not flagged; only one with neither is.",
+  "cases": [
+    {
+      "name": "an access with a treatment relationship but no assignment is NOT snooping",
+      "op": "detect-snooping",
+      "accesses": [
+        { "accessRef": "access-treat", "hadTreatmentRelationship": true, "withinAssignment": false }
+      ],
+      "expectFlagged": []
+    },
+    {
+      "name": "an access within assignment but no treatment relationship is NOT snooping",
+      "op": "detect-snooping",
+      "accesses": [
+        {
+          "accessRef": "access-assign",
+          "hadTreatmentRelationship": false,
+          "withinAssignment": true
+        }
+      ],
+      "expectFlagged": []
+    },
+    {
+      "name": "an access with neither is snooping",
+      "op": "detect-snooping",
+      "accesses": [
+        {
+          "accessRef": "access-neither",
+          "hadTreatmentRelationship": false,
+          "withinAssignment": false
+        }
+      ],
+      "expectFlagged": ["access-neither"]
+    }
+  ]
+}

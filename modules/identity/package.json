@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@practicehub/audit-evidence": "workspace:*",
+    "@practicehub/events": "workspace:*",
     "@practicehub/testkit": "workspace:*",
     "@types/pg": "8.16.0",
     "pg": "8.16.3"

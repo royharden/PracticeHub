@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-001",
+  "class": "BOUNDARY",
+  "description": "The auto-expiry boundary: a break-glass grant is active up to the instant before expiry and expired at it.",
+  "cases": [
+    {
+      "name": "active one second before the window closes",
+      "op": "break-glass-status",
+      "windowMinutes": 60,
+      "nowIso": "2026-03-25T10:59:59Z",
+      "expectStatus": "active"
+    },
+    {
+      "name": "expired exactly at the window close instant",
+      "op": "break-glass-status",
+      "windowMinutes": 60,
+      "nowIso": "2026-03-25T11:00:00Z",
+      "expectStatus": "expired"
+    }
+  ]
+}

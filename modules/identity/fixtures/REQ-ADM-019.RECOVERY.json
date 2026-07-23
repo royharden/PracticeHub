@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-019",
+  "class": "RECOVERY",
+  "description": "A reviewed snooping investigation can clear as a false positive, with evidence and attribution retained.",
+  "cases": [
+    {
+      "name": "an investigation reviewed as no-violation clears as a false positive",
+      "op": "remediate-anomaly",
+      "disposition": "no-violation",
+      "expectStatus": "false-positive"
+    }
+  ]
+}

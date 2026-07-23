@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-018",
+  "class": "RECOVERY",
+  "description": "A confirmed attestation records the access as appropriate with no access-change directive — the grant is retained on evidence.",
+  "cases": [
+    {
+      "name": "a confirm attestation records with no access-change directive",
+      "op": "attest-recert",
+      "decision": "confirm",
+      "expectDirective": false
+    }
+  ]
+}

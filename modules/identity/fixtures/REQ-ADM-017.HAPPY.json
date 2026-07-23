@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-017",
+  "class": "HAPPY",
+  "description": "The break-glass grant mechanism issues a scoped, reasoned, read-only elevation with the independent-review obligation and a break-glass audit record.",
+  "cases": [
+    {
+      "name": "a coverage-gap grant issues with a break-glass audit record and the review obligation",
+      "op": "grant-break-glass",
+      "scope": ["scheduling", "messaging"],
+      "reasonCode": "coverage-gap"
+    }
+  ]
+}

@@ -195,6 +195,19 @@ export const capabilityDefinitionsV1: readonly CapabilityDefinition[] = [
       'resume, escalate) are NEVER gated — a timer must keep running (honest breach) ' +
       'and an escalation on a stale thread must always fire.',
   },
+  {
+    capabilityId: 'identity.break-glass',
+    ownerRole: 'security',
+    dimensions: [],
+    description:
+      'Break-glass emergency access + offboarding + credential-anomaly (M02, WP-017): ' +
+      'time-boxed read-only scoped elevation with named reason and mandatory independent ' +
+      'review, atomic staff offboarding, and anomaly detection. Granting a break-glass ' +
+      'elevation is authority-increasing and floors at simulated; protective/detective ' +
+      'directions (offboarding revocation, anomaly investigation, recertification ' +
+      'attestation) are NEVER gated, and break-glass never bypasses consent/partition/' +
+      'deceased egress guards (ADR-006 Decision 3 — it widens read scope only).',
+  },
 ];
 
 /** Exact mirror of docs/architecture/capability-edge-preconditions.csv (FROZEN). */
@@ -447,6 +460,16 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       rollbackRef: 'already-disabled',
       synthetic: true,
     },
+    {
+      capabilityId: 'identity.break-glass',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
   ],
   events: [
     chainEvent(
@@ -625,6 +648,19 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       'disabled',
       'scaffolded',
       'synthetic-gate:wp-022-tasking-engine-scaffold',
+    ),
+    // WP-017: break-glass/offboarding/anomaly lands at its package ceiling —
+    // `scaffolded`. The grantBreakGlass command (floored `simulated`) therefore
+    // DENIES a live emergency elevation against this seed, by design; protective/
+    // detective directions (offboarding, anomaly investigation, recertification)
+    // are never gated. Riverbend stays the opposite-state proof.
+    chainEvent(
+      'synthetic-cap-evt-0018',
+      'identity.break-glass',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-017-break-glass-scaffold',
     ),
   ],
 };

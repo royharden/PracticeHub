@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-028",
+  "class": "FAILURE",
+  "description": "Even an abrupt departure holds the zero-orphaned invariant: an owned item with no target aborts the whole revocation (no half-done offboarding).",
+  "cases": [
+    {
+      "name": "an abrupt departure that would orphan owned work is aborted",
+      "op": "offboard",
+      "kind": "abrupt-departure",
+      "hasEpcsToken": true,
+      "ownedWork": [
+        { "ownedRef": "thread:th-urgent", "ownedKind": "thread" },
+        { "ownedRef": "panel:pn-south", "ownedKind": "panel" }
+      ],
+      "dropOneTarget": true,
+      "expectError": "leaves orphaned work"
+    }
+  ]
+}

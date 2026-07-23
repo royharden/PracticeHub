@@ -1,0 +1,24 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-002",
+  "class": "HAPPY",
+  "description": "Concurrent-session and credential-sharing patterns raise the WP-014 signals and open a forensic investigation.",
+  "cases": [
+    {
+      "name": "three concurrent devices raise a concurrent-session (new-device-burst) signal",
+      "op": "detect-session-anomaly",
+      "sightings": [
+        { "deviceId": "nde-1", "locationRef": "us-west", "observedAt": "2026-03-25T10:00:00Z" },
+        { "deviceId": "nde-2", "locationRef": "us-west", "observedAt": "2026-03-25T10:01:00Z" },
+        { "deviceId": "nde-3", "locationRef": "us-west", "observedAt": "2026-03-25T10:02:00Z" }
+      ],
+      "expectSignalKinds": ["new-device-burst"]
+    },
+    {
+      "name": "a concurrent-session investigation opens with the signals recorded",
+      "op": "open-anomaly",
+      "pattern": "concurrent-session",
+      "expectStatus": "open"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-025",
+  "class": "HAPPY",
+  "description": "A planned offboarding revokes sessions and role grants and reassigns every owned item with a context package.",
+  "cases": [
+    {
+      "name": "a planned offboarding reassigns both owned items and records the sessions + role-grants floor",
+      "op": "offboard",
+      "kind": "planned",
+      "ownedWork": [
+        { "ownedRef": "thread:th-0001", "ownedKind": "thread" },
+        { "ownedRef": "panel:pn-north", "ownedKind": "panel" }
+      ],
+      "expectReassignments": 2,
+      "expectRevokedScopesContains": ["sessions", "role-grants"]
+    }
+  ]
+}

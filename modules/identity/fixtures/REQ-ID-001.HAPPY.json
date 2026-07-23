@@ -1,0 +1,21 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-001",
+  "class": "HAPPY",
+  "description": "Break-glass grants scoped read access with a captured reason and auto-expiry, and its mandatory independent review completes.",
+  "cases": [
+    {
+      "name": "an emergency-care break-glass grant captures its reason, sets auto-expiry, and carries the independent-review obligation",
+      "op": "grant-break-glass",
+      "scope": ["clinical-notes", "results"],
+      "reasonCode": "emergency-care",
+      "expectExpiresAt": "2026-03-25T11:00:00Z"
+    },
+    {
+      "name": "an independent reviewer completes the mandatory after-the-fact review (access appropriate)",
+      "op": "break-glass-review",
+      "reviewOutcome": "access-appropriate",
+      "expectEscalation": false
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-028",
+  "class": "RECOVERY",
+  "description": "The departing provider's on-call coverage is handed off with a context package while sessions/credentials/EPCS are revoked in the same act.",
+  "cases": [
+    {
+      "name": "an abrupt departure reassigns the on-call slot with context and revokes the full floor",
+      "op": "offboard",
+      "kind": "abrupt-departure",
+      "hasEpcsToken": true,
+      "ownedWork": [{ "ownedRef": "oncall:slot-weekend", "ownedKind": "on-call-slot" }],
+      "expectReassignments": 1,
+      "expectRevokedScopesContains": ["sessions", "credentials", "epcs-token", "on-call-slots"]
+    }
+  ]
+}

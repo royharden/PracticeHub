@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-028",
+  "class": "HAPPY",
+  "description": "An abrupt provider departure revokes sessions, credentials, and the EPCS token by the mandatory floor.",
+  "cases": [
+    {
+      "name": "an abrupt departure with an EPCS token revokes sessions, credentials, and the EPCS token",
+      "op": "offboard",
+      "kind": "abrupt-departure",
+      "hasEpcsToken": true,
+      "ownedWork": [{ "ownedRef": "thread:th-urgent", "ownedKind": "thread" }],
+      "expectReassignments": 1,
+      "expectRevokedScopesContains": ["sessions", "credentials", "epcs-token"]
+    }
+  ]
+}

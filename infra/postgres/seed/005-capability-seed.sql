@@ -35,7 +35,8 @@ VALUES
   ('synthetic-cap-evt-0014', 'northwind-synthetic', 'consent.operational', '{}'::jsonb, '(root)', 'disabled', 'scaffolded', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:wp-018-consent-scaffold"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true),
   ('synthetic-cap-evt-0015', 'northwind-synthetic', 'platform.event-spine', '{}'::jsonb, '(root)', 'disabled', 'scaffolded', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:wp-021-event-spine-scaffold"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true),
   ('synthetic-cap-evt-0016', 'northwind-synthetic', 'consent.policy-clocks', '{}'::jsonb, '(root)', 'disabled', 'scaffolded', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:wp-019-policy-clocks-scaffold"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true),
-  ('synthetic-cap-evt-0017', 'northwind-synthetic', 'platform.tasking-engine', '{}'::jsonb, '(root)', 'disabled', 'scaffolded', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:wp-022-tasking-engine-scaffold"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true)
+  ('synthetic-cap-evt-0017', 'northwind-synthetic', 'platform.tasking-engine', '{}'::jsonb, '(root)', 'disabled', 'scaffolded', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:wp-022-tasking-engine-scaffold"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true),
+  ('synthetic-cap-evt-0018', 'northwind-synthetic', 'identity.break-glass', '{}'::jsonb, '(root)', 'disabled', 'scaffolded', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:wp-017-break-glass-scaffold"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true)
 ON CONFLICT (event_id) DO NOTHING;
 
 INSERT INTO platform_core.capability_grant
@@ -46,6 +47,7 @@ VALUES
   ('northwind-synthetic', 'consent.policy-clocks', '{}'::jsonb, '(root)', 'scaffolded', 'synthetic-cap-evt-0016', '["synthetic-gate:wp-019-policy-clocks-scaffold"]'::jsonb, 'registry-event-replay', true),
   ('northwind-synthetic', 'identity.access-policy', '{}'::jsonb, '(root)', 'scaffolded', 'synthetic-cap-evt-0012', '["synthetic-gate:wp-015-pdp-scaffold"]'::jsonb, 'registry-event-replay', true),
   ('northwind-synthetic', 'identity.authn', '{}'::jsonb, '(root)', 'scaffolded', 'synthetic-cap-evt-0009', '["synthetic-gate:wp-014-authn-scaffold"]'::jsonb, 'registry-event-replay', true),
+  ('northwind-synthetic', 'identity.break-glass', '{}'::jsonb, '(root)', 'scaffolded', 'synthetic-cap-evt-0018', '["synthetic-gate:wp-017-break-glass-scaffold"]'::jsonb, 'registry-event-replay', true),
   ('northwind-synthetic', 'identity.merge-governance', '{}'::jsonb, '(root)', 'scaffolded', 'synthetic-cap-evt-0010', '["synthetic-gate:wp-016-merge-scaffold"]'::jsonb, 'registry-event-replay', true),
   ('northwind-synthetic', 'identity.person-model', '{}'::jsonb, '(root)', 'scaffolded', 'synthetic-cap-evt-0008', '["synthetic-gate:wp-013-identity-scaffold"]'::jsonb, 'registry-event-replay', true),
   ('northwind-synthetic', 'platform.audit-store', '{}'::jsonb, '(root)', 'scaffolded', 'synthetic-cap-evt-0011', '["synthetic-gate:wp-020-audit-scaffold"]'::jsonb, 'registry-event-replay', true),
@@ -60,6 +62,7 @@ VALUES
   ('riverbend-synthetic', 'consent.policy-clocks', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
   ('riverbend-synthetic', 'identity.access-policy', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
   ('riverbend-synthetic', 'identity.authn', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
+  ('riverbend-synthetic', 'identity.break-glass', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
   ('riverbend-synthetic', 'identity.merge-governance', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
   ('riverbend-synthetic', 'identity.person-model', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
   ('riverbend-synthetic', 'platform.audit-store', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),

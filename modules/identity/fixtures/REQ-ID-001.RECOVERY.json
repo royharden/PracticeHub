@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-001",
+  "class": "RECOVERY",
+  "description": "A review that judges the access inappropriate opens a containment follow-up — the anomaly is acted on, not just noted.",
+  "cases": [
+    {
+      "name": "an access-inappropriate review opens a containment follow-up WorkItem",
+      "op": "break-glass-review",
+      "reviewOutcome": "access-inappropriate-escalate",
+      "reviewerRole": "it-security-admin",
+      "expectEscalation": true
+    }
+  ]
+}

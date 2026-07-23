@@ -1,0 +1,21 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-002",
+  "class": "RECOVERY",
+  "description": "Containment then remediation: an investigation opens contained and resolves to a confirmed violation with evidence.",
+  "cases": [
+    {
+      "name": "an investigation opened with a containment directive is contained",
+      "op": "open-anomaly",
+      "pattern": "concurrent-session",
+      "containmentRef": "synthetic-rate-limit-0001",
+      "expectStatus": "contained"
+    },
+    {
+      "name": "the investigation resolves to a confirmed violation with evidence and attribution",
+      "op": "remediate-anomaly",
+      "disposition": "confirmed-violation",
+      "expectStatus": "remediated"
+    }
+  ]
+}

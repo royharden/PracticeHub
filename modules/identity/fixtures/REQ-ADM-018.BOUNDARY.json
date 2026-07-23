@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-018",
+  "class": "BOUNDARY",
+  "description": "A clean review (no drift) queues nothing — a passing recertification is not a failure and does not manufacture attestation work.",
+  "cases": [
+    {
+      "name": "a cycle with no drift queues no attestation for the staff member",
+      "op": "schedule-recert",
+      "withDrift": false,
+      "expectQueueForStaff": false
+    }
+  ]
+}

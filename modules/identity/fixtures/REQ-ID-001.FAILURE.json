@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-001",
+  "class": "FAILURE",
+  "description": "The mandatory review must be independent — the accessor can never review their own break-glass use (separation of duties).",
+  "cases": [
+    {
+      "name": "the accessor reviewing their own break-glass use is refused",
+      "op": "break-glass-review",
+      "reviewerIsAccessor": true,
+      "expectError": "must be independent"
+    }
+  ]
+}

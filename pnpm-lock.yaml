@@ -116,6 +116,9 @@ importers:
       '@practicehub/audit-evidence':
         specifier: workspace:*
         version: link:../audit-evidence
+      '@practicehub/events':
+        specifier: workspace:*
+        version: link:../events
       '@practicehub/testkit':
         specifier: workspace:*
         version: link:../../packages/testkit

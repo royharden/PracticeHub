@@ -1,0 +1,27 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-025",
+  "class": "FAILURE",
+  "description": "The zero-orphaned invariant fails closed: an owned item with no reassignment target, or a target without a context package, aborts the whole offboarding.",
+  "cases": [
+    {
+      "name": "an owned item with no reassignment target aborts the offboarding (orphaned work)",
+      "op": "offboard",
+      "kind": "planned",
+      "ownedWork": [
+        { "ownedRef": "thread:th-0001", "ownedKind": "thread" },
+        { "ownedRef": "panel:pn-north", "ownedKind": "panel" }
+      ],
+      "dropOneTarget": true,
+      "expectError": "leaves orphaned work"
+    },
+    {
+      "name": "a reassignment without a context package aborts the offboarding",
+      "op": "offboard",
+      "kind": "planned",
+      "ownedWork": [{ "ownedRef": "thread:th-0001", "ownedKind": "thread" }],
+      "emptyContextOnFirst": true,
+      "expectError": "context package"
+    }
+  ]
+}

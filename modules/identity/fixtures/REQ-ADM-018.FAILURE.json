@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-018",
+  "class": "FAILURE",
+  "description": "An attestation is logged with who and why — recording one without evidence fails closed.",
+  "cases": [
+    {
+      "name": "an attestation without evidence is refused",
+      "op": "attest-recert",
+      "decision": "confirm",
+      "omitAttestationEvidence": true,
+      "expectError": "evidenceRef"
+    }
+  ]
+}

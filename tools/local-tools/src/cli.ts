@@ -179,6 +179,8 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/013-policy-clocks-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/014-workitems-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/014-workitems-seed.sql');
+  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/015-elevation-seed.sql'), 'utf8'));
+  console.log('seeded infra/postgres/seed/015-elevation-seed.sql');
 }
 
 function testLocal(): void {
@@ -809,6 +811,69 @@ function testLocal(): void {
     throw new Error(`work_item projection out of sync: orphan_items=${orphanWorkItems}`);
   }
 
+  // WP-017: the break-glass capability sits at the package ceiling with the
+  // opposite-state tenant proof (northwind scaffolded, riverbend disabled).
+  const breakGlassCapabilityStates = scalar(
+    "SELECT string_agg(tenant_id || ':' || state, ',' ORDER BY tenant_id) " +
+      "FROM platform_core.capability_grant WHERE capability_id = 'identity.break-glass';",
+  );
+  if (
+    breakGlassCapabilityStates !== 'northwind-synthetic:scaffolded,riverbend-synthetic:disabled'
+  ) {
+    throw new Error(`break-glass capability tenant states differ: ${breakGlassCapabilityStates}`);
+  }
+
+  // WP-017: the break-glass review queue standing proof (R6-REQ-003) — one
+  // grant carries its INDEPENDENT review (reviewer <> accessor) and one grant
+  // is still UNREVIEWED (ages on the compliance worklist).
+  const breakGlassReviewPosture = scalar(
+    "SELECT (SELECT count(*) FROM identity.break_glass_grant WHERE tenant_id = 'northwind-synthetic')::text " +
+      "|| '|' || (SELECT count(*) FROM identity.break_glass_review r " +
+      'JOIN identity.break_glass_grant g ON g.tenant_id = r.tenant_id AND g.grant_id = r.grant_id ' +
+      'WHERE r.reviewer_person_id <> g.accessor_person_id)::text ' +
+      "|| '|' || (SELECT count(*) FROM identity.break_glass_grant g " +
+      "WHERE g.tenant_id = 'northwind-synthetic' AND NOT EXISTS (" +
+      'SELECT FROM identity.break_glass_review r ' +
+      'WHERE r.tenant_id = g.tenant_id AND r.grant_id = g.grant_id))::text;',
+  );
+  if (breakGlassReviewPosture !== '2|1|1') {
+    throw new Error(`break-glass review posture differs: ${breakGlassReviewPosture}`);
+  }
+
+  // WP-017: the abrupt-departure offboarding standing proof (REQ-ID-028) — the
+  // abrupt case revokes the EPCS token, and every owned item is reassigned
+  // (zero orphaned: reassignment rows exist for both cases).
+  const offboardingPosture = scalar(
+    "SELECT (SELECT (revoked_scopes @> ARRAY['sessions','credentials','epcs-token']::text[])::text " +
+      "FROM identity.offboarding_case WHERE offboarding_id = 'noff-0002') " +
+      "|| '|' || (SELECT count(*)::text FROM identity.offboarding_reassignment " +
+      "WHERE tenant_id = 'northwind-synthetic');",
+  );
+  if (offboardingPosture !== 'true|3') {
+    throw new Error(`offboarding standing proof differs: ${offboardingPosture}`);
+  }
+
+  // WP-017: the access-anomaly standing proof (REQ-ADM-019) — an OPEN snooping
+  // case with a non-empty forensic signal set exists.
+  const anomalyPosture = scalar(
+    'SELECT count(*) FROM identity.access_anomaly_case ' +
+      "WHERE tenant_id = 'northwind-synthetic' AND pattern = 'snooping-access' " +
+      "AND status = 'open' AND jsonb_array_length(signals) >= 1;",
+  );
+  if (anomalyPosture !== '1') {
+    throw new Error(`access-anomaly standing proof differs: ${anomalyPosture}`);
+  }
+
+  // WP-017: the recertification standing proof (REQ-ADM-018) — a REVOKED
+  // attestation (drift acted on) is on record.
+  const recertPosture = scalar(
+    'SELECT count(*) FROM identity.access_recertification ' +
+      "WHERE tenant_id = 'northwind-synthetic' AND decision = 'revoked';",
+  );
+  if (recertPosture !== '1') {
+    throw new Error(`recertification standing proof differs: ${recertPosture}`);
+  }
+
   // WP-010: the DB-level cross-tenant negative suite runs against the live stack.
   run('pnpm', ['--filter', '@practicehub/platform-core', 'run', 'test:db'], {
     stdio: 'inherit',
@@ -851,8 +916,8 @@ function testLocal(): void {
       'rls_coverage=OK watermark=OK jurisdiction_packs=OK capability_registry=OK ' +
       'identity_model=OK authn_model=OK merge_governance=OK pdp_model=OK ' +
       'gipa_partition=OK audit_store=OK consent_ledger=OK event_spine=OK ' +
-      'policy_clocks=OK tasking_engine=OK dex_federation=OK cross_tenant_db_suite=OK ' +
-      'synthetic_stack=OK',
+      'policy_clocks=OK tasking_engine=OK break_glass=OK dex_federation=OK ' +
+      'cross_tenant_db_suite=OK synthetic_stack=OK',
   );
 }
 

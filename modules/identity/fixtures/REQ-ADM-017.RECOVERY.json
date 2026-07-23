@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-017",
+  "class": "RECOVERY",
+  "description": "A disaster-continuity grant over multiple segments issues cleanly with its reason captured and a bounded window.",
+  "cases": [
+    {
+      "name": "a multi-segment disaster-continuity grant issues with a bounded window",
+      "op": "grant-break-glass",
+      "scope": ["demographics", "scheduling", "clinical-notes"],
+      "reasonCode": "disaster-continuity",
+      "windowMinutes": 120,
+      "expectExpiresAt": "2026-03-25T12:00:00Z"
+    }
+  ]
+}

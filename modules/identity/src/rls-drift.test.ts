@@ -22,6 +22,7 @@ import { describe, expect, it } from 'vitest';
 import { pdpSeedBeginMarker, pdpSeedEndMarker, renderPdpTemplateSeedSection } from './pdp.js';
 import {
   authnRlsSpecs,
+  elevationRlsSpecs,
   identityRlsSpecs,
   identitySchemaRlsSpecs,
   mergeRlsSpecs,
@@ -42,6 +43,10 @@ const mergeMigrationSql = readFileSync(
 );
 const pdpMigrationSql = readFileSync(
   new URL('../migrations/0008-pdp.sql', import.meta.url),
+  'utf8',
+);
+const elevationMigrationSql = readFileSync(
+  new URL('../migrations/0013-elevation.sql', import.meta.url),
   'utf8',
 );
 const pdpSeedSql = readFileSync(
@@ -75,6 +80,13 @@ describe('identity RLS drift gate', () => {
     const embedded = extractRlsMigrationSection(pdpMigrationSql);
     expect(embedded).toBe(
       renderRlsMigrationSection('identity', pdpRlsSpecs, identitySchemaRlsSpecs),
+    );
+  });
+
+  it('0013-elevation.sql embeds exactly the generated section (schema-wide guard)', () => {
+    const embedded = extractRlsMigrationSection(elevationMigrationSql);
+    expect(embedded).toBe(
+      renderRlsMigrationSection('identity', elevationRlsSpecs, identitySchemaRlsSpecs),
     );
   });
 
@@ -112,9 +124,25 @@ describe('identity RLS drift gate', () => {
     expect(created).toEqual(declared);
   });
 
-  it('the schema-wide registry is exactly the union of all four DDL scopes', () => {
+  it('every CREATE TABLE in 0013 is declared in its DDL-scope registry', () => {
+    const created = [
+      ...elevationMigrationSql.matchAll(/CREATE TABLE IF NOT EXISTS identity\.(\w+)/g),
+    ]
+      .map((match) => match[1])
+      .sort();
+    const declared = elevationRlsSpecs.map((spec) => spec.table).sort();
+    expect(created).toEqual(declared);
+  });
+
+  it('the schema-wide registry is exactly the union of all five DDL scopes', () => {
     expect(identitySchemaRlsSpecs.map((spec) => spec.table).sort()).toEqual(
-      [...identityRlsSpecs, ...authnRlsSpecs, ...mergeRlsSpecs, ...pdpRlsSpecs]
+      [
+        ...identityRlsSpecs,
+        ...authnRlsSpecs,
+        ...mergeRlsSpecs,
+        ...pdpRlsSpecs,
+        ...elevationRlsSpecs,
+      ]
         .map((spec) => spec.table)
         .sort(),
     );
@@ -204,6 +232,44 @@ describe('identity RLS drift gate', () => {
         'REVOKE UPDATE, DELETE ON identity.role_template FROM module_identity;',
       );
       expect(sql).toContain('GRANT UPDATE (status) ON identity.role_template TO module_identity;');
+    }
+  });
+
+  it('0013 asserts the elevation append-only postures directly', () => {
+    for (const table of [
+      'break_glass_grant',
+      'break_glass_review',
+      'offboarding_case',
+      'offboarding_reassignment',
+      'access_recertification',
+    ]) {
+      expect(elevationMigrationSql).toContain(
+        `REVOKE UPDATE, DELETE ON identity.${table} FROM module_identity;`,
+      );
+    }
+    expect(elevationMigrationSql).toContain(
+      'REVOKE DELETE ON identity.access_anomaly_case FROM module_identity;',
+    );
+  });
+
+  it('0004 and 0005 conditionally re-assert the elevation postures their GRANT would re-open', () => {
+    for (const sql of [identityMigrationSql, authnMigrationSql]) {
+      for (const table of [
+        'break_glass_grant',
+        'break_glass_review',
+        'offboarding_case',
+        'offboarding_reassignment',
+        'access_recertification',
+        'access_anomaly_case',
+      ]) {
+        expect(sql, `conditional re-REVOKE for identity.${table}`).toContain(
+          `IF to_regclass('identity.${table}') IS NOT NULL THEN`,
+        );
+      }
+      expect(sql).toContain(
+        'REVOKE UPDATE, DELETE ON identity.break_glass_grant FROM module_identity;',
+      );
+      expect(sql).toContain('REVOKE DELETE ON identity.access_anomaly_case FROM module_identity;');
     }
   });
 

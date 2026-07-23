@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-017",
+  "class": "FAILURE",
+  "description": "The grant mechanism fails closed on a missing reason capture, an empty scope, or a non-positive window.",
+  "cases": [
+    {
+      "name": "a grant without its captured reason is refused",
+      "op": "grant-break-glass",
+      "omitJustification": true,
+      "expectError": "justificationRef"
+    },
+    {
+      "name": "a grant with an empty scope is refused",
+      "op": "grant-break-glass",
+      "scope": [],
+      "expectError": "at least one read segment"
+    },
+    {
+      "name": "a grant with a non-positive window is refused",
+      "op": "grant-break-glass",
+      "windowMinutes": 0,
+      "expectError": "positive integer"
+    }
+  ]
+}

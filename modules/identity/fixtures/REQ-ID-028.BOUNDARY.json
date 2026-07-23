@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-028",
+  "class": "BOUNDARY",
+  "description": "An abrupt departure of a provider WITHOUT an EPCS token revokes sessions and credentials but requires no EPCS-token revocation.",
+  "cases": [
+    {
+      "name": "an abrupt departure without an EPCS token revokes sessions and credentials",
+      "op": "offboard",
+      "kind": "abrupt-departure",
+      "hasEpcsToken": false,
+      "ownedWork": [{ "ownedRef": "thread:th-urgent", "ownedKind": "thread" }],
+      "expectReassignments": 1,
+      "expectRevokedScopesContains": ["sessions", "credentials"]
+    }
+  ]
+}

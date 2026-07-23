@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-025",
+  "class": "BOUNDARY",
+  "description": "An on-call slot in the owned set brings on-call-slots into the revoked scopes (accounts, threads, on-call, panels).",
+  "cases": [
+    {
+      "name": "an offboarding that reassigns an on-call slot revokes on-call-slots",
+      "op": "offboard",
+      "kind": "planned",
+      "ownedWork": [{ "ownedRef": "oncall:slot-fri", "ownedKind": "on-call-slot" }],
+      "expectReassignments": 1,
+      "expectRevokedScopesContains": ["on-call-slots", "sessions", "role-grants"]
+    }
+  ]
+}

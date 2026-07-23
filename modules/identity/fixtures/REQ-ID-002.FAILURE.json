@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-002",
+  "class": "FAILURE",
+  "description": "An investigation cannot open without its triggering signals — the forensic record fails closed.",
+  "cases": [
+    {
+      "name": "opening an investigation with no signals is refused",
+      "op": "open-anomaly",
+      "pattern": "credential-sharing",
+      "signals": [],
+      "expectError": "forensic record fails closed"
+    }
+  ]
+}

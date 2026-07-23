@@ -1,0 +1,21 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-018",
+  "class": "HAPPY",
+  "description": "A recertification cycle surfaces access drift, queues a manager attestation, and a revoke attestation carries the access-change directive.",
+  "cases": [
+    {
+      "name": "the cycle surfaces drift and queues a manager attestation for the affected staff member",
+      "op": "schedule-recert",
+      "withDrift": true,
+      "expectFindingKinds": ["drift-remediation-required"],
+      "expectQueueForStaff": true
+    },
+    {
+      "name": "a revoke attestation carries the access-change directive",
+      "op": "attest-recert",
+      "decision": "revoke",
+      "expectDirective": true
+    }
+  ]
+}

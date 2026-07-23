@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-019",
+  "class": "FAILURE",
+  "description": "A snooping investigation cannot open without the triggering signals — the forensic record fails closed.",
+  "cases": [
+    {
+      "name": "opening a snooping investigation with no signals is refused",
+      "op": "open-anomaly",
+      "pattern": "snooping-access",
+      "signals": [],
+      "expectError": "forensic record fails closed"
+    }
+  ]
+}

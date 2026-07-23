@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-017",
+  "class": "BOUNDARY",
+  "description": "A genetic-touching elevation is classified elevated-genetic so it never blends into general break-glass volume (heightened review).",
+  "cases": [
+    {
+      "name": "a grant reaching genetic data is classified elevated-genetic",
+      "op": "grant-break-glass",
+      "scope": ["genetic"],
+      "reasonCode": "emergency-care",
+      "partitionTags": ["gipa-genetic"],
+      "expectSeverity": "elevated-genetic"
+    },
+    {
+      "name": "a grant reaching only non-genetic data is standard severity",
+      "op": "grant-break-glass",
+      "scope": ["clinical-notes"],
+      "reasonCode": "emergency-care",
+      "expectSeverity": "standard"
+    }
+  ]
+}
