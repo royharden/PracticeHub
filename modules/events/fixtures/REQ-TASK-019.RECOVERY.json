@@ -1,0 +1,48 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-019",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "before an SLA-state change: the nearer timer leads (AC2 pre-state)",
+      "op": "worklist",
+      "now": "2026-03-02T08:30:00Z",
+      "items": [
+        {
+          "id": "wi-one",
+          "hasSla": true,
+          "openedAt": "2026-03-02T08:00:00Z",
+          "timerDueAt": "2026-03-02T09:00:00Z"
+        },
+        {
+          "id": "wi-two",
+          "hasSla": true,
+          "openedAt": "2026-03-02T08:10:00Z",
+          "timerDueAt": "2026-03-02T10:00:00Z"
+        }
+      ],
+      "expectOrder": ["wi-one", "wi-two"]
+    },
+    {
+      "name": "after wi-two breaches, a re-run re-sorts it to the top without manual refresh (AC2)",
+      "op": "worklist",
+      "now": "2026-03-02T10:30:00Z",
+      "items": [
+        {
+          "id": "wi-one",
+          "hasSla": true,
+          "openedAt": "2026-03-02T08:00:00Z",
+          "timerDueAt": "2026-03-02T14:00:00Z"
+        },
+        {
+          "id": "wi-two",
+          "hasSla": true,
+          "openedAt": "2026-03-02T08:10:00Z",
+          "timerDueAt": "2026-03-02T10:00:00Z",
+          "timerState": "breached"
+        }
+      ],
+      "expectOrder": ["wi-two", "wi-one"]
+    }
+  ]
+}

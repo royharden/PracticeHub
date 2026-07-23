@@ -1,0 +1,61 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-002",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "no owner accepts: the item stays unmatched with unowned time visible (AC3)",
+      "op": "ownership",
+      "open": {
+        "workItemId": "wi-fx-002-f",
+        "origin": "thread",
+        "subjectRef": "thread:th-fx",
+        "purpose": "member-message",
+        "risk": "routine",
+        "serviceTier": "concierge",
+        "slaPolicyId": "sla-concierge",
+        "policyVersion": 1,
+        "responseDueAt": "2026-03-02T09:00:00Z",
+        "poolId": null,
+        "openedAt": "2026-03-02T08:00:00Z"
+      },
+      "log": [
+        {
+          "workItemId": "wi-fx-002-f",
+          "eventSeq": 1,
+          "eventType": "opened",
+          "occurredAt": "2026-03-02T08:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-002-f",
+          "eventSeq": 2,
+          "eventType": "queued",
+          "occurredAt": "2026-03-02T08:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-002-f",
+          "eventSeq": 3,
+          "eventType": "inbound_received",
+          "occurredAt": "2026-03-02T08:00:00Z"
+        }
+      ],
+      "expectOwner": null,
+      "expectStatus": "unmatched",
+      "expectFirstOwned": false
+    },
+    {
+      "name": "when no eligible owner accepts within the threshold, escalation fires (AC3)",
+      "op": "escalation",
+      "startedAt": "2026-03-02T08:00:00Z",
+      "dueAt": "2026-03-02T09:00:00Z",
+      "now": "2026-03-02T09:00:00Z",
+      "expectActions": ["notify_owner", "notify_supervisor"]
+    },
+    {
+      "name": "an automated acknowledgement cannot count as ownership acceptance (E1)",
+      "op": "acceptance",
+      "eventType": "holding_reply",
+      "expectAcceptance": false
+    }
+  ]
+}

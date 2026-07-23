@@ -1,0 +1,38 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-019",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "breached/escalated first, then nearest SLA target, then non-SLA (AC1)",
+      "op": "worklist",
+      "now": "2026-03-02T10:00:00Z",
+      "items": [
+        {
+          "id": "wi-admin",
+          "hasSla": false,
+          "openedAt": "2026-01-01T00:00:00Z"
+        },
+        {
+          "id": "wi-later",
+          "hasSla": true,
+          "openedAt": "2026-03-02T09:45:00Z",
+          "timerDueAt": "2026-03-02T12:00:00Z"
+        },
+        {
+          "id": "wi-soon",
+          "hasSla": true,
+          "openedAt": "2026-03-02T09:30:00Z",
+          "timerDueAt": "2026-03-02T10:30:00Z"
+        },
+        {
+          "id": "wi-breached",
+          "hasSla": true,
+          "openedAt": "2026-03-02T08:00:00Z",
+          "timerDueAt": "2026-03-02T09:00:00Z"
+        }
+      ],
+      "expectOrder": ["wi-breached", "wi-soon", "wi-later", "wi-admin"]
+    }
+  ]
+}

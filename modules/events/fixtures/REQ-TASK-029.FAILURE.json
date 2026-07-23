@@ -1,0 +1,70 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-029",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a reassignment without a context package is refused (AC3 structural)",
+      "op": "reassign",
+      "open": {
+        "workItemId": "wi-fx-029-f",
+        "origin": "thread",
+        "subjectRef": "thread:th-fx",
+        "purpose": "member-message",
+        "risk": "routine",
+        "serviceTier": "concierge",
+        "slaPolicyId": "sla-concierge",
+        "policyVersion": 1,
+        "responseDueAt": "2026-03-02T09:00:00Z",
+        "poolId": null,
+        "openedAt": "2026-03-02T08:00:00Z"
+      },
+      "log": [
+        {
+          "workItemId": "wi-fx-029-f",
+          "eventSeq": 1,
+          "eventType": "opened",
+          "occurredAt": "2026-03-02T08:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-029-f",
+          "eventSeq": 2,
+          "eventType": "queued",
+          "occurredAt": "2026-03-02T08:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-029-f",
+          "eventSeq": 3,
+          "eventType": "inbound_received",
+          "occurredAt": "2026-03-02T08:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-029-f",
+          "eventSeq": 4,
+          "eventType": "timer_started",
+          "occurredAt": "2026-03-02T08:00:00Z",
+          "timerType": "next_response",
+          "dueAt": "2026-03-02T09:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-029-f",
+          "eventSeq": 5,
+          "eventType": "assigned",
+          "occurredAt": "2026-03-02T08:02:00Z",
+          "toOwnerRef": "synthetic-guide:william",
+          "reason": "assignment"
+        }
+      ],
+      "toOwner": "synthetic-guide:maya",
+      "withContext": false,
+      "expectThrow": true
+    },
+    {
+      "name": "a second claim on an already-owned item is refused — no split ownership (E1)",
+      "op": "claimable",
+      "ownerRef": "synthetic-guide:maya",
+      "status": "open",
+      "expectClaimable": false
+    }
+  ]
+}

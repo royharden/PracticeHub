@@ -183,6 +183,18 @@ export const capabilityDefinitionsV1: readonly CapabilityDefinition[] = [
       'floors at simulated; protective/automatic writes (trigger, escalate, cancel, ' +
       'auto-expire) are never gated.',
   },
+  {
+    capabilityId: 'platform.tasking-engine',
+    ownerRole: 'architecture',
+    dimensions: [],
+    description:
+      'WorkItem + SLA-timer + escalation engine (M05, WP-022): the worklist, ' +
+      'single-owner accountability, reassignment with context packages, and the ' +
+      'effective-dated SLA policy registry. Publishing an SLA policy version floors ' +
+      'at simulated; operational writes (open, claim, reassign, timer start/pause/' +
+      'resume, escalate) are NEVER gated — a timer must keep running (honest breach) ' +
+      'and an escalation on a stale thread must always fire.',
+  },
 ];
 
 /** Exact mirror of docs/architecture/capability-edge-preconditions.csv (FROZEN). */
@@ -425,6 +437,16 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       rollbackRef: 'already-disabled',
       synthetic: true,
     },
+    {
+      capabilityId: 'platform.tasking-engine',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
   ],
   events: [
     chainEvent(
@@ -590,6 +612,19 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       'disabled',
       'scaffolded',
       'synthetic-gate:wp-019-policy-clocks-scaffold',
+    ),
+    // WP-022: the tasking engine (WorkItem + SLA timers + escalation) lands at
+    // its package ceiling — `scaffolded`. The publishSlaPolicy command (floored
+    // `simulated`) therefore DENIES against this seed, by design; operational
+    // writes (open/claim/reassign/timer/escalate) are never gated. Riverbend
+    // stays the opposite-state proof.
+    chainEvent(
+      'synthetic-cap-evt-0017',
+      'platform.tasking-engine',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-022-tasking-engine-scaffold',
     ),
   ],
 };

@@ -1,0 +1,121 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-029",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "the full escalate-hold-reassign scenario folds to a single owner with the prior demoted to watcher (AC2/AC4)",
+      "op": "ownership",
+      "open": {
+        "workItemId": "wi-fx-029-r",
+        "origin": "thread",
+        "subjectRef": "thread:th-fx",
+        "purpose": "member-message",
+        "risk": "routine",
+        "serviceTier": "concierge",
+        "slaPolicyId": "sla-concierge",
+        "policyVersion": 1,
+        "responseDueAt": "2026-03-02T09:00:00Z",
+        "poolId": null,
+        "openedAt": "2026-03-02T08:00:00Z"
+      },
+      "log": [
+        {
+          "workItemId": "wi-fx-029-r",
+          "eventSeq": 1,
+          "eventType": "opened",
+          "occurredAt": "2026-03-02T08:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-029-r",
+          "eventSeq": 2,
+          "eventType": "queued",
+          "occurredAt": "2026-03-02T08:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-029-r",
+          "eventSeq": 3,
+          "eventType": "inbound_received",
+          "occurredAt": "2026-03-02T08:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-029-r",
+          "eventSeq": 4,
+          "eventType": "timer_started",
+          "occurredAt": "2026-03-02T08:00:00Z",
+          "timerType": "next_response",
+          "dueAt": "2026-03-02T09:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-029-r",
+          "eventSeq": 5,
+          "eventType": "assigned",
+          "occurredAt": "2026-03-02T08:02:00Z",
+          "toOwnerRef": "synthetic-guide:william",
+          "reason": "assignment"
+        },
+        {
+          "workItemId": "wi-fx-029-r",
+          "eventSeq": 6,
+          "eventType": "timer_breached",
+          "occurredAt": "2026-03-02T09:00:00Z",
+          "timerType": "next_response"
+        },
+        {
+          "workItemId": "wi-fx-029-r",
+          "eventSeq": 7,
+          "eventType": "escalated",
+          "occurredAt": "2026-03-02T09:00:00Z",
+          "escalationStep": 0,
+          "escalationAction": "notify_owner",
+          "escalationTarget": "synthetic-guide:william"
+        },
+        {
+          "workItemId": "wi-fx-029-r",
+          "eventSeq": 8,
+          "eventType": "watcher_added",
+          "occurredAt": "2026-03-02T09:00:00Z",
+          "watcherRef": "synthetic-supervisor:pod-a"
+        },
+        {
+          "workItemId": "wi-fx-029-r",
+          "eventSeq": 9,
+          "eventType": "holding_reply",
+          "occurredAt": "2026-03-02T13:10:00Z",
+          "actorRef": "synthetic-guide:maya"
+        },
+        {
+          "workItemId": "wi-fx-029-r",
+          "eventSeq": 10,
+          "eventType": "timer_paused",
+          "occurredAt": "2026-03-02T13:10:00Z",
+          "timerType": "next_response"
+        },
+        {
+          "workItemId": "wi-fx-029-r",
+          "eventSeq": 11,
+          "eventType": "timer_started",
+          "occurredAt": "2026-03-02T13:10:00Z",
+          "timerType": "resolution",
+          "dueAt": "2026-03-02T17:10:00Z"
+        },
+        {
+          "workItemId": "wi-fx-029-r",
+          "eventSeq": 12,
+          "eventType": "reassigned",
+          "occurredAt": "2026-03-02T13:15:00Z",
+          "fromOwnerRef": "synthetic-guide:william",
+          "toOwnerRef": "synthetic-guide:maya",
+          "reason": "escalation",
+          "contextPackage": {
+            "timerState": [],
+            "transcriptRef": "synthetic-transcript:fx",
+            "priorOwnerNotesRef": "synthetic-note:fx"
+          }
+        }
+      ],
+      "expectOwner": "synthetic-guide:maya",
+      "expectWatchers": ["synthetic-guide:william", "synthetic-supervisor:pod-a"]
+    }
+  ]
+}

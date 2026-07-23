@@ -1,0 +1,31 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-002",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "opening a thread is NOT ownership acceptance (E1)",
+      "op": "acceptance",
+      "eventType": "opened",
+      "expectAcceptance": false
+    },
+    {
+      "name": "queuing (tagging) a thread is NOT ownership acceptance (E1)",
+      "op": "acceptance",
+      "eventType": "queued",
+      "expectAcceptance": false
+    },
+    {
+      "name": "an inbound arriving is NOT ownership acceptance (E1)",
+      "op": "acceptance",
+      "eventType": "inbound_received",
+      "expectAcceptance": false
+    },
+    {
+      "name": "reassignment is the boundary case that DOES transfer accountability",
+      "op": "acceptance",
+      "eventType": "reassigned",
+      "expectAcceptance": true
+    }
+  ]
+}

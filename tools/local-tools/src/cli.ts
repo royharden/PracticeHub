@@ -177,6 +177,8 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/012-events-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/013-policy-clocks-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/013-policy-clocks-seed.sql');
+  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/014-workitems-seed.sql'), 'utf8'));
+  console.log('seeded infra/postgres/seed/014-workitems-seed.sql');
 }
 
 function testLocal(): void {
@@ -746,6 +748,67 @@ function testLocal(): void {
     throw new Error(`obligation-clock projection out of sync: orphan_clocks=${orphanClocks}`);
   }
 
+  // WP-022: the tasking-engine capability sits at the package ceiling with the
+  // opposite-state tenant proof (northwind scaffolded, riverbend disabled).
+  const taskingCapabilityStates = scalar(
+    "SELECT string_agg(tenant_id || ':' || state, ',' ORDER BY tenant_id) " +
+      "FROM platform_core.capability_grant WHERE capability_id = 'platform.tasking-engine';",
+  );
+  if (taskingCapabilityStates !== 'northwind-synthetic:scaffolded,riverbend-synthetic:disabled') {
+    throw new Error(`tasking-engine capability tenant states differ: ${taskingCapabilityStates}`);
+  }
+
+  // WP-022: the William standing proof (R8 §5.5) holds at rest — the escalated
+  // owned thread was reassigned (owner=maya, prior owner william demoted to a
+  // watcher, single owner preserved), its next_response timer PAUSED by the
+  // holding reply, and a resolution timer started.
+  const williamPosture = scalar(
+    "SELECT owner_ref || '|' || priority || '|' || escalated::text || '|' || " +
+      "(watchers ? 'synthetic-guide:william')::text || '|' || " +
+      "(SELECT state FROM events.sla_timer WHERE work_item_id = 'wi-thread-william-0001' " +
+      "AND timer_type = 'next_response') || '|' || " +
+      "(SELECT state FROM events.sla_timer WHERE work_item_id = 'wi-thread-william-0001' " +
+      "AND timer_type = 'resolution') " +
+      "FROM events.work_item WHERE work_item_id = 'wi-thread-william-0001';",
+  );
+  if (williamPosture !== 'synthetic-guide:maya|high|true|true|paused|running') {
+    throw new Error(`William standing proof broken: ${williamPosture}`);
+  }
+
+  // WP-022: the unmatched first-touch proof — an unowned inbound WorkItem with a
+  // running first_response timer (the gate's "unmatched first-touch timer").
+  const unmatchedPosture = scalar(
+    "SELECT (owner_ref IS NULL)::text || '|' || status || '|' || " +
+      "(SELECT state FROM events.sla_timer WHERE work_item_id = 'wi-thread-unmatched-0002' " +
+      "AND timer_type = 'first_response') " +
+      "FROM events.work_item WHERE work_item_id = 'wi-thread-unmatched-0002';",
+  );
+  if (unmatchedPosture !== 'true|unmatched|running') {
+    throw new Error(`unmatched first-touch proof broken: ${unmatchedPosture}`);
+  }
+
+  // WP-022: the SLA policy registry is seeded — northwind carries the concierge
+  // policy effective as-of today (the engine has a policy to enforce).
+  const conciergePolicy = scalar(
+    "SELECT count(*)::text FROM events.sla_policy WHERE tenant_id = 'northwind-synthetic' " +
+      "AND policy_id = 'sla-concierge' AND effective_on <= current_date;",
+  );
+  if (conciergePolicy === '0') {
+    throw new Error('SLA policy registry is missing an effective concierge policy');
+  }
+
+  // WP-022: the work_item projection matches the folded event log — every item's
+  // last_event_seq names its highest event in the same tenant (materialized read
+  // model, not a second source of truth), and every event-bearing item has a row.
+  const orphanWorkItems = scalar(
+    'SELECT count(*) FROM events.work_item w WHERE w.last_event_seq <> (' +
+      'SELECT COALESCE(max(e.event_seq), 0) FROM events.work_item_event e ' +
+      'WHERE e.tenant_id = w.tenant_id AND e.work_item_id = w.work_item_id);',
+  );
+  if (orphanWorkItems !== '0') {
+    throw new Error(`work_item projection out of sync: orphan_items=${orphanWorkItems}`);
+  }
+
   // WP-010: the DB-level cross-tenant negative suite runs against the live stack.
   run('pnpm', ['--filter', '@practicehub/platform-core', 'run', 'test:db'], {
     stdio: 'inherit',
@@ -788,7 +851,8 @@ function testLocal(): void {
       'rls_coverage=OK watermark=OK jurisdiction_packs=OK capability_registry=OK ' +
       'identity_model=OK authn_model=OK merge_governance=OK pdp_model=OK ' +
       'gipa_partition=OK audit_store=OK consent_ledger=OK event_spine=OK ' +
-      'policy_clocks=OK dex_federation=OK cross_tenant_db_suite=OK synthetic_stack=OK',
+      'policy_clocks=OK tasking_engine=OK dex_federation=OK cross_tenant_db_suite=OK ' +
+      'synthetic_stack=OK',
   );
 }
 

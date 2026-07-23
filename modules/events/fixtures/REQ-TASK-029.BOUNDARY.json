@@ -1,0 +1,76 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-029",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "a holding reply does NOT transfer ownership (E2)",
+      "op": "ownership",
+      "open": {
+        "workItemId": "wi-fx-029-b",
+        "origin": "thread",
+        "subjectRef": "thread:th-fx",
+        "purpose": "member-message",
+        "risk": "routine",
+        "serviceTier": "concierge",
+        "slaPolicyId": "sla-concierge",
+        "policyVersion": 1,
+        "responseDueAt": "2026-03-02T09:00:00Z",
+        "poolId": null,
+        "openedAt": "2026-03-02T08:00:00Z"
+      },
+      "log": [
+        {
+          "workItemId": "wi-fx-029-b",
+          "eventSeq": 1,
+          "eventType": "opened",
+          "occurredAt": "2026-03-02T08:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-029-b",
+          "eventSeq": 2,
+          "eventType": "queued",
+          "occurredAt": "2026-03-02T08:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-029-b",
+          "eventSeq": 3,
+          "eventType": "inbound_received",
+          "occurredAt": "2026-03-02T08:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-029-b",
+          "eventSeq": 4,
+          "eventType": "timer_started",
+          "occurredAt": "2026-03-02T08:00:00Z",
+          "timerType": "next_response",
+          "dueAt": "2026-03-02T09:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-029-b",
+          "eventSeq": 5,
+          "eventType": "assigned",
+          "occurredAt": "2026-03-02T08:02:00Z",
+          "toOwnerRef": "synthetic-guide:william",
+          "reason": "assignment"
+        },
+        {
+          "workItemId": "wi-fx-029-b",
+          "eventSeq": 6,
+          "eventType": "holding_reply",
+          "occurredAt": "2026-03-02T13:10:00Z",
+          "actorRef": "synthetic-guide:maya"
+        }
+      ],
+      "expectOwner": "synthetic-guide:william"
+    },
+    {
+      "name": "a paused next_response timer stays paused (holding-reply pause, not satisfaction)",
+      "op": "timer-state",
+      "dueAt": "2026-03-02T09:00:00Z",
+      "timerStateIn": "paused",
+      "now": "2026-03-02T13:00:00Z",
+      "expectState": "paused"
+    }
+  ]
+}

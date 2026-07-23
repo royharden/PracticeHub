@@ -1,0 +1,70 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-029",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "a holding reply pauses next_response and starts a resolution timer (AC1)",
+      "op": "holding-reply",
+      "baseSeq": 5,
+      "expectSequence": ["holding_reply", "timer_paused", "timer_started"]
+    },
+    {
+      "name": "reassignment records from/to and demotes the prior owner to a watcher (AC2/AC4)",
+      "op": "reassign",
+      "open": {
+        "workItemId": "wi-fx-029-h",
+        "origin": "thread",
+        "subjectRef": "thread:th-fx",
+        "purpose": "member-message",
+        "risk": "routine",
+        "serviceTier": "concierge",
+        "slaPolicyId": "sla-concierge",
+        "policyVersion": 1,
+        "responseDueAt": "2026-03-02T09:00:00Z",
+        "poolId": null,
+        "openedAt": "2026-03-02T08:00:00Z"
+      },
+      "log": [
+        {
+          "workItemId": "wi-fx-029-h",
+          "eventSeq": 1,
+          "eventType": "opened",
+          "occurredAt": "2026-03-02T08:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-029-h",
+          "eventSeq": 2,
+          "eventType": "queued",
+          "occurredAt": "2026-03-02T08:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-029-h",
+          "eventSeq": 3,
+          "eventType": "inbound_received",
+          "occurredAt": "2026-03-02T08:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-029-h",
+          "eventSeq": 4,
+          "eventType": "timer_started",
+          "occurredAt": "2026-03-02T08:00:00Z",
+          "timerType": "next_response",
+          "dueAt": "2026-03-02T09:00:00Z"
+        },
+        {
+          "workItemId": "wi-fx-029-h",
+          "eventSeq": 5,
+          "eventType": "assigned",
+          "occurredAt": "2026-03-02T08:02:00Z",
+          "toOwnerRef": "synthetic-guide:william",
+          "reason": "assignment"
+        }
+      ],
+      "toOwner": "synthetic-guide:maya",
+      "withContext": true,
+      "expectOwner": "synthetic-guide:maya",
+      "expectWatchers": ["synthetic-guide:william"]
+    }
+  ]
+}

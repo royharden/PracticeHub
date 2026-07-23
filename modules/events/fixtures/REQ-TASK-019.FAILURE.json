@@ -1,0 +1,35 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-019",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a Guide with zero items sees an empty worklist, not an error (E3)",
+      "op": "worklist",
+      "now": "2026-03-02T10:00:00Z",
+      "items": [],
+      "expectOrder": []
+    },
+    {
+      "name": "an escalated item outranks a merely-approaching one even with a later timer (AC1)",
+      "op": "worklist",
+      "now": "2026-03-02T10:00:00Z",
+      "items": [
+        {
+          "id": "wi-soon",
+          "hasSla": true,
+          "openedAt": "2026-03-02T09:30:00Z",
+          "timerDueAt": "2026-03-02T10:15:00Z"
+        },
+        {
+          "id": "wi-esc",
+          "hasSla": true,
+          "openedAt": "2026-03-02T06:00:00Z",
+          "timerDueAt": "2026-03-02T18:00:00Z",
+          "escalated": true
+        }
+      ],
+      "expectOrder": ["wi-esc", "wi-soon"]
+    }
+  ]
+}

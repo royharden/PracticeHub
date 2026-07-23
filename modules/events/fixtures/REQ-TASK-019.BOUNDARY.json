@@ -1,0 +1,44 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-019",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "a non-SLA task sorts below every SLA item regardless of its own due date (E1)",
+      "op": "worklist",
+      "now": "2026-03-02T10:00:00Z",
+      "items": [
+        {
+          "id": "wi-admin",
+          "hasSla": false,
+          "openedAt": "2026-01-01T00:00:00Z"
+        },
+        {
+          "id": "wi-sla",
+          "hasSla": true,
+          "openedAt": "2026-03-02T09:55:00Z",
+          "timerDueAt": "2026-03-02T14:00:00Z"
+        }
+      ],
+      "expectOrder": ["wi-sla", "wi-admin"]
+    },
+    {
+      "name": "items that tie on urgency break by longest-waiting-first (E2)",
+      "op": "worklist",
+      "now": "2026-03-02T10:00:00Z",
+      "items": [
+        {
+          "id": "wi-b",
+          "hasSla": false,
+          "openedAt": "2026-02-02T00:00:00Z"
+        },
+        {
+          "id": "wi-a",
+          "hasSla": false,
+          "openedAt": "2026-01-01T00:00:00Z"
+        }
+      ],
+      "expectOrder": ["wi-a", "wi-b"]
+    }
+  ]
+}
