@@ -143,9 +143,12 @@ CREATE TABLE IF NOT EXISTS consent.obligation_clock (
     REFERENCES consent.obligation_clock_event (tenant_id, clock_event_id)
 );
 
--- Deterministic grants for this migration's tables.
-GRANT SELECT, INSERT ON consent.obligation_clock_policy TO module_consent;
-GRANT SELECT, INSERT ON consent.policy_document TO module_consent;
+-- Deterministic grants for this migration's tables. The counsel-owned reference
+-- registries are RUNTIME READ-ONLY (SELECT only) for the module role — see the
+-- REVOKE block below (review-016 F1). The append-only clock event log and its
+-- projection stay INSERT-able (protective clocks trigger/escalate at runtime).
+GRANT SELECT ON consent.obligation_clock_policy TO module_consent;
+GRANT SELECT ON consent.policy_document TO module_consent;
 GRANT SELECT, INSERT ON consent.obligation_clock_event TO module_consent;
 GRANT SELECT, INSERT, UPDATE ON consent.obligation_clock TO module_consent;
 
@@ -153,10 +156,121 @@ GRANT SELECT, INSERT, UPDATE ON consent.obligation_clock TO module_consent;
 -- registries and the clock event log are corrected by new versions/events, never
 -- rewritten; the projection folds forward (UPDATE its status) but never deletes.
 -- Re-asserted on every pass.
-REVOKE UPDATE, DELETE ON consent.obligation_clock_policy FROM module_consent;
-REVOKE UPDATE, DELETE ON consent.policy_document FROM module_consent;
+--
+-- review-016 F1: the counsel-owned policy_document + obligation_clock_policy
+-- registries also REVOKE INSERT — they are runtime read-only for the normal app
+-- role, exactly like platform_core.jurisdiction_rule_pack (the FROZEN contract's
+-- model for these tables). Versions arrive as change-controlled seed data (the
+-- owner connection); the gated publish commands (consent.policy-clocks, floored
+-- simulated) produce the AuthorityDecision + config-change audit. practicehub_app
+-- inherits module_consent, so a normal app principal can no longer forge a
+-- highest-version platform-global clock policy that would govern every tenant.
+REVOKE INSERT, UPDATE, DELETE ON consent.obligation_clock_policy FROM module_consent;
+REVOKE INSERT, UPDATE, DELETE ON consent.policy_document FROM module_consent;
 REVOKE UPDATE, DELETE ON consent.obligation_clock_event FROM module_consent;
 REVOKE DELETE ON consent.obligation_clock FROM module_consent;
+
+-- review-016 remediation (WP-019 reopen), idempotent — safe on fresh and on
+-- already-provisioned databases (ADD COLUMN IF NOT EXISTS + DO-guarded named
+-- constraints), applied on every migrate pass:
+--   * F3 replayable projection: the trigger event carries the rebuild metadata
+--     (trigger_ref, escalate_at, owner_role, governing_policy_ref) so foldClocks
+--     rebuilds every projection field from the event log alone;
+--   * F5 structured rule-pack-review closure: change_control_ref +
+--     truth_table_receipt_ref on a rule-pack-review satisfy (R6-SR-102);
+--   * F2 exactly-once expiry: the obligation_clock.expire_fired terminal marker;
+--   * F5 renewal lineage: consent_event.supersedes_consent_event_id (REQ-ADM-031
+--     AC-3 — a disclosure renew is versioned WITH lineage to the old consent).
+ALTER TABLE consent.obligation_clock_event ADD COLUMN IF NOT EXISTS trigger_ref text;
+ALTER TABLE consent.obligation_clock_event ADD COLUMN IF NOT EXISTS escalate_at timestamptz;
+ALTER TABLE consent.obligation_clock_event ADD COLUMN IF NOT EXISTS owner_role text;
+ALTER TABLE consent.obligation_clock_event ADD COLUMN IF NOT EXISTS governing_policy_ref text;
+ALTER TABLE consent.obligation_clock_event ADD COLUMN IF NOT EXISTS change_control_ref text;
+ALTER TABLE consent.obligation_clock_event ADD COLUMN IF NOT EXISTS truth_table_receipt_ref text;
+ALTER TABLE consent.obligation_clock
+  ADD COLUMN IF NOT EXISTS expire_fired boolean NOT NULL DEFAULT false;
+ALTER TABLE consent.consent_event ADD COLUMN IF NOT EXISTS supersedes_consent_event_id text;
+
+DO $wp019_remediation$
+BEGIN
+  -- F3: a trigger event carries the full rebuild metadata (the projection is
+  -- reconstructable from the log alone) + grammar on the new refs.
+  IF NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'clock_event_trigger_rebuildable') THEN
+    ALTER TABLE consent.obligation_clock_event
+      ADD CONSTRAINT clock_event_trigger_rebuildable CHECK (
+        kind <> 'trigger'
+        OR (trigger_ref IS NOT NULL AND escalate_at IS NOT NULL
+            AND owner_role IS NOT NULL AND governing_policy_ref IS NOT NULL)
+      );
+  END IF;
+  IF NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'clock_event_trigger_ref_grammar') THEN
+    ALTER TABLE consent.obligation_clock_event
+      ADD CONSTRAINT clock_event_trigger_ref_grammar CHECK (
+        trigger_ref IS NULL OR trigger_ref ~ '^[a-z0-9][a-z0-9:._/-]{0,199}$'
+      );
+  END IF;
+  IF NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'clock_event_owner_role_present') THEN
+    ALTER TABLE consent.obligation_clock_event
+      ADD CONSTRAINT clock_event_owner_role_present CHECK (owner_role IS NULL OR owner_role <> '');
+  END IF;
+  IF NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'clock_event_governing_policy_grammar') THEN
+    ALTER TABLE consent.obligation_clock_event
+      ADD CONSTRAINT clock_event_governing_policy_grammar CHECK (
+        governing_policy_ref IS NULL OR governing_policy_ref ~ '^[a-z0-9][a-z0-9:._/-]{0,199}$'
+      );
+  END IF;
+  IF NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'clock_event_change_control_grammar') THEN
+    ALTER TABLE consent.obligation_clock_event
+      ADD CONSTRAINT clock_event_change_control_grammar CHECK (
+        change_control_ref IS NULL OR change_control_ref ~ '^[a-z0-9][a-z0-9-]{0,127}$'
+      );
+  END IF;
+  IF NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'clock_event_truth_table_grammar') THEN
+    ALTER TABLE consent.obligation_clock_event
+      ADD CONSTRAINT clock_event_truth_table_grammar CHECK (
+        truth_table_receipt_ref IS NULL OR truth_table_receipt_ref ~ '^[a-z0-9][a-z0-9:._/-]{0,199}$'
+      );
+  END IF;
+  -- F5 / R6-SR-102: a rule-pack-review satisfy carries STRUCTURED evidence — a
+  -- change-control ref AND the truth-table regeneration receipt.
+  IF NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'clock_event_rule_pack_structured') THEN
+    ALTER TABLE consent.obligation_clock_event
+      ADD CONSTRAINT clock_event_rule_pack_structured CHECK (
+        NOT (kind = 'satisfy' AND obligation_type = 'rule-pack-review')
+        OR (change_control_ref IS NOT NULL AND truth_table_receipt_ref IS NOT NULL)
+      );
+  END IF;
+  -- F5 / REQ-ADM-031 AC-3 renewal lineage on the consent ledger: only a renew
+  -- may supersede; a disclosure renew MUST carry lineage; the pointer references
+  -- a real prior event in the same tenant.
+  IF NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'consent_event_supersedes_grammar') THEN
+    ALTER TABLE consent.consent_event
+      ADD CONSTRAINT consent_event_supersedes_grammar CHECK (
+        supersedes_consent_event_id IS NULL
+        OR supersedes_consent_event_id ~ '^[a-z0-9][a-z0-9-]{0,63}$'
+      );
+  END IF;
+  IF NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'consent_event_supersedes_renew_only') THEN
+    ALTER TABLE consent.consent_event
+      ADD CONSTRAINT consent_event_supersedes_renew_only CHECK (
+        supersedes_consent_event_id IS NULL OR action = 'renew'
+      );
+  END IF;
+  IF NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'consent_event_disclosure_renew_lineage') THEN
+    ALTER TABLE consent.consent_event
+      ADD CONSTRAINT consent_event_disclosure_renew_lineage CHECK (
+        NOT (scope_type = 'disclosure' AND action = 'renew')
+        OR supersedes_consent_event_id IS NOT NULL
+      );
+  END IF;
+  IF NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'consent_event_supersedes_same_tenant') THEN
+    ALTER TABLE consent.consent_event
+      ADD CONSTRAINT consent_event_supersedes_same_tenant
+        FOREIGN KEY (tenant_id, supersedes_consent_event_id)
+        REFERENCES consent.consent_event (tenant_id, consent_event_id);
+  END IF;
+END
+$wp019_remediation$;
 
 -- rls:generated:begin
 -- Generated by @practicehub/platform-core generateRlsDdl/generateRlsCoverageGuard.

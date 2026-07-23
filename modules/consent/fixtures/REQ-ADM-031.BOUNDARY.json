@@ -20,6 +20,30 @@
       ],
       "asOf": "2027-01-14T00:00:00.000Z",
       "expectAnswer": "granted"
+    },
+    {
+      "name": "the near-expiry renewal worklist opens EXACTLY at the escalation point (expiry minus 30-day lead)",
+      "op": "status",
+      "clock": {
+        "obligationType": "mhra-renewal",
+        "providerState": "MN",
+        "patientState": "MN",
+        "anchorDueAt": "2027-01-15T00:00:00.000Z"
+      },
+      "asOf": "2026-12-16T00:00:00.000Z",
+      "expectStatus": "escalated"
+    },
+    {
+      "name": "one day before the escalation point the renewal clock is still pending (no premature worklist)",
+      "op": "status",
+      "clock": {
+        "obligationType": "mhra-renewal",
+        "providerState": "MN",
+        "patientState": "MN",
+        "anchorDueAt": "2027-01-15T00:00:00.000Z"
+      },
+      "asOf": "2026-12-15T00:00:00.000Z",
+      "expectStatus": "pending"
     }
   ]
 }

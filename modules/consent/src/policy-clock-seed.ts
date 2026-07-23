@@ -13,7 +13,10 @@
  *   base variant + an MN state variant (ADR-007 D3);
  * - obligation_clock: a pending MHRA renewal clock (R6-SR-041), a satisfied
  *   records-request-closure clock (R6-REQ-010), an escalated statute-tracker
- *   clock (R6-SR-102), and a pending FL breach clock (C-05).
+ *   clock (R6-SR-102), a pending FL breach clock (C-05), a CANCELLED
+ *   records-request clock, and a FIRED MHRA renewal clock (expire_fired terminal
+ *   marker) — the last two give the DB projection-vs-fold suite all five event
+ *   kinds at rest (review-016 F2/F3).
  * Riverbend carries a pending floor breach clock + a floor disclosure policy as
  * the standing cross-tenant negatives and opposite posture.
  */
@@ -21,9 +24,11 @@
 import { createHash } from 'node:crypto';
 
 import {
+  cancelClock,
   escalateClock,
   foldClocks,
   recordClockSatisfaction,
+  runRenewalExpiry,
   triggerClock,
   type ObligationClock,
   type ObligationClockEvent,
@@ -259,13 +264,73 @@ function buildClocks(): {
   });
   seeds.push({ trigger: rbBreach, follow: [] });
 
+  // 6. Northwind records-request-closure clock — CANCELLED (request withdrawn).
+  //    Standing proof of the `cancel` event kind at rest (review-016 F3 fold).
+  const withdrawn = triggerClock({
+    tenantId: northwind,
+    clockId: 'ncl-access-0002',
+    clockEventId: 'ncle-0007',
+    obligationType: 'records-request-closure',
+    subjectRef: 'np-alex-lee',
+    triggerRef: 'records-request:synthetic-req-0002',
+    triggeredAt: '2026-02-15T00:00:00.000Z',
+    actorRef: 'synthetic-platform-clock',
+    basis: { providerState: 'IL', patientState: 'IL' },
+    policies,
+  });
+  const withdrawnCancel = cancelClock(withdrawn.instance, {
+    clockEventId: 'ncle-0008',
+    occurredAt: '2026-02-18T00:00:00.000Z',
+    actorRef: 'synthetic-records-officer',
+    reason: 'records request withdrawn by the requester',
+  });
+  seeds.push({ trigger: withdrawn, follow: [withdrawnCancel.event] });
+
+  // 7. Northwind MHRA renewal clock — FIRED (renewal window lapsed, consent
+  //    auto-expired). Standing proof of the `expire-fired` kind + the
+  //    `expire_fired` terminal marker at rest (review-016 F2/F3).
+  const lapsed = triggerClock({
+    tenantId: northwind,
+    clockId: 'ncl-mhra-0002',
+    clockEventId: 'ncle-0009',
+    obligationType: 'mhra-renewal',
+    subjectRef: 'np-morgan-reed',
+    triggerRef: 'consent:nce-synthetic-mhra-0002',
+    triggeredAt: '2025-01-10T00:00:00.000Z',
+    actorRef: 'synthetic-platform-clock',
+    basis: { providerState: 'MN', patientState: 'MN' },
+    anchorDueAt: '2026-01-10T00:00:00.000Z',
+    policies,
+  });
+  const lapsedExpiry = runRenewalExpiry({
+    instance: lapsed.instance,
+    asOf: '2026-01-10T00:00:00.000Z',
+    renewalRecorded: false,
+    personRef: 'np-morgan-reed',
+    scope: {
+      type: 'disclosure',
+      purpose: 'treatment',
+      recipient: 'synthetic-recipient:referral-partner-0009',
+      recordType: 'general',
+    },
+    jurisdiction: 'MN',
+    policyVersion: 'records-consent-v1',
+    expireEventId: 'nce-synthetic-expire-0001',
+    expireClockEventId: 'ncle-0010',
+    actorRef: 'synthetic-platform-clock',
+  });
+  if (!lapsedExpiry.fired) {
+    throw new Error('seed MHRA clock ncl-mhra-0002 must auto-fire (its window has lapsed)');
+  }
+  seeds.push({ trigger: lapsed, follow: [lapsedExpiry.clockEvent] });
+
   const events: ObligationClockEvent[] = [];
-  const triggers: ObligationClock[] = [];
   for (const seed of seeds) {
     events.push(seed.trigger.event, ...seed.follow);
-    triggers.push(seed.trigger.instance);
   }
-  const instances = [...foldClocks(events, triggers).values()].sort((left, right) =>
+  // The projection is REBUILT ENTIRELY from the event log (review-016 F3) — no
+  // seeded projection rows; the trigger events carry the rebuild metadata.
+  const instances = [...foldClocks(events).values()].sort((left, right) =>
     `${left.tenantId}|${left.clockId}`.localeCompare(`${right.tenantId}|${right.clockId}`),
   );
   return { events, instances };
@@ -326,7 +391,10 @@ export function renderPolicyClockSeedSection(seed: PolicyClockSeed): string {
       `${sqlLiteral(event.kind)}, ${sqlLiteral(event.subjectRef)}, ` +
       `${sqlLiteral(event.occurredAt)}, ${sqlOptional(event.dueAt)}, ` +
       `${sqlOptional(event.evidenceRef)}, ${sqlOptional(event.evidenceHash)}, ` +
-      `${sqlLiteral(event.actorRef)}, ${sqlOptional(event.reason)}, true)`,
+      `${sqlLiteral(event.actorRef)}, ${sqlOptional(event.reason)}, ` +
+      `${sqlOptional(event.triggerRef)}, ${sqlOptional(event.escalateAt)}, ` +
+      `${sqlOptional(event.ownerRole)}, ${sqlOptional(event.governingPolicyRef)}, ` +
+      `${sqlOptional(event.changeControlRef)}, ${sqlOptional(event.truthTableReceiptRef)}, true)`,
   );
   const instanceRows = seed.instances.map(
     (instance) =>
@@ -335,7 +403,8 @@ export function renderPolicyClockSeedSection(seed: PolicyClockSeed): string {
       `${sqlLiteral(instance.triggerRef)}, ${sqlLiteral(instance.triggeredAt)}, ` +
       `${sqlLiteral(instance.dueAt)}, ${sqlLiteral(instance.escalateAt)}, ` +
       `${sqlLiteral(instance.status)}, ${sqlLiteral(instance.ownerRole)}, ` +
-      `${sqlOptional(instance.closureEvidenceRef)}, ${sqlLiteral(instance.lastEventId)}, true)`,
+      `${sqlOptional(instance.closureEvidenceRef)}, ${sqlLiteral(instance.lastEventId)}, ` +
+      `${instance.expireFired ? 'true' : 'false'}, true)`,
   );
   return [
     policyClockSeedBeginMarker,
@@ -362,7 +431,9 @@ export function renderPolicyClockSeedSection(seed: PolicyClockSeed): string {
     '',
     'INSERT INTO consent.obligation_clock_event',
     '  (tenant_id, clock_event_id, clock_id, obligation_type, kind, subject_ref,',
-    '   occurred_at, due_at, evidence_ref, evidence_hash, actor_ref, reason, synthetic)',
+    '   occurred_at, due_at, evidence_ref, evidence_hash, actor_ref, reason,',
+    '   trigger_ref, escalate_at, owner_role, governing_policy_ref,',
+    '   change_control_ref, truth_table_receipt_ref, synthetic)',
     'VALUES',
     eventRows.join(',\n'),
     'ON CONFLICT (tenant_id, clock_event_id) DO NOTHING;',
@@ -370,7 +441,7 @@ export function renderPolicyClockSeedSection(seed: PolicyClockSeed): string {
     'INSERT INTO consent.obligation_clock',
     '  (tenant_id, clock_id, obligation_type, subject_ref, trigger_ref, triggered_at,',
     '   due_at, escalate_at, status, owner_role, closure_evidence_ref, last_event_id,',
-    '   synthetic)',
+    '   expire_fired, synthetic)',
     'VALUES',
     instanceRows.join(',\n'),
     'ON CONFLICT (tenant_id, clock_id) DO UPDATE',
@@ -384,6 +455,7 @@ export function renderPolicyClockSeedSection(seed: PolicyClockSeed): string {
     '    owner_role = EXCLUDED.owner_role,',
     '    closure_evidence_ref = EXCLUDED.closure_evidence_ref,',
     '    last_event_id = EXCLUDED.last_event_id,',
+    '    expire_fired = EXCLUDED.expire_fired,',
     '    synthetic = EXCLUDED.synthetic;',
     policyClockSeedEndMarker,
   ].join('\n');

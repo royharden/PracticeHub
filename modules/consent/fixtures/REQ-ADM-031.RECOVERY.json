@@ -18,6 +18,19 @@
       "expectAnswer": "granted"
     },
     {
+      "name": "the renewed consent is versioned WITH lineage to the consent it renews (AC-3)",
+      "op": "renew-lineage",
+      "consent": [
+        { "effectiveAt": "2024-01-15T00:00:00.000Z", "expiresAt": "2025-01-15T00:00:00.000Z" },
+        {
+          "action": "renew",
+          "effectiveAt": "2026-01-01T00:00:00.000Z",
+          "expiresAt": "2027-01-01T00:00:00.000Z"
+        }
+      ],
+      "expectSupersedes": "nce-fx-1"
+    },
+    {
       "name": "recording the renewal before due cancels the auto-fire so the consent never lapses",
       "op": "renewal-expiry",
       "clock": {
@@ -29,6 +42,20 @@
       "asOf": "2027-01-15T00:00:00.000Z",
       "renewalRecorded": true,
       "expectFired": false
+    },
+    {
+      "name": "after a lapse the patient’s OWN access is never blocked by MHRA expiry (ADR-007 C-06)",
+      "op": "mhra-release",
+      "disclosureConsentActive": false,
+      "basis": "patient-own-access",
+      "expectPermitted": true
+    },
+    {
+      "name": "an urgent-care release proceeds under the documented exception despite the lapse",
+      "op": "mhra-release",
+      "disclosureConsentActive": false,
+      "basis": "urgent-care",
+      "expectPermitted": true
     }
   ]
 }

@@ -144,6 +144,13 @@ export interface ConsentEventInput {
   readonly quietHoursTz?: string;
   readonly partitionTags?: readonly ConsentPartitionTag[];
   readonly occurredAt?: string;
+  /**
+   * Renewal lineage (REQ-ADM-031 AC-3; review-016 F5): the prior consent event
+   * this event RENEWS/supersedes. Only a `renew` may carry it; a `disclosure`
+   * renew (the MHRA release-consent renewal) MUST carry it — the renewed consent
+   * is versioned WITH lineage to the old consent, never a bare re-grant.
+   */
+  readonly supersedesConsentEventId?: string;
   readonly synthetic: true;
 }
 
@@ -170,6 +177,8 @@ export interface ConsentEvent {
   readonly quietHoursTz: string;
   readonly partitionTags: readonly ConsentPartitionTag[];
   readonly occurredAt: string;
+  /** Renewal lineage (REQ-ADM-031 AC-3): the prior event this renew supersedes. */
+  readonly supersedesConsentEventId?: string;
   readonly synthetic: true;
 }
 
@@ -241,6 +250,20 @@ export function appendConsentEvent(
   if (input.capturedBy !== undefined && !refPattern.test(input.capturedBy)) {
     throw new ConsentError(`capturedBy ${JSON.stringify(input.capturedBy)} is malformed`);
   }
+  // Renewal lineage (REQ-ADM-031 AC-3; review-016 F5): only a `renew` may carry
+  // a supersession pointer, and it must be a well-formed prior-event id.
+  if (input.supersedesConsentEventId !== undefined) {
+    if (!idPattern.test(input.supersedesConsentEventId)) {
+      throw new ConsentError(
+        `supersedesConsentEventId ${JSON.stringify(input.supersedesConsentEventId)} is malformed`,
+      );
+    }
+    if (input.action !== 'renew') {
+      throw new ConsentError(
+        'only a renew may supersede a prior consent event (renewal lineage is renew-only)',
+      );
+    }
+  }
   const partitionTags = input.partitionTags ?? [];
   for (const tag of partitionTags) {
     if (!consentPartitionTags.includes(tag)) {
@@ -297,6 +320,21 @@ export function appendConsentEvent(
   if (scope.type === 'disclosure' && input.action === 'grant' && input.evidenceRef === undefined) {
     throw new ConsentError('a records-disclosure grant requires written consent evidence');
   }
+  // Renewal lineage (REQ-ADM-031 AC-3; review-016 F5): the MHRA release-consent
+  // renewal must be versioned WITH lineage to the old consent — a disclosure
+  // renew that names no predecessor is a bare re-grant and is refused (fail
+  // closed). NR-040 (whether renew ALSO re-establishes fresh written-consent
+  // evidence) is a frozen-contract sponsor/adjudicator surface, left untouched.
+  if (
+    scope.type === 'disclosure' &&
+    input.action === 'renew' &&
+    input.supersedesConsentEventId === undefined
+  ) {
+    throw new ConsentError(
+      'a records-disclosure renewal must carry lineage to the consent it renews ' +
+        '(supersedesConsentEventId; REQ-ADM-031 AC-3)',
+    );
+  }
 
   const scopeKey = canonicalConsentScopeKey(scope);
   if (!scopeKeyPattern.test(scopeKey)) {
@@ -326,6 +364,9 @@ export function appendConsentEvent(
     quietHoursTz: input.quietHoursTz ?? 'UTC',
     partitionTags,
     occurredAt: input.occurredAt ?? input.effectiveAt,
+    ...(input.supersedesConsentEventId !== undefined
+      ? { supersedesConsentEventId: input.supersedesConsentEventId }
+      : {}),
     synthetic: true,
   };
   return { event, log: [...log, event] };

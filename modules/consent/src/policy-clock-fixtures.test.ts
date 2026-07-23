@@ -21,12 +21,14 @@ import {
   clockWorkItem,
   computeClockStatus,
   escalateClock,
+  mhraReleaseDecision,
   recordClockSatisfaction,
   resolveObligationClockPolicy,
   rulePackReviewWorkItem,
   runRenewalExpiry,
   triggerClock,
   type ClockAuditInput,
+  type MhraReleaseBasis,
   type ObligationType,
 } from './clocks.js';
 import { consentForDisclosure } from './cansend.js';
@@ -53,6 +55,8 @@ const acceptedOps = [
   'workitem',
   'policy-doc',
   'consent-enforce',
+  'renew-lineage',
+  'mhra-release',
 ] as const;
 type FixtureOp = (typeof acceptedOps)[number];
 
@@ -73,6 +77,8 @@ interface ConsentSpec {
   readonly action?: 'grant' | 'renew' | 'expire';
 }
 
+type ReleaseBasis = MhraReleaseBasis;
+
 interface FixtureCase {
   readonly name: string;
   readonly op: FixtureOp;
@@ -84,6 +90,15 @@ interface FixtureCase {
   readonly escalateAt?: string;
   readonly satisfyAt?: string;
   readonly cancelAt?: string;
+  // rule-pack-review structured closure (R6-SR-102)
+  readonly changeControlRef?: string;
+  readonly truthTableReceiptRef?: string;
+  // mhra-release exception (REQ-ADM-031; C-06)
+  readonly disclosureConsentActive?: boolean;
+  readonly basis?: ReleaseBasis;
+  readonly expectPermitted?: boolean;
+  // renew-lineage (REQ-ADM-031 AC-3)
+  readonly expectSupersedes?: string;
   // policy-resolve
   readonly obligationType?: ObligationType;
   readonly providerState?: string | null;
@@ -156,6 +171,7 @@ function emitAndAssert(auditInput: ClockAuditInput, expectedAction?: string): vo
 function buildConsentLog(specs: readonly ConsentSpec[]): readonly ConsentEvent[] {
   let log: readonly ConsentEvent[] = [];
   specs.forEach((spec, index) => {
+    const action = spec.action ?? 'grant';
     const input: ConsentEventInput = {
       consentEventId: `nce-fx-${index + 1}`,
       tenantId: tenant,
@@ -166,11 +182,14 @@ function buildConsentLog(specs: readonly ConsentSpec[]): readonly ConsentEvent[]
         recipient: spec.recipient ?? 'synthetic-recipient:fx',
         recordType: spec.recordType ?? 'general',
       },
-      action: spec.action ?? 'grant',
+      action,
       effectiveAt: spec.effectiveAt,
       ...(spec.expiresAt !== undefined ? { expiresAt: spec.expiresAt } : {}),
       source: 'paper_form',
-      ...(spec.action === 'expire' ? {} : { evidenceRef: `synthetic-consent:nce-fx-${index + 1}` }),
+      ...(action === 'expire' ? {} : { evidenceRef: `synthetic-consent:nce-fx-${index + 1}` }),
+      // REQ-ADM-031 AC-3: a disclosure renewal is versioned WITH lineage to the
+      // consent it renews (the immediately-prior event in the log).
+      ...(action === 'renew' && index > 0 ? { supersedesConsentEventId: `nce-fx-${index}` } : {}),
       jurisdiction: 'MN',
       policyVersion: 'records-consent-v1',
       synthetic: true,
@@ -257,14 +276,36 @@ function runCase(fixtureCase: FixtureCase): void {
         emitAndAssert(cancelled.auditInput, fixtureCase.expectAuditAction);
         break;
       }
-      const satisfied = recordClockSatisfaction(escalated.instance, {
-        clockEventId: 'cle-fx-3',
-        occurredAt: fixtureCase.satisfyAt ?? instance.dueAt,
-        actorRef: 'synthetic-officer',
-        evidenceRef: 'clock-closure:fx',
-      });
+      // R6-SR-102: a rule-pack-review clock closes with STRUCTURED evidence (a
+      // change-control ref + the truth-table regeneration receipt); every other
+      // obligation type closes with a single evidence ref.
+      const isRulePack = escalated.instance.obligationType === 'rule-pack-review';
+      const satisfied = isRulePack
+        ? recordClockSatisfaction(escalated.instance, {
+            clockEventId: 'cle-fx-3',
+            occurredAt: fixtureCase.satisfyAt ?? instance.dueAt,
+            actorRef: 'synthetic-officer',
+            closureEvidence: {
+              changeControlRef: fixtureCase.changeControlRef ?? 'ccr-statute-fx',
+              truthTableReceiptRef:
+                fixtureCase.truthTableReceiptRef ?? 'truth-table:regen:cells-432-diffs-0',
+            },
+          })
+        : recordClockSatisfaction(escalated.instance, {
+            clockEventId: 'cle-fx-3',
+            occurredAt: fixtureCase.satisfyAt ?? instance.dueAt,
+            actorRef: 'synthetic-officer',
+            evidenceRef: 'clock-closure:fx',
+          });
       expect(satisfied.instance.status).toBe(fixtureCase.expectStatus ?? 'satisfied');
-      expect(satisfied.instance.closureEvidenceRef).toBe('clock-closure:fx');
+      expect(satisfied.instance.closureEvidenceRef).toBe(
+        isRulePack ? (fixtureCase.changeControlRef ?? 'ccr-statute-fx') : 'clock-closure:fx',
+      );
+      if (isRulePack) {
+        expect(satisfied.event.truthTableReceiptRef).toBe(
+          fixtureCase.truthTableReceiptRef ?? 'truth-table:regen:cells-432-diffs-0',
+        );
+      }
       emitAndAssert(satisfied.auditInput, fixtureCase.expectAuditAction);
       break;
     }
@@ -356,6 +397,47 @@ function runCase(fixtureCase: FixtureCase): void {
       });
       const answer = consentForDisclosure({ state, asOf: fixtureCase.asOf as string });
       expect(answer).toBe(fixtureCase.expectAnswer);
+      break;
+    }
+    case 'renew-lineage': {
+      // REQ-ADM-031 AC-3: the renewed consent is versioned WITH lineage to the
+      // old consent — a disclosure renew that names no predecessor is refused.
+      const specs = fixtureCase.consent as readonly ConsentSpec[];
+      const log = buildConsentLog(specs);
+      const renewEvent = [...log].reverse().find((event) => event.action === 'renew');
+      expect(renewEvent, 'a renew event must exist').toBeDefined();
+      expect(renewEvent?.supersedesConsentEventId).toBe(fixtureCase.expectSupersedes);
+      // and a disclosure renew WITHOUT lineage fails closed.
+      expect(() =>
+        appendConsentEvent([], {
+          consentEventId: 'nce-fx-no-lineage',
+          tenantId: tenant,
+          personRef: 'np-fx',
+          scope: {
+            type: 'disclosure',
+            purpose: 'treatment',
+            recipient: 'synthetic-recipient:fx',
+            recordType: 'general',
+          },
+          action: 'renew',
+          effectiveAt: specs[specs.length - 1]?.effectiveAt ?? '2026-01-01T00:00:00.000Z',
+          source: 'paper_form',
+          evidenceRef: 'synthetic-consent:no-lineage',
+          jurisdiction: 'MN',
+          policyVersion: 'records-consent-v1',
+          synthetic: true,
+        }),
+      ).toThrow(/lineage/);
+      break;
+    }
+    case 'mhra-release': {
+      // REQ-ADM-031 / ADR-007 C-06: expiry blocks third-party disclosure only;
+      // the patient's own access and an urgent-care release are never blocked.
+      const decision = mhraReleaseDecision({
+        disclosureConsentActive: fixtureCase.disclosureConsentActive ?? false,
+        basis: fixtureCase.basis as ReleaseBasis,
+      });
+      expect(decision.permitted).toBe(fixtureCase.expectPermitted);
       break;
     }
     default: {

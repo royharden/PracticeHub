@@ -18,6 +18,26 @@
       "consent": [],
       "asOf": "2026-06-01T00:00:00.000Z",
       "expectAnswer": "unavailable"
+    },
+    {
+      "name": "after the release consent lapses a THIRD-PARTY disclosure is blocked (fail closed)",
+      "op": "mhra-release",
+      "disclosureConsentActive": false,
+      "basis": "third-party-disclosure",
+      "expectPermitted": false
+    },
+    {
+      "name": "a bare disclosure renewal that names no predecessor is refused (renewal lineage required, AC-3)",
+      "op": "renew-lineage",
+      "consent": [
+        { "effectiveAt": "2024-01-15T00:00:00.000Z", "expiresAt": "2025-01-15T00:00:00.000Z" },
+        {
+          "action": "renew",
+          "effectiveAt": "2026-01-01T00:00:00.000Z",
+          "expiresAt": "2027-01-01T00:00:00.000Z"
+        }
+      ],
+      "expectSupersedes": "nce-fx-1"
     }
   ]
 }

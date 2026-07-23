@@ -4,7 +4,7 @@
   "class": "RECOVERY",
   "cases": [
     {
-      "name": "a completed re-derivation cycle closes the tracker with evidence and an audited attestation",
+      "name": "a completed re-derivation cycle closes the tracker with a change-control ref + truth-table receipt and an audited attestation",
       "op": "lifecycle",
       "clock": {
         "obligationType": "rule-pack-review",
@@ -12,6 +12,8 @@
       },
       "escalateAt": "2026-03-18T00:00:00.000Z",
       "satisfyAt": "2026-03-25T00:00:00.000Z",
+      "changeControlRef": "ccr-statute-2026-q1",
+      "truthTableReceiptRef": "truth-table:regen:cells-432-diffs-0",
       "expectStatus": "satisfied",
       "expectAuditAction": "obligation-clock-satisfied"
     },

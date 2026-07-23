@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest';
 import {
   assertPolicyRegistryWellFormed,
   policyVersionStamp,
+  publishPolicyDocumentVersion,
   resolvePolicyDocument,
   PolicyRegistryError,
   type PolicyDocumentVersion,
@@ -132,5 +133,42 @@ describe('registry validation', () => {
       },
     ];
     expect(() => assertPolicyRegistryWellFormed(unsigned)).toThrow(/counsel sign-off reference/);
+  });
+});
+
+describe('publishPolicyDocumentVersion (authority-bearing counsel data; review-016 F1)', () => {
+  const document: PolicyDocumentVersion = {
+    tenantId: 'northwind-synthetic',
+    documentType: 'disclosure-authorization',
+    jurisdiction: 'MN',
+    version: 4,
+    effectiveOn: '2027-06-01',
+    status: 'draft',
+    changeControlRef: 'ccr-mn-disclosure-2027',
+    contentRef: 'policy-doc:northwind:disclosure-authorization:mn:v4',
+    contentHash: 'c'.repeat(64),
+    synthetic: true,
+  };
+
+  it('validates the document and yields a config-change audit input (lower-cased ref)', () => {
+    const published = publishPolicyDocumentVersion(document, {
+      actorRef: 'synthetic-counsel',
+      occurredAt: '2026-07-01T00:00:00.000Z',
+    });
+    expect(published.version.version).toBe(4);
+    expect(published.auditInput.stream).toBe('config-change');
+    expect(published.auditInput.detail.config_ref).toBe(
+      'policy-doc:northwind-synthetic:disclosure-authorization:mn:v4',
+    );
+    expect(published.auditInput.action).toBe('policy-document-published');
+  });
+
+  it('rejects an ill-formed document before producing any audit input', () => {
+    expect(() =>
+      publishPolicyDocumentVersion(
+        { ...document, contentHash: 'not-a-hash' },
+        { actorRef: 'synthetic-counsel', occurredAt: '2026-07-01T00:00:00.000Z' },
+      ),
+    ).toThrow(PolicyRegistryError);
   });
 });

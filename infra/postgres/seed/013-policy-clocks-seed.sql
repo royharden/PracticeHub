@@ -35,27 +35,35 @@ ON CONFLICT (tenant_id, document_type, jurisdiction, version) DO NOTHING;
 
 INSERT INTO consent.obligation_clock_event
   (tenant_id, clock_event_id, clock_id, obligation_type, kind, subject_ref,
-   occurred_at, due_at, evidence_ref, evidence_hash, actor_ref, reason, synthetic)
+   occurred_at, due_at, evidence_ref, evidence_hash, actor_ref, reason,
+   trigger_ref, escalate_at, owner_role, governing_policy_ref,
+   change_control_ref, truth_table_receipt_ref, synthetic)
 VALUES
-  ('northwind-synthetic', 'ncle-0001', 'ncl-mhra-0001', 'mhra-renewal', 'trigger', 'np-riley-quinn', '2026-01-15T00:00:00.000Z', '2027-01-15T00:00:00.000Z', NULL, NULL, 'synthetic-platform-clock', NULL, true),
-  ('northwind-synthetic', 'ncle-0002', 'ncl-access-0001', 'records-request-closure', 'trigger', 'np-jordan-kim', '2026-02-10T00:00:00.000Z', '2026-03-12T00:00:00.000Z', NULL, NULL, 'synthetic-platform-clock', NULL, true),
-  ('northwind-synthetic', 'ncle-0003', 'ncl-access-0001', 'records-request-closure', 'satisfy', 'np-jordan-kim', '2026-02-20T00:00:00.000Z', NULL, 'records-release:synthetic-req-0001', 'b5b2c11fd7627a87457075e9f5122ee83ee683af20304543cd905f1c304df865', 'synthetic-records-officer', NULL, true),
-  ('northwind-synthetic', 'ncle-0004', 'ncl-tracker-0001', 'rule-pack-review', 'trigger', 'rule-pack-scope:all-jurisdictions', '2026-01-01T00:00:00.000Z', '2026-04-01T00:00:00.000Z', NULL, NULL, 'synthetic-platform-clock', NULL, true),
-  ('northwind-synthetic', 'ncle-0005', 'ncl-tracker-0001', 'rule-pack-review', 'escalate', 'rule-pack-scope:all-jurisdictions', '2026-03-18T00:00:00.000Z', NULL, NULL, NULL, 'synthetic-platform-clock', NULL, true),
-  ('northwind-synthetic', 'ncle-0006', 'ncl-breach-0001', 'breach-notification', 'trigger', 'incident:synthetic-breach-0001', '2026-03-01T00:00:00.000Z', '2026-03-31T00:00:00.000Z', NULL, NULL, 'synthetic-compliance-officer', NULL, true),
-  ('riverbend-synthetic', 'rcle-0001', 'rcl-breach-0001', 'breach-notification', 'trigger', 'incident:synthetic-rb-breach-0001', '2026-03-01T00:00:00.000Z', '2026-04-30T00:00:00.000Z', NULL, NULL, 'synthetic-compliance-officer', NULL, true)
+  ('northwind-synthetic', 'ncle-0001', 'ncl-mhra-0001', 'mhra-renewal', 'trigger', 'np-riley-quinn', '2026-01-15T00:00:00.000Z', '2027-01-15T00:00:00.000Z', NULL, NULL, 'synthetic-platform-clock', NULL, 'consent:nce-0004', '2026-12-16T00:00:00.000Z', 'compliance', 'mhra-renewal:floor:v1', NULL, NULL, true),
+  ('northwind-synthetic', 'ncle-0002', 'ncl-access-0001', 'records-request-closure', 'trigger', 'np-jordan-kim', '2026-02-10T00:00:00.000Z', '2026-03-12T00:00:00.000Z', NULL, NULL, 'synthetic-platform-clock', NULL, 'records-request:synthetic-req-0001', '2026-03-02T00:00:00.000Z', 'compliance', 'records-request-closure:floor:v1', NULL, NULL, true),
+  ('northwind-synthetic', 'ncle-0003', 'ncl-access-0001', 'records-request-closure', 'satisfy', 'np-jordan-kim', '2026-02-20T00:00:00.000Z', NULL, 'records-release:synthetic-req-0001', 'b5b2c11fd7627a87457075e9f5122ee83ee683af20304543cd905f1c304df865', 'synthetic-records-officer', NULL, NULL, NULL, NULL, NULL, NULL, NULL, true),
+  ('northwind-synthetic', 'ncle-0004', 'ncl-tracker-0001', 'rule-pack-review', 'trigger', 'rule-pack-scope:all-jurisdictions', '2026-01-01T00:00:00.000Z', '2026-04-01T00:00:00.000Z', NULL, NULL, 'synthetic-platform-clock', NULL, 'statute-tracker:synthetic-cycle-0001', '2026-03-18T00:00:00.000Z', 'compliance', 'rule-pack-review:floor:v1', NULL, NULL, true),
+  ('northwind-synthetic', 'ncle-0005', 'ncl-tracker-0001', 'rule-pack-review', 'escalate', 'rule-pack-scope:all-jurisdictions', '2026-03-18T00:00:00.000Z', NULL, NULL, NULL, 'synthetic-platform-clock', NULL, NULL, NULL, NULL, NULL, NULL, NULL, true),
+  ('northwind-synthetic', 'ncle-0006', 'ncl-breach-0001', 'breach-notification', 'trigger', 'incident:synthetic-breach-0001', '2026-03-01T00:00:00.000Z', '2026-03-31T00:00:00.000Z', NULL, NULL, 'synthetic-compliance-officer', NULL, 'incident:synthetic-breach-0001', '2026-03-21T00:00:00.000Z', 'compliance', 'breach-notification:fl:v1', NULL, NULL, true),
+  ('riverbend-synthetic', 'rcle-0001', 'rcl-breach-0001', 'breach-notification', 'trigger', 'incident:synthetic-rb-breach-0001', '2026-03-01T00:00:00.000Z', '2026-04-30T00:00:00.000Z', NULL, NULL, 'synthetic-compliance-officer', NULL, 'incident:synthetic-rb-breach-0001', '2026-04-10T00:00:00.000Z', 'compliance', 'breach-notification:floor:v1', NULL, NULL, true),
+  ('northwind-synthetic', 'ncle-0007', 'ncl-access-0002', 'records-request-closure', 'trigger', 'np-alex-lee', '2026-02-15T00:00:00.000Z', '2026-03-17T00:00:00.000Z', NULL, NULL, 'synthetic-platform-clock', NULL, 'records-request:synthetic-req-0002', '2026-03-07T00:00:00.000Z', 'compliance', 'records-request-closure:floor:v1', NULL, NULL, true),
+  ('northwind-synthetic', 'ncle-0008', 'ncl-access-0002', 'records-request-closure', 'cancel', 'np-alex-lee', '2026-02-18T00:00:00.000Z', NULL, NULL, NULL, 'synthetic-records-officer', 'records request withdrawn by the requester', NULL, NULL, NULL, NULL, NULL, NULL, true),
+  ('northwind-synthetic', 'ncle-0009', 'ncl-mhra-0002', 'mhra-renewal', 'trigger', 'np-morgan-reed', '2025-01-10T00:00:00.000Z', '2026-01-10T00:00:00.000Z', NULL, NULL, 'synthetic-platform-clock', NULL, 'consent:nce-synthetic-mhra-0002', '2025-12-11T00:00:00.000Z', 'compliance', 'mhra-renewal:floor:v1', NULL, NULL, true),
+  ('northwind-synthetic', 'ncle-0010', 'ncl-mhra-0002', 'mhra-renewal', 'expire-fired', 'np-morgan-reed', '2026-01-10T00:00:00.000Z', NULL, NULL, NULL, 'synthetic-platform-clock', 'renewal window lapsed — consent auto-expired (R6-SR-041)', NULL, NULL, NULL, NULL, NULL, NULL, true)
 ON CONFLICT (tenant_id, clock_event_id) DO NOTHING;
 
 INSERT INTO consent.obligation_clock
   (tenant_id, clock_id, obligation_type, subject_ref, trigger_ref, triggered_at,
    due_at, escalate_at, status, owner_role, closure_evidence_ref, last_event_id,
-   synthetic)
+   expire_fired, synthetic)
 VALUES
-  ('northwind-synthetic', 'ncl-access-0001', 'records-request-closure', 'np-jordan-kim', 'records-request:synthetic-req-0001', '2026-02-10T00:00:00.000Z', '2026-03-12T00:00:00.000Z', '2026-03-02T00:00:00.000Z', 'satisfied', 'compliance', 'records-release:synthetic-req-0001', 'ncle-0003', true),
-  ('northwind-synthetic', 'ncl-breach-0001', 'breach-notification', 'incident:synthetic-breach-0001', 'incident:synthetic-breach-0001', '2026-03-01T00:00:00.000Z', '2026-03-31T00:00:00.000Z', '2026-03-21T00:00:00.000Z', 'pending', 'compliance', NULL, 'ncle-0006', true),
-  ('northwind-synthetic', 'ncl-mhra-0001', 'mhra-renewal', 'np-riley-quinn', 'consent:nce-0004', '2026-01-15T00:00:00.000Z', '2027-01-15T00:00:00.000Z', '2026-12-16T00:00:00.000Z', 'pending', 'compliance', NULL, 'ncle-0001', true),
-  ('northwind-synthetic', 'ncl-tracker-0001', 'rule-pack-review', 'rule-pack-scope:all-jurisdictions', 'statute-tracker:synthetic-cycle-0001', '2026-01-01T00:00:00.000Z', '2026-04-01T00:00:00.000Z', '2026-03-18T00:00:00.000Z', 'escalated', 'compliance', NULL, 'ncle-0005', true),
-  ('riverbend-synthetic', 'rcl-breach-0001', 'breach-notification', 'incident:synthetic-rb-breach-0001', 'incident:synthetic-rb-breach-0001', '2026-03-01T00:00:00.000Z', '2026-04-30T00:00:00.000Z', '2026-04-10T00:00:00.000Z', 'pending', 'compliance', NULL, 'rcle-0001', true)
+  ('northwind-synthetic', 'ncl-access-0001', 'records-request-closure', 'np-jordan-kim', 'records-request:synthetic-req-0001', '2026-02-10T00:00:00.000Z', '2026-03-12T00:00:00.000Z', '2026-03-02T00:00:00.000Z', 'satisfied', 'compliance', 'records-release:synthetic-req-0001', 'ncle-0003', false, true),
+  ('northwind-synthetic', 'ncl-access-0002', 'records-request-closure', 'np-alex-lee', 'records-request:synthetic-req-0002', '2026-02-15T00:00:00.000Z', '2026-03-17T00:00:00.000Z', '2026-03-07T00:00:00.000Z', 'cancelled', 'compliance', NULL, 'ncle-0008', false, true),
+  ('northwind-synthetic', 'ncl-breach-0001', 'breach-notification', 'incident:synthetic-breach-0001', 'incident:synthetic-breach-0001', '2026-03-01T00:00:00.000Z', '2026-03-31T00:00:00.000Z', '2026-03-21T00:00:00.000Z', 'pending', 'compliance', NULL, 'ncle-0006', false, true),
+  ('northwind-synthetic', 'ncl-mhra-0001', 'mhra-renewal', 'np-riley-quinn', 'consent:nce-0004', '2026-01-15T00:00:00.000Z', '2027-01-15T00:00:00.000Z', '2026-12-16T00:00:00.000Z', 'pending', 'compliance', NULL, 'ncle-0001', false, true),
+  ('northwind-synthetic', 'ncl-mhra-0002', 'mhra-renewal', 'np-morgan-reed', 'consent:nce-synthetic-mhra-0002', '2025-01-10T00:00:00.000Z', '2026-01-10T00:00:00.000Z', '2025-12-11T00:00:00.000Z', 'pending', 'compliance', NULL, 'ncle-0010', true, true),
+  ('northwind-synthetic', 'ncl-tracker-0001', 'rule-pack-review', 'rule-pack-scope:all-jurisdictions', 'statute-tracker:synthetic-cycle-0001', '2026-01-01T00:00:00.000Z', '2026-04-01T00:00:00.000Z', '2026-03-18T00:00:00.000Z', 'escalated', 'compliance', NULL, 'ncle-0005', false, true),
+  ('riverbend-synthetic', 'rcl-breach-0001', 'breach-notification', 'incident:synthetic-rb-breach-0001', 'incident:synthetic-rb-breach-0001', '2026-03-01T00:00:00.000Z', '2026-04-30T00:00:00.000Z', '2026-04-10T00:00:00.000Z', 'pending', 'compliance', NULL, 'rcle-0001', false, true)
 ON CONFLICT (tenant_id, clock_id) DO UPDATE
 SET obligation_type = EXCLUDED.obligation_type,
     subject_ref = EXCLUDED.subject_ref,
@@ -67,5 +75,6 @@ SET obligation_type = EXCLUDED.obligation_type,
     owner_role = EXCLUDED.owner_role,
     closure_evidence_ref = EXCLUDED.closure_evidence_ref,
     last_event_id = EXCLUDED.last_event_id,
+    expire_fired = EXCLUDED.expire_fired,
     synthetic = EXCLUDED.synthetic;
 -- policy-clocks:generated:end

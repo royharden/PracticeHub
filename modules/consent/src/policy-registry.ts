@@ -250,3 +250,64 @@ export function policyVersionStamp(
 ): string {
   return `${resolution.documentType}:${resolution.jurisdiction}:v${resolution.version}`;
 }
+
+// --- Counsel-owned policy publication (review-016 F1) ----------------------
+
+/** Config-change audit input for a policy-document publication (R6-REQ-006/052). */
+export interface PolicyGovernanceAuditInput {
+  readonly tenantId: string;
+  readonly stream: 'config-change';
+  readonly action: string;
+  readonly actorRef: string;
+  readonly occurredAt: string;
+  readonly correlationRef: string;
+  readonly detail: Readonly<Record<string, string>>;
+  readonly synthetic: true;
+}
+
+/** The audit chain is whole-second UTC (audit-emit.md); truncate sub-second. */
+function toAuditInstant(occurredAt: string): string {
+  if (Number.isNaN(Date.parse(occurredAt))) {
+    throw new PolicyRegistryError(
+      `occurredAt must be an ISO timestamp; received ${JSON.stringify(occurredAt)}`,
+    );
+  }
+  return `${new Date(Date.parse(occurredAt)).toISOString().slice(0, 19)}Z`;
+}
+
+/**
+ * Publish a versioned, effective-dated policy document — AUTHORITY-BEARING
+ * counsel-owned change-controlled data (the `consent.policy-clocks` gated command
+ * routes here, floored `simulated`; review-016 F1). Validates the document and
+ * yields a config-change audit input. The normal app role cannot INSERT
+ * `consent.policy_document` at runtime (0011 revokes it): persistence rides the
+ * change-controlled seed path, exactly like the jurisdiction rule packs the
+ * FROZEN contract models this registry on.
+ */
+export function publishPolicyDocumentVersion(
+  document: PolicyDocumentVersion,
+  fields: { readonly actorRef: string; readonly occurredAt: string },
+): { readonly version: PolicyDocumentVersion; readonly auditInput: PolicyGovernanceAuditInput } {
+  assertPolicyDocumentWellFormed(document);
+  if (!refPattern.test(fields.actorRef)) {
+    throw new PolicyRegistryError(`actorRef ${JSON.stringify(fields.actorRef)} is malformed`);
+  }
+  const stamp = `${document.documentType}:${document.jurisdiction.toLowerCase()}:v${document.version}`;
+  return {
+    version: document,
+    auditInput: {
+      tenantId: document.tenantId,
+      stream: 'config-change',
+      action: 'policy-document-published',
+      actorRef: fields.actorRef,
+      occurredAt: toAuditInstant(fields.occurredAt),
+      correlationRef: `policy-doc:${document.documentType}:${document.jurisdiction.toLowerCase()}`,
+      detail: {
+        config_ref: `policy-doc:${document.tenantId}:${stamp}`,
+        document_type: document.documentType,
+        change_control_ref: document.changeControlRef,
+      },
+      synthetic: true,
+    },
+  };
+}

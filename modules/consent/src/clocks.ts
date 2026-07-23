@@ -6,17 +6,22 @@
  * Legally-clocked duties as event-sourced timers (ADR-009): each clock carries
  * an obligation type, jurisdiction basis, trigger event, due computation, owner,
  * escalation, and evidence-of-completion. `obligation_clock_event` is the
- * append-only log; `obligation_clock` is the projection. Clocks surface as
- * WorkItems (WP-022, FWD-CLOCK-022-WORKITEMS).
+ * append-only log; `obligation_clock` is the projection — a PURE fold of the log
+ * (`foldClocks` rebuilds every field from events alone, no seeded projection
+ * rows; review-016 F3). Clocks surface as WorkItems (WP-022,
+ * FWD-CLOCK-022-WORKITEMS).
  *
  * Two temporal layers, deliberately distinct: POLICY VERSION selection uses the
  * SHARED effective-dating primitive (calendar dates, ADR-ADJ-002 —
- * FWD-SR-019-TEMPORAL); clock DUE computation is timestamp + duration
- * arithmetic. Retention/destruction clocks are NOT here — WP-020 `retention.ts`
- * owns them.
+ * FWD-SR-019-TEMPORAL: `isEffectiveDate`/`epochEffectiveOn`/`selectEffectiveVersion`
+ * imported from platform-core, never re-derived; review-016 F4); clock DUE
+ * computation is timestamp + duration arithmetic. Retention/destruction clocks
+ * are NOT here — WP-020 `retention.ts` owns them.
  */
 
 import {
+  epochEffectiveOn,
+  isEffectiveDate,
   resolveEffectiveAsOf,
   selectEffectiveVersion,
   type JurisdictionBasis,
@@ -79,6 +84,8 @@ export const obligationTypeSpecs: Readonly<Record<ObligationType, ObligationType
     closureEvidenceKind: 'records-released',
   },
   // Statute-tracker re-derivation (R6-SR-102); periodic quarterly-class cadence.
+  // Closure evidence is STRUCTURED: a change-control ref + the truth-table
+  // regeneration receipt (recordClockSatisfaction enforces both; review-016 F5).
   'rule-pack-review': {
     dueBasis: 'duration',
     ownerRole: 'compliance',
@@ -86,9 +93,20 @@ export const obligationTypeSpecs: Readonly<Record<ObligationType, ObligationType
   },
 };
 
+/**
+ * NR-047 (review-016): obligation types are a CLOSED v1 vocabulary — this TS
+ * union, `obligationTypeSpecs`, and the three DB CHECK lists
+ * (`obligation_clock_policy`, `obligation_clock_event`, `obligation_clock`).
+ * Registering a new obligation type (FWD-CLOCK-057-REFUND / -095-OIG) is a
+ * change-controlled code + migration + counsel change, NOT data-only. The
+ * FROZEN clock-api.md claim "the vocabulary extends by data + counsel, never
+ * code" contradicts this closed encoding; resolution (a genuinely data-driven
+ * registry, or amending the frozen claim) is an adjudicator surface — logged,
+ * not silently picked. See LESSONS.md and planning/notes-register.md NR-047.
+ */
+
 /** The always-unioned floor policy (mirrors the registry's base variant). */
 const basePolicyJurisdiction = 'floor';
-const epochEffectiveDate = '1970-01-01';
 
 const stateCodePattern = /^[A-Z]{2}$/;
 const idPattern = /^[a-z0-9][a-z0-9-]{0,63}$/;
@@ -163,8 +181,14 @@ export function assertObligationClockPolicyWellFormed(policy: ObligationClockPol
   if (!Number.isInteger(policy.version) || policy.version < 1) {
     throw new ClockError(`policy ${label}: version must be a positive integer`);
   }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(policy.effectiveOn)) {
-    throw new ClockError(`policy ${label}: effectiveOn must be a calendar date (YYYY-MM-DD)`);
+  // FWD-SR-019-TEMPORAL / review-016 F4: the SHARED calendar-date validator
+  // (round-trip validated — 2026-02-30 is rejected), never a local shape-only
+  // regex that would accept an impossible date.
+  if (!isEffectiveDate(policy.effectiveOn)) {
+    throw new ClockError(
+      `policy ${label}: effectiveOn must be a valid calendar date (YYYY-MM-DD); ` +
+        `received ${JSON.stringify(policy.effectiveOn)}`,
+    );
   }
   if (!changeRefPattern.test(policy.changeControlRef)) {
     throw new ClockError(`policy ${label}: requires a change-control reference (fails closed)`);
@@ -223,10 +247,11 @@ export function assertObligationClockPolicyRegistryWellFormed(
       );
     }
     const earliest = [...floorVersions].sort((left, right) => left.version - right.version)[0];
-    if (earliest !== undefined && earliest.effectiveOn !== epochEffectiveDate) {
+    // Shared epoch sentinel (platform-core), never a locally re-derived constant.
+    if (earliest !== undefined && earliest.effectiveOn !== epochEffectiveOn) {
       throw new ClockError(
         `${obligationType} floor v${earliest.version}: the earliest floor policy must carry the ` +
-          `epoch sentinel ${epochEffectiveDate} (always-effective floor)`,
+          `epoch sentinel ${epochEffectiveOn} (always-effective floor)`,
       );
     }
   }
@@ -356,6 +381,26 @@ export function resolveObligationClockPolicy(
   };
 }
 
+/**
+ * The governing (strictest) contribution's provenance stamp — recorded on the
+ * trigger event so the projection (and the audit trail) can name which policy
+ * version governed the deadline (review-016 F3, governing-policy provenance).
+ * Lower-cased for the audit/ref grammar.
+ */
+export function governingPolicyRefFor(resolution: ClockPolicyResolution): string {
+  const governing =
+    resolution.dueBasis === 'duration'
+      ? resolution.contributions.find(
+          (contribution) => contribution.durationDays === resolution.durationDays,
+        )
+      : resolution.contributions.find(
+          (contribution) => contribution.escalationLeadDays === resolution.escalationLeadDays,
+        );
+  const jurisdiction = (governing?.jurisdiction ?? basePolicyJurisdiction).toLowerCase();
+  const version = governing?.version ?? 1;
+  return `${resolution.obligationType}:${jurisdiction}:v${version}`;
+}
+
 // --- Clock instances (event-sourced) ---------------------------------------
 
 export interface ObligationClockEvent {
@@ -371,6 +416,18 @@ export interface ObligationClockEvent {
   readonly evidenceHash?: string;
   readonly actorRef: string;
   readonly reason?: string;
+  // --- Trigger-event rebuild metadata (review-016 F3): present on `trigger`
+  // events so `foldClocks` can reconstruct every projection field from the log
+  // alone (no seeded projection rows).
+  readonly triggerRef?: string;
+  readonly escalateAt?: string;
+  readonly ownerRole?: string;
+  readonly governingPolicyRef?: string;
+  // --- Structured rule-pack-review closure evidence (review-016 F5): present on
+  // a `satisfy` event for a rule-pack-review clock (change-control ref + the
+  // truth-table regeneration receipt).
+  readonly changeControlRef?: string;
+  readonly truthTableReceiptRef?: string;
   readonly synthetic: true;
 }
 
@@ -386,6 +443,12 @@ export interface ObligationClock {
   readonly status: ClockStatus;
   readonly ownerRole: string;
   readonly closureEvidenceRef?: string;
+  /**
+   * True once an `expire-fired` event has landed (review-016 F2): the terminal
+   * marker that makes `runRenewalExpiry` exactly-once — a worker retry cannot
+   * emit a second consent-expire / clock event.
+   */
+  readonly expireFired: boolean;
   readonly lastEventId: string;
   readonly synthetic: true;
 }
@@ -407,10 +470,50 @@ export interface TriggerClockInput {
 }
 
 /**
+ * Reconstruct the projection row a `trigger` event opens — the SINGLE place a
+ * pending clock row is derived, used by both `triggerClock` (fresh) and
+ * `foldClocks` (replay), so the instance and the fold are identical by
+ * construction (review-016 F3).
+ */
+function triggerRowFromEvent(event: ObligationClockEvent): ObligationClock {
+  if (event.kind !== 'trigger') {
+    throw new ClockError(`triggerRowFromEvent requires a trigger event; got ${event.kind}`);
+  }
+  if (
+    event.dueAt === undefined ||
+    event.escalateAt === undefined ||
+    event.triggerRef === undefined ||
+    event.ownerRole === undefined
+  ) {
+    throw new ClockError(
+      `trigger event ${event.clockEventId} lacks the rebuild metadata ` +
+        '(dueAt/escalateAt/triggerRef/ownerRole) — the projection is not replayable',
+    );
+  }
+  return {
+    tenantId: event.tenantId,
+    clockId: event.clockId,
+    obligationType: event.obligationType,
+    subjectRef: event.subjectRef,
+    triggerRef: event.triggerRef,
+    triggeredAt: event.occurredAt,
+    dueAt: event.dueAt,
+    escalateAt: event.escalateAt,
+    status: 'pending',
+    ownerRole: event.ownerRole,
+    expireFired: false,
+    lastEventId: event.clockEventId,
+    synthetic: true,
+  };
+}
+
+/**
  * Start a clock (PROTECTIVE — never capability-gated; a legal clock must always
  * be able to start). Computes `dueAt` from the resolved duration policy or the
  * supplied anchor, and `escalateAt = dueAt − escalationLeadDays`. Emits a
- * `trigger` event and the initial projection row (status `pending`).
+ * `trigger` event carrying the full rebuild metadata + governing-policy
+ * provenance, and the initial projection row (status `pending`), derived from
+ * that event so replay is exact.
  */
 export function triggerClock(input: TriggerClockInput): {
   readonly event: ObligationClockEvent;
@@ -463,23 +566,13 @@ export function triggerClock(input: TriggerClockInput): {
     occurredAt: input.triggeredAt,
     dueAt,
     actorRef: input.actorRef,
-    synthetic: true,
-  };
-  const instance: ObligationClock = {
-    tenantId: input.tenantId,
-    clockId: input.clockId,
-    obligationType: input.obligationType,
-    subjectRef: input.subjectRef,
     triggerRef: input.triggerRef,
-    triggeredAt: input.triggeredAt,
-    dueAt,
     escalateAt,
-    status: 'pending',
     ownerRole: resolution.ownerRole,
-    lastEventId: input.clockEventId,
+    governingPolicyRef: governingPolicyRefFor(resolution),
     synthetic: true,
   };
-  return { event, instance, resolution };
+  return { event, instance: triggerRowFromEvent(event), resolution };
 }
 
 /**
@@ -515,6 +608,8 @@ function clockEvent(
     readonly evidenceRef?: string;
     readonly evidenceHash?: string;
     readonly reason?: string;
+    readonly changeControlRef?: string;
+    readonly truthTableReceiptRef?: string;
   },
 ): ObligationClockEvent {
   if (!idPattern.test(fields.clockEventId)) {
@@ -533,6 +628,10 @@ function clockEvent(
     ...(fields.evidenceHash !== undefined ? { evidenceHash: fields.evidenceHash } : {}),
     actorRef: fields.actorRef,
     ...(fields.reason !== undefined ? { reason: fields.reason } : {}),
+    ...(fields.changeControlRef !== undefined ? { changeControlRef: fields.changeControlRef } : {}),
+    ...(fields.truthTableReceiptRef !== undefined
+      ? { truthTableReceiptRef: fields.truthTableReceiptRef }
+      : {}),
     synthetic: true,
   };
 }
@@ -590,10 +689,23 @@ function clockAudit(
   };
 }
 
+/** Structured closure evidence for a rule-pack-review clock (R6-SR-102). */
+export interface RulePackClosureEvidence {
+  /** The change-control ref for the counsel-approved rule-pack version bump. */
+  readonly changeControlRef: string;
+  /** The receipt proving the WP-011 truth-table regression harness was re-run. */
+  readonly truthTableReceiptRef: string;
+}
+
 /**
  * Record evidence-of-completion — AUTHORITY-BEARING (the `consent.policy-clocks`
  * gated command routes here). Evidence is mandatory; the satisfy event closes
  * the clock and yields a config-change audit input.
+ *
+ * A `rule-pack-review` clock (R6-SR-102) requires STRUCTURED closure evidence —
+ * a change-control ref for the version bump AND the truth-table regeneration
+ * receipt (review-016 F5): an arbitrary grammar-valid ref no longer satisfies
+ * the statute-tracker. Every other obligation type takes a single `evidenceRef`.
  */
 export function recordClockSatisfaction(
   instance: ObligationClock,
@@ -601,8 +713,9 @@ export function recordClockSatisfaction(
     readonly clockEventId: string;
     readonly occurredAt: string;
     readonly actorRef: string;
-    readonly evidenceRef: string;
+    readonly evidenceRef?: string;
     readonly evidenceHash?: string;
+    readonly closureEvidence?: RulePackClosureEvidence;
   },
 ): {
   readonly event: ObligationClockEvent;
@@ -612,19 +725,60 @@ export function recordClockSatisfaction(
   if (instance.status === 'satisfied' || instance.status === 'cancelled') {
     throw new ClockError(`clock ${instance.clockId} is already ${instance.status}`);
   }
-  if (!refPattern.test(fields.evidenceRef)) {
-    throw new ClockError('recordClockSatisfaction requires evidence-of-completion (evidenceRef)');
-  }
   if (fields.evidenceHash !== undefined && !hashPattern.test(fields.evidenceHash)) {
     throw new ClockError('evidenceHash must be a sha-256 hex digest');
   }
-  const event = clockEvent(instance, 'satisfy', fields);
+
+  let evidenceRef: string;
+  let changeControlRef: string | undefined;
+  let truthTableReceiptRef: string | undefined;
+  let extraDetail: Record<string, string>;
+  if (instance.obligationType === 'rule-pack-review') {
+    const structured = fields.closureEvidence;
+    if (structured === undefined) {
+      throw new ClockError(
+        'a rule-pack-review closure requires structured evidence — a change-control ref ' +
+          'and the truth-table regeneration receipt (R6-SR-102)',
+      );
+    }
+    if (!changeRefPattern.test(structured.changeControlRef)) {
+      throw new ClockError('rule-pack-review closure requires a change-control reference');
+    }
+    if (!refPattern.test(structured.truthTableReceiptRef)) {
+      throw new ClockError('rule-pack-review closure requires a truth-table regeneration receipt');
+    }
+    changeControlRef = structured.changeControlRef;
+    truthTableReceiptRef = structured.truthTableReceiptRef;
+    // The projection's closure evidence ref is the change-control ref; the
+    // truth-table receipt rides its own field on the satisfy event.
+    evidenceRef = structured.changeControlRef;
+    extraDetail = {
+      evidence_ref: structured.changeControlRef,
+      truth_table_receipt: structured.truthTableReceiptRef,
+    };
+  } else {
+    if (fields.evidenceRef === undefined || !refPattern.test(fields.evidenceRef)) {
+      throw new ClockError('recordClockSatisfaction requires evidence-of-completion (evidenceRef)');
+    }
+    evidenceRef = fields.evidenceRef;
+    extraDetail = { evidence_ref: fields.evidenceRef };
+  }
+
+  const event = clockEvent(instance, 'satisfy', {
+    clockEventId: fields.clockEventId,
+    occurredAt: fields.occurredAt,
+    actorRef: fields.actorRef,
+    evidenceRef,
+    ...(fields.evidenceHash !== undefined ? { evidenceHash: fields.evidenceHash } : {}),
+    ...(changeControlRef !== undefined ? { changeControlRef } : {}),
+    ...(truthTableReceiptRef !== undefined ? { truthTableReceiptRef } : {}),
+  });
   return {
     event,
     instance: {
       ...instance,
       status: 'satisfied',
-      closureEvidenceRef: fields.evidenceRef,
+      closureEvidenceRef: evidenceRef,
       lastEventId: fields.clockEventId,
     },
     auditInput: clockAudit(
@@ -632,9 +786,7 @@ export function recordClockSatisfaction(
       'obligation-clock-satisfied',
       fields.actorRef,
       fields.occurredAt,
-      {
-        evidence_ref: fields.evidenceRef,
-      },
+      extraDetail,
     ),
   };
 }
@@ -676,6 +828,44 @@ export function cancelClock(
       fields.occurredAt,
       {},
     ),
+  };
+}
+
+// --- Counsel-owned clock-policy publication (review-016 F1) -----------------
+
+/**
+ * Publish a versioned, effective-dated clock-duration policy — AUTHORITY-BEARING
+ * counsel-owned change-controlled data (the `consent.policy-clocks` gated command
+ * routes here, floored `simulated`). Validates the policy and yields a
+ * config-change audit input; the normal app role cannot INSERT the counsel
+ * registry at runtime (0011 revokes it — review-016 F1), so persistence rides
+ * the change-controlled seed path exactly like the jurisdiction rule packs.
+ */
+export function publishObligationClockPolicy(
+  policy: ObligationClockPolicy,
+  fields: { readonly actorRef: string; readonly occurredAt: string },
+): { readonly policy: ObligationClockPolicy; readonly auditInput: ClockAuditInput } {
+  assertObligationClockPolicyWellFormed(policy);
+  if (!refPattern.test(fields.actorRef)) {
+    throw new ClockError(`actorRef ${JSON.stringify(fields.actorRef)} is malformed`);
+  }
+  const configRef = `clock-policy:${policy.obligationType}:${policy.jurisdiction.toLowerCase()}:v${policy.version}`;
+  return {
+    policy,
+    auditInput: {
+      tenantId: 'platform-global',
+      stream: 'config-change',
+      action: 'obligation-clock-policy-published',
+      actorRef: fields.actorRef,
+      occurredAt: toAuditInstant(fields.occurredAt),
+      correlationRef: `clock-policy:${policy.obligationType}:${policy.jurisdiction.toLowerCase()}`,
+      detail: {
+        config_ref: configRef,
+        obligation_type: policy.obligationType,
+        change_control_ref: policy.changeControlRef,
+      },
+      synthetic: true,
+    },
   };
 }
 
@@ -760,7 +950,10 @@ export interface RenewalExpiryInput {
 }
 
 export type RenewalExpiryOutcome =
-  | { readonly fired: false; readonly reason: 'not-yet-due' | 'renewal-recorded' }
+  | {
+      readonly fired: false;
+      readonly reason: 'not-yet-due' | 'renewal-recorded' | 'cancelled' | 'already-fired';
+    }
   | {
       readonly fired: true;
       /** The consent `expire` event to append (SAME module — no cross-module write). */
@@ -769,12 +962,19 @@ export type RenewalExpiryOutcome =
     };
 
 /**
- * Run the MHRA renewal clock at `asOf` (R6-SR-041 auto-block). A recorded
- * renewal before the due instant cancels the auto-fire; otherwise, once the
- * consent's expiry (the anchor `dueAt`) passes, the clock AUTO-FIRES the consent
- * `expire` event input and an `expire-fired` clock event. The caller appends the
- * consent event via `appendConsentEvent`. MHRA expiry blocks third-party
- * disclosure only, never the patient's own access (ADR-007 C-06).
+ * Run the MHRA renewal clock at `asOf` (R6-SR-041 auto-block). Terminal-safe AND
+ * exactly-once (review-016 F2):
+ * - a recorded renewal (`satisfied`) OR a `cancelled` clock never auto-fires;
+ * - a clock that has ALREADY fired (`instance.expireFired`, the folded terminal
+ *   marker) never fires again — a worker retry cannot emit a second consent
+ *   `expire` or a second `expire-fired` event.
+ *
+ * Otherwise, once the consent's expiry (the anchor `dueAt`) passes, the clock
+ * AUTO-FIRES the consent `expire` event input and an `expire-fired` clock event.
+ * The caller appends the consent event via `appendConsentEvent` and folds the
+ * `expire-fired` event (setting `expireFired`) so the next run is a no-op. MHRA
+ * expiry blocks third-party disclosure only, never the patient's own access
+ * (ADR-007 C-06).
  */
 export function runRenewalExpiry(input: RenewalExpiryInput): RenewalExpiryOutcome {
   const { instance } = input;
@@ -786,6 +986,12 @@ export function runRenewalExpiry(input: RenewalExpiryInput): RenewalExpiryOutcom
   assertIsoTimestamp(input.asOf, 'asOf');
   if (input.renewalRecorded || instance.status === 'satisfied') {
     return { fired: false, reason: 'renewal-recorded' };
+  }
+  if (instance.status === 'cancelled') {
+    return { fired: false, reason: 'cancelled' };
+  }
+  if (instance.expireFired) {
+    return { fired: false, reason: 'already-fired' };
   }
   if (Date.parse(input.asOf) < Date.parse(instance.dueAt)) {
     return { fired: false, reason: 'not-yet-due' };
@@ -815,23 +1021,84 @@ export function runRenewalExpiry(input: RenewalExpiryInput): RenewalExpiryOutcom
 }
 
 /**
- * Fold a clock event log into projections — one row per clock, carrying the
- * latest event's derived status. A pure function of the log (the DB projection
- * equals this; drift-tested). Terminal statuses (satisfied/cancelled) win over
- * later time-derived ones.
+ * The basis a records release is requested on when an MHRA disclosure consent
+ * has lapsed. `third-party-disclosure` is what the renewal clock blocks; the
+ * other two are the canonical exceptions the expiry NEVER blocks.
  */
-export function foldClocks(
-  events: readonly ObligationClockEvent[],
-  triggers: readonly ObligationClock[],
-): Map<string, ObligationClock> {
-  const byClock = new Map<string, ObligationClock>();
-  for (const instance of triggers) {
-    byClock.set(`${instance.tenantId}|${instance.clockId}`, instance);
+export type MhraReleaseBasis = 'third-party-disclosure' | 'patient-own-access' | 'urgent-care';
+
+export interface MhraReleaseDecision {
+  readonly permitted: boolean;
+  readonly basis: MhraReleaseBasis;
+  readonly reason: string;
+}
+
+/**
+ * The MHRA release decision AFTER a renewal clock may have lapsed (REQ-ADM-031;
+ * ADR-007 C-06; review-016 F5 urgent-release exception). MHRA release-consent
+ * expiry blocks THIRD-PARTY disclosure only — and only while the disclosure
+ * consent is not live (fail closed). The canonical exceptions are never blocked
+ * by expiry:
+ *   - the PATIENT'S OWN access (C-06 — the clock governs disclosure, not access);
+ *   - an URGENT-CARE release (the documented emergency-treatment exception; the
+ *     lapse is recorded, but care is never withheld).
+ */
+export function mhraReleaseDecision(input: {
+  readonly disclosureConsentActive: boolean;
+  readonly basis: MhraReleaseBasis;
+}): MhraReleaseDecision {
+  switch (input.basis) {
+    case 'patient-own-access':
+      return {
+        permitted: true,
+        basis: input.basis,
+        reason: 'MHRA expiry never blocks the patient’s own access (ADR-007 C-06)',
+      };
+    case 'urgent-care':
+      return {
+        permitted: true,
+        basis: input.basis,
+        reason: 'documented urgent-care exception — release proceeds, lapse recorded',
+      };
+    case 'third-party-disclosure':
+      return input.disclosureConsentActive
+        ? {
+            permitted: true,
+            basis: input.basis,
+            reason: 'the MHRA disclosure consent is live',
+          }
+        : {
+            permitted: false,
+            basis: input.basis,
+            reason: 'the MHRA disclosure consent has lapsed — third-party release is blocked',
+          };
+    default: {
+      const exhaustive: never = input.basis;
+      throw new ClockError(`unknown MHRA release basis ${JSON.stringify(exhaustive)}`);
+    }
   }
+}
+
+/**
+ * Fold a clock event log into projections — one row per clock, REBUILT ENTIRELY
+ * from the events (review-016 F3): a `trigger` event opens the row (carrying its
+ * rebuild metadata), and follow-events transition it. No seeded projection rows;
+ * the DB projection equals this fold field-for-field (drift-tested + the DB
+ * projection-vs-fold suite). Terminal statuses (satisfied/cancelled) win; an
+ * `expire-fired` event sets the terminal `expireFired` marker.
+ */
+export function foldClocks(events: readonly ObligationClockEvent[]): Map<string, ObligationClock> {
+  const byClock = new Map<string, ObligationClock>();
   for (const event of events) {
     const key = `${event.tenantId}|${event.clockId}`;
+    if (event.kind === 'trigger') {
+      byClock.set(key, triggerRowFromEvent(event));
+      continue;
+    }
     const current = byClock.get(key);
     if (current === undefined) {
+      // A follow-event without its trigger cannot rebuild a row — skip (the DB
+      // FK makes this unrepresentable; a fold over a partial slice tolerates it).
       continue;
     }
     if (event.kind === 'escalate' && current.status === 'pending') {
@@ -845,6 +1112,8 @@ export function foldClocks(
       });
     } else if (event.kind === 'cancel') {
       byClock.set(key, { ...current, status: 'cancelled', lastEventId: event.clockEventId });
+    } else if (event.kind === 'expire-fired') {
+      byClock.set(key, { ...current, expireFired: true, lastEventId: event.clockEventId });
     }
   }
   return byClock;
