@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-033",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a departure that would orphan a context-less item fails closed (E1)",
+      "op": "departure",
+      "handoffId": "dep-0003",
+      "departingOwnerRef": "synthetic-provider:departed",
+      "coveringOwnerRef": "synthetic-provider:reyes",
+      "vacatedSlots": [],
+      "ownedItemIds": ["wi-dep-0004", "wi-dep-0005"],
+      "withContext": false,
+      "generatedAt": "2026-03-02T23:00:00Z",
+      "expectThrow": true
+    }
+  ]
+}

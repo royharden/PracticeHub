@@ -1,0 +1,30 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-016",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "publishing a rotation version yields a config-change audit ref (governed provisioning)",
+      "op": "publish-rotation",
+      "rotation": {
+        "rotationId": "oncall-concierge-nv",
+        "version": 1,
+        "effectiveOn": "2026-01-01",
+        "locationId": "loc-nv-lasvegas",
+        "coverageMode": "24x7",
+        "serviceScopes": ["concierge-urgent", "longevity"],
+        "memberOrder": [
+          {
+            "memberRef": "synthetic-provider:reyes",
+            "serviceScopes": ["concierge-urgent", "longevity"]
+          },
+          {
+            "memberRef": "synthetic-provider:okafor",
+            "serviceScopes": ["concierge-urgent"]
+          }
+        ]
+      },
+      "expectConfigRef": "oncall-rotation:oncall-concierge-nv:v1"
+    }
+  ]
+}

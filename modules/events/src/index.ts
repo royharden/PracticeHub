@@ -11,3 +11,9 @@ export * from './worklist.js';
 export * from './workitem-store.js';
 export * from './sla-seed-data.js';
 export * from './commands/publish-sla-policy.command.js';
+// WP-023 on-call schedule + coverage/PTO + context-package shape freeze.
+export * from './oncall.js';
+export * from './coverage.js';
+export * from './oncall-store.js';
+export * from './oncall-seed-data.js';
+export * from './commands/publish-oncall-rotation.command.js';

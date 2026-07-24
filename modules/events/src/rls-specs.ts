@@ -27,8 +27,18 @@ export const workItemsRlsSpecs: readonly RlsTableSpec[] = [
   { schema: 'events', table: 'sla_timer', kind: 'tenant-scoped' },
 ];
 
+/** Tables created by 0014-oncall.sql — that migration's DDL scope (WP-023). */
+export const onCallRlsSpecs: readonly RlsTableSpec[] = [
+  { schema: 'events', table: 'on_call_rotation', kind: 'tenant-scoped' },
+  { schema: 'events', table: 'on_call_slot', kind: 'tenant-scoped' },
+  { schema: 'events', table: 'coverage_window', kind: 'tenant-scoped' },
+  { schema: 'events', table: 'coverage_gap_alert', kind: 'tenant-scoped' },
+  { schema: 'events', table: 'coverage_handoff', kind: 'tenant-scoped' },
+];
+
 /** The full events-schema registry — every migration's guard declares it. */
 export const eventsSchemaRlsSpecs: readonly RlsTableSpec[] = [
   ...eventsRlsSpecs,
   ...workItemsRlsSpecs,
+  ...onCallRlsSpecs,
 ];

@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-033",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "an abrupt departure vacates on-call slots and bulk-reassigns owned work with context (AC1)",
+      "op": "departure",
+      "handoffId": "dep-0001",
+      "departingOwnerRef": "synthetic-provider:departed",
+      "coveringOwnerRef": "synthetic-provider:reyes",
+      "vacatedSlots": [
+        {
+          "slotId": "slot-v",
+          "windowStart": "2026-03-03T00:00:00Z",
+          "windowEnd": "2026-03-03T08:00:00Z"
+        }
+      ],
+      "ownedItemIds": ["wi-dep-0001", "wi-dep-0002"],
+      "generatedAt": "2026-03-02T23:00:00Z",
+      "expectReassignCount": 2,
+      "expectVacatedCount": 1
+    }
+  ]
+}

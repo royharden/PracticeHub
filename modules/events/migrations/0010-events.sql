@@ -164,7 +164,7 @@ BEGIN
      AND c.relkind = 'r'
      AND (NOT c.relrowsecurity
           OR NOT c.relforcerowsecurity
-          OR c.relname NOT IN ('inbox', 'outbox', 'outbox_delivery', 'sla_policy', 'sla_timer', 'work_item', 'work_item_event'));
+          OR c.relname NOT IN ('coverage_gap_alert', 'coverage_handoff', 'coverage_window', 'inbox', 'on_call_rotation', 'on_call_slot', 'outbox', 'outbox_delivery', 'sla_policy', 'sla_timer', 'work_item', 'work_item_event'));
   IF offender IS NOT NULL THEN
     RAISE EXCEPTION 'rls coverage failure in schema events: %', offender;
   END IF;

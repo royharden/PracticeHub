@@ -1,0 +1,24 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-020",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "a coverage/PTO handoff bulk-reassigns every owned thread to the covering owner with context (AC1)",
+      "op": "plan-coverage",
+      "window": {
+        "coverageId": "cov-noor-0001",
+        "ownerRef": "synthetic-guide:noor",
+        "fromAt": "2026-03-10T00:00:00Z",
+        "toAt": "2026-03-14T00:00:00Z",
+        "coverageTargetRef": "synthetic-guide:maya",
+        "targetKind": "owner",
+        "reason": "pto",
+        "status": "planned"
+      },
+      "ownedItemIds": ["wi-a", "wi-b", "wi-c"],
+      "expectCount": 3,
+      "expectToOwner": "synthetic-guide:maya"
+    }
+  ]
+}

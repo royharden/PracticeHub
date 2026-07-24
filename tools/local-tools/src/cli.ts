@@ -181,6 +181,8 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/014-workitems-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/015-elevation-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/015-elevation-seed.sql');
+  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/016-oncall-seed.sql'), 'utf8'));
+  console.log('seeded infra/postgres/seed/016-oncall-seed.sql');
 }
 
 function testLocal(): void {
@@ -874,6 +876,40 @@ function testLocal(): void {
     throw new Error(`recertification standing proof differs: ${recertPosture}`);
   }
 
+  // WP-023: the provisioned 24/7 on-call rotation stands (REQ-ADM-016) — the
+  // northwind concierge rotation is 24x7, riverbend's is business-mode (opposite
+  // posture), and neither leaks across the tenant boundary.
+  const onCallRotationPosture = scalar(
+    "SELECT string_agg(tenant_id || ':' || coverage_mode, ',' ORDER BY tenant_id) " +
+      "FROM events.on_call_rotation WHERE rotation_id IN ('oncall-concierge-nv', 'oncall-rb');",
+  );
+  if (onCallRotationPosture !== 'northwind-synthetic:24x7,riverbend-synthetic:business') {
+    throw new Error(`on-call rotation posture differs: ${onCallRotationPosture}`);
+  }
+
+  // WP-023: the coverage-gap alert standing proof (REQ-ADM-041) — an OPEN gap for
+  // the vacated overnight window is on the northwind board.
+  const gapAlertPosture = scalar(
+    'SELECT count(*) FROM events.coverage_gap_alert ' +
+      "WHERE tenant_id = 'northwind-synthetic' AND status = 'open' " +
+      "AND detected_reason = 'vacated-slot';",
+  );
+  if (gapAlertPosture !== '1') {
+    throw new Error(`coverage-gap alert standing proof differs: ${gapAlertPosture}`);
+  }
+
+  // WP-023: the coverage/PTO handoff standing proof (REQ-TASK-020) — a
+  // pto-coverage handoff of two owned threads with context is recorded, and its
+  // item_count matches its manifest length (the CHECK is DB-enforced too).
+  const handoffPosture = scalar(
+    "SELECT (item_count = jsonb_array_length(context_manifest))::text || '|' || item_count::text " +
+      "FROM events.coverage_handoff WHERE tenant_id = 'northwind-synthetic' " +
+      "AND handoff_id = 'handoff-noor-pto-0001';",
+  );
+  if (handoffPosture !== 'true|2') {
+    throw new Error(`coverage handoff standing proof differs: ${handoffPosture}`);
+  }
+
   // WP-010: the DB-level cross-tenant negative suite runs against the live stack.
   run('pnpm', ['--filter', '@practicehub/platform-core', 'run', 'test:db'], {
     stdio: 'inherit',
@@ -916,8 +952,8 @@ function testLocal(): void {
       'rls_coverage=OK watermark=OK jurisdiction_packs=OK capability_registry=OK ' +
       'identity_model=OK authn_model=OK merge_governance=OK pdp_model=OK ' +
       'gipa_partition=OK audit_store=OK consent_ledger=OK event_spine=OK ' +
-      'policy_clocks=OK tasking_engine=OK break_glass=OK dex_federation=OK ' +
-      'cross_tenant_db_suite=OK synthetic_stack=OK',
+      'policy_clocks=OK tasking_engine=OK break_glass=OK oncall_coverage=OK ' +
+      'dex_federation=OK cross_tenant_db_suite=OK synthetic_stack=OK',
   );
 }
 

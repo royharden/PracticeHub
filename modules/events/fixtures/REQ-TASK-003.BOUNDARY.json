@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-003",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "a single owned thread is reassigned ahead of the absence (minimum plan)",
+      "op": "plan-coverage",
+      "window": {
+        "coverageId": "cov-noor-0001",
+        "ownerRef": "synthetic-guide:noor",
+        "fromAt": "2026-03-10T00:00:00Z",
+        "toAt": "2026-03-14T00:00:00Z",
+        "coverageTargetRef": "synthetic-guide:maya",
+        "targetKind": "owner",
+        "reason": "pto",
+        "status": "planned"
+      },
+      "ownedItemIds": ["wi-thread-0011"],
+      "expectCount": 1
+    }
+  ]
+}

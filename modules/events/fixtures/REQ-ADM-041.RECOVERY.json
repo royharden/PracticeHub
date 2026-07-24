@@ -1,0 +1,36 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-041",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "filling the tail with a slot clears the gap",
+      "op": "detect-gaps",
+      "slots": [
+        {
+          "slotId": "slot-a",
+          "rotationId": "r1",
+          "kind": "rotation",
+          "memberRef": "synthetic-provider:reyes",
+          "serviceScopes": ["concierge-urgent", "longevity"],
+          "windowStart": "2026-03-02T08:00:00Z",
+          "windowEnd": "2026-03-02T20:00:00Z",
+          "status": "scheduled"
+        },
+        {
+          "slotId": "slot-fill",
+          "rotationId": "r1",
+          "kind": "rotation",
+          "memberRef": "synthetic-provider:okafor",
+          "serviceScopes": ["concierge-urgent"],
+          "windowStart": "2026-03-02T20:00:00Z",
+          "windowEnd": "2026-03-02T23:00:00Z",
+          "status": "scheduled"
+        }
+      ],
+      "fromIso": "2026-03-02T08:00:00Z",
+      "toIso": "2026-03-02T23:00:00Z",
+      "expectGapCount": 0
+    }
+  ]
+}

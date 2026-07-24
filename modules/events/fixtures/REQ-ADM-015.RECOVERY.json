@@ -1,0 +1,36 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-015",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "adding a qualified slot restores routing for the previously-skipped case",
+      "op": "resolve-oncall",
+      "slots": [
+        {
+          "slotId": "slot-b",
+          "rotationId": "r1",
+          "kind": "override",
+          "memberRef": "synthetic-provider:okafor",
+          "serviceScopes": ["concierge-urgent"],
+          "windowStart": "2026-03-02T08:00:00Z",
+          "windowEnd": "2026-03-02T20:00:00Z",
+          "status": "overridden"
+        },
+        {
+          "slotId": "slot-c",
+          "rotationId": "r1",
+          "kind": "override",
+          "memberRef": "synthetic-provider:reyes",
+          "serviceScopes": ["concierge-urgent", "longevity"],
+          "windowStart": "2026-03-02T08:00:00Z",
+          "windowEnd": "2026-03-02T20:00:00Z",
+          "status": "overridden"
+        }
+      ],
+      "atIso": "2026-03-02T12:00:00Z",
+      "requiredServiceScope": "longevity",
+      "expectOwner": "synthetic-provider:reyes"
+    }
+  ]
+}

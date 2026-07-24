@@ -1,0 +1,97 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-041",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "the highest version effective on-or-before the date governs (v1 before the boundary)",
+      "op": "rotation-effective",
+      "rotations": [
+        {
+          "rotationId": "oncall-concierge-nv",
+          "version": 1,
+          "effectiveOn": "2026-01-01",
+          "locationId": "loc-nv-lasvegas",
+          "coverageMode": "24x7",
+          "serviceScopes": ["concierge-urgent", "longevity"],
+          "memberOrder": [
+            {
+              "memberRef": "synthetic-provider:reyes",
+              "serviceScopes": ["concierge-urgent", "longevity"]
+            },
+            {
+              "memberRef": "synthetic-provider:okafor",
+              "serviceScopes": ["concierge-urgent"]
+            }
+          ]
+        },
+        {
+          "rotationId": "oncall-concierge-nv",
+          "version": 2,
+          "effectiveOn": "2026-06-01",
+          "locationId": "loc-nv-lasvegas",
+          "coverageMode": "24x7",
+          "serviceScopes": ["concierge-urgent", "longevity"],
+          "memberOrder": [
+            {
+              "memberRef": "synthetic-provider:reyes",
+              "serviceScopes": ["concierge-urgent", "longevity"]
+            },
+            {
+              "memberRef": "synthetic-provider:okafor",
+              "serviceScopes": ["concierge-urgent"]
+            }
+          ]
+        }
+      ],
+      "locationId": "loc-nv-lasvegas",
+      "asOf": "2026-05-31",
+      "expectVersion": 1
+    },
+    {
+      "name": "on the effective date the new version governs (inclusive boundary)",
+      "op": "rotation-effective",
+      "rotations": [
+        {
+          "rotationId": "oncall-concierge-nv",
+          "version": 1,
+          "effectiveOn": "2026-01-01",
+          "locationId": "loc-nv-lasvegas",
+          "coverageMode": "24x7",
+          "serviceScopes": ["concierge-urgent", "longevity"],
+          "memberOrder": [
+            {
+              "memberRef": "synthetic-provider:reyes",
+              "serviceScopes": ["concierge-urgent", "longevity"]
+            },
+            {
+              "memberRef": "synthetic-provider:okafor",
+              "serviceScopes": ["concierge-urgent"]
+            }
+          ]
+        },
+        {
+          "rotationId": "oncall-concierge-nv",
+          "version": 2,
+          "effectiveOn": "2026-06-01",
+          "locationId": "loc-nv-lasvegas",
+          "coverageMode": "24x7",
+          "serviceScopes": ["concierge-urgent", "longevity"],
+          "memberOrder": [
+            {
+              "memberRef": "synthetic-provider:reyes",
+              "serviceScopes": ["concierge-urgent", "longevity"]
+            },
+            {
+              "memberRef": "synthetic-provider:okafor",
+              "serviceScopes": ["concierge-urgent"]
+            }
+          ]
+        }
+      ],
+      "locationId": "loc-nv-lasvegas",
+      "asOf": "2026-06-01",
+      "expectVersion": 2
+    }
+  ]
+}

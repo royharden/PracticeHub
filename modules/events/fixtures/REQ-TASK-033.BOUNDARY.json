@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-033",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "a departure with no on-call slots still reassigns owned work (boundary: nothing to vacate)",
+      "op": "departure",
+      "handoffId": "dep-0002",
+      "departingOwnerRef": "synthetic-provider:departed",
+      "coveringOwnerRef": "synthetic-provider:reyes",
+      "vacatedSlots": [],
+      "ownedItemIds": ["wi-dep-0003"],
+      "generatedAt": "2026-03-02T23:00:00Z",
+      "expectReassignCount": 1,
+      "expectVacatedCount": 0
+    }
+  ]
+}

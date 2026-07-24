@@ -1,0 +1,28 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-034",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "deduplicated, the handoff summarizes the two distinct overnight threads",
+      "op": "morning-handoff",
+      "handoffId": "handoff-morning-0004",
+      "fromOwnerRef": null,
+      "toOwnerRef": "synthetic-guide:noor",
+      "generatedAt": "2026-03-03T07:30:00Z",
+      "overnightItems": [
+        {
+          "workItemId": "wi-dup-a",
+          "risk": "urgent",
+          "contextPackageRef": "r1"
+        },
+        {
+          "workItemId": "wi-dup-b",
+          "risk": "urgent",
+          "contextPackageRef": "r2"
+        }
+      ],
+      "expectItemCount": 2
+    }
+  ]
+}

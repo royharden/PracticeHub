@@ -1,0 +1,30 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-016",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a 24/7 rotation with a service scope no member covers is a provisioning defect (E1)",
+      "op": "rotation-valid",
+      "rotation": {
+        "rotationId": "oncall-concierge-nv",
+        "version": 1,
+        "effectiveOn": "2026-01-01",
+        "locationId": "loc-nv-lasvegas",
+        "coverageMode": "24x7",
+        "serviceScopes": ["concierge-urgent", "longevity", "genetics"],
+        "memberOrder": [
+          {
+            "memberRef": "synthetic-provider:reyes",
+            "serviceScopes": ["concierge-urgent", "longevity"]
+          },
+          {
+            "memberRef": "synthetic-provider:okafor",
+            "serviceScopes": ["concierge-urgent"]
+          }
+        ]
+      },
+      "expectThrow": true
+    }
+  ]
+}

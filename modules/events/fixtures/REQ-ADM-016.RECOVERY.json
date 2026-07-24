@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-016",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "a vacated overnight slot surfaces the 24/7 coverage gap as an alert (detected, not silent)",
+      "op": "detect-gaps",
+      "slots": [
+        {
+          "slotId": "slot-v",
+          "rotationId": "r1",
+          "kind": "rotation",
+          "memberRef": "synthetic-provider:departed",
+          "serviceScopes": ["concierge-urgent", "longevity"],
+          "windowStart": "2026-03-03T00:00:00Z",
+          "windowEnd": "2026-03-03T08:00:00Z",
+          "status": "vacated"
+        }
+      ],
+      "fromIso": "2026-03-03T00:00:00Z",
+      "toIso": "2026-03-03T08:00:00Z",
+      "expectGapCount": 1
+    }
+  ]
+}

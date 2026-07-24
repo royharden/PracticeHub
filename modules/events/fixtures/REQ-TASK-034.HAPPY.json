@@ -1,0 +1,28 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-034",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "a morning handoff summarizes overnight urgent threads with per-item context (AC1)",
+      "op": "morning-handoff",
+      "handoffId": "handoff-morning-0001",
+      "fromOwnerRef": "synthetic-provider:okafor",
+      "toOwnerRef": "synthetic-guide:noor",
+      "generatedAt": "2026-03-03T07:30:00Z",
+      "overnightItems": [
+        {
+          "workItemId": "wi-overnight-0021",
+          "risk": "urgent",
+          "contextPackageRef": "synthetic-note:o-0021"
+        },
+        {
+          "workItemId": "wi-overnight-0022",
+          "risk": "elevated",
+          "contextPackageRef": "synthetic-note:o-0022"
+        }
+      ],
+      "expectItemCount": 2
+    }
+  ]
+}

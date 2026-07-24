@@ -1,0 +1,36 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ADM-015",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "a longevity case skips the concierge-urgent-only override and routes to the qualified owner (AC1)",
+      "op": "resolve-oncall",
+      "slots": [
+        {
+          "slotId": "slot-a",
+          "rotationId": "r1",
+          "kind": "rotation",
+          "memberRef": "synthetic-provider:reyes",
+          "serviceScopes": ["concierge-urgent", "longevity"],
+          "windowStart": "2026-03-02T08:00:00Z",
+          "windowEnd": "2026-03-02T20:00:00Z",
+          "status": "scheduled"
+        },
+        {
+          "slotId": "slot-b",
+          "rotationId": "r1",
+          "kind": "override",
+          "memberRef": "synthetic-provider:okafor",
+          "serviceScopes": ["concierge-urgent"],
+          "windowStart": "2026-03-02T08:00:00Z",
+          "windowEnd": "2026-03-02T20:00:00Z",
+          "status": "overridden"
+        }
+      ],
+      "atIso": "2026-03-02T12:00:00Z",
+      "requiredServiceScope": "longevity",
+      "expectOwner": "synthetic-provider:reyes"
+    }
+  ]
+}

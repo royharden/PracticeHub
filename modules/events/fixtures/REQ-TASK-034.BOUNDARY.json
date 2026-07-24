@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-034",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "a first-shift handoff may have no prior owner and no overnight items (empty boundary)",
+      "op": "morning-handoff",
+      "handoffId": "handoff-morning-0002",
+      "fromOwnerRef": null,
+      "toOwnerRef": "synthetic-guide:noor",
+      "generatedAt": "2026-03-03T07:30:00Z",
+      "overnightItems": [],
+      "expectItemCount": 0
+    }
+  ]
+}

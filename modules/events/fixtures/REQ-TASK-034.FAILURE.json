@@ -1,0 +1,28 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-034",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a handoff listing the same thread twice is refused so the manifest is exact (E1)",
+      "op": "morning-handoff",
+      "handoffId": "handoff-morning-0003",
+      "fromOwnerRef": null,
+      "toOwnerRef": "synthetic-guide:noor",
+      "generatedAt": "2026-03-03T07:30:00Z",
+      "overnightItems": [
+        {
+          "workItemId": "wi-dup",
+          "risk": "urgent",
+          "contextPackageRef": "r1"
+        },
+        {
+          "workItemId": "wi-dup",
+          "risk": "urgent",
+          "contextPackageRef": "r2"
+        }
+      ],
+      "expectThrow": true
+    }
+  ]
+}

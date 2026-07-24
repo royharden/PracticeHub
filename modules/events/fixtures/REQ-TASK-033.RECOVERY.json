@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-033",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "restoring context lets the departure handoff complete with zero orphaned work",
+      "op": "departure",
+      "handoffId": "dep-0004",
+      "departingOwnerRef": "synthetic-provider:departed",
+      "coveringOwnerRef": "synthetic-provider:reyes",
+      "vacatedSlots": [],
+      "ownedItemIds": ["wi-dep-0004", "wi-dep-0005"],
+      "withContext": true,
+      "generatedAt": "2026-03-02T23:00:00Z",
+      "expectReassignCount": 2
+    }
+  ]
+}

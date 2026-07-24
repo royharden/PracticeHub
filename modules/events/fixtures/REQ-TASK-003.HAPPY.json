@@ -1,0 +1,24 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-003",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "a planned PTO window produces the pre-absence reassignment plan for owned threads (AC1)",
+      "op": "plan-coverage",
+      "window": {
+        "coverageId": "cov-noor-0001",
+        "ownerRef": "synthetic-guide:noor",
+        "fromAt": "2026-03-10T00:00:00Z",
+        "toAt": "2026-03-14T00:00:00Z",
+        "coverageTargetRef": "synthetic-guide:maya",
+        "targetKind": "owner",
+        "reason": "pto",
+        "status": "planned"
+      },
+      "ownedItemIds": ["wi-thread-0011", "wi-thread-0012"],
+      "expectCount": 2,
+      "expectToOwner": "synthetic-guide:maya"
+    }
+  ]
+}

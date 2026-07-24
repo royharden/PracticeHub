@@ -10,7 +10,12 @@ import { fileURLToPath } from 'node:url';
 import { extractRlsMigrationSection, renderRlsMigrationSection } from '@practicehub/platform-core';
 import { describe, expect, it } from 'vitest';
 
-import { eventsRlsSpecs, eventsSchemaRlsSpecs, workItemsRlsSpecs } from './rls-specs.js';
+import {
+  eventsRlsSpecs,
+  eventsSchemaRlsSpecs,
+  onCallRlsSpecs,
+  workItemsRlsSpecs,
+} from './rls-specs.js';
 import {
   extractEventsSeedSection,
   renderEventsSeedSection,
@@ -21,6 +26,11 @@ import {
   renderWorkItemsSeedSection,
   syntheticWorkItemsSeedV1,
 } from './sla-seed-data.js';
+import {
+  extractOnCallSeedSection,
+  renderOnCallSeedSection,
+  syntheticOnCallSeedV1,
+} from './oncall-seed-data.js';
 
 const repoRoot = fileURLToPath(new URL('../../..', import.meta.url));
 
@@ -51,6 +61,40 @@ describe('0012-workitems.sql RLS drift gate (WP-022)', () => {
     expect(embedded).toBe(
       renderRlsMigrationSection('events', workItemsRlsSpecs, eventsSchemaRlsSpecs),
     );
+  });
+});
+
+describe('0014-oncall.sql RLS drift gate (WP-023)', () => {
+  it('embeds exactly the generated section (DDL scope = on-call/coverage tables; guard = full schema)', () => {
+    const migration = readFileSync(`${repoRoot}modules/events/migrations/0014-oncall.sql`, 'utf8');
+    const embedded = extractRlsMigrationSection(migration);
+    expect(embedded).toBe(
+      renderRlsMigrationSection('events', onCallRlsSpecs, eventsSchemaRlsSpecs),
+    );
+  });
+
+  it('the schema-wide guard registry now declares the on-call/coverage tables', () => {
+    const guardTables = new Set(eventsSchemaRlsSpecs.map((spec) => `${spec.schema}.${spec.table}`));
+    for (const spec of onCallRlsSpecs) {
+      expect(guardTables.has(`${spec.schema}.${spec.table}`)).toBe(true);
+    }
+  });
+});
+
+describe('016-oncall-seed.sql drift gate (WP-023)', () => {
+  it('embeds exactly the generated section', () => {
+    const seed = readFileSync(`${repoRoot}infra/postgres/seed/016-oncall-seed.sql`, 'utf8');
+    const embedded = extractOnCallSeedSection(seed);
+    expect(embedded).toBe(renderOnCallSeedSection(syntheticOnCallSeedV1));
+  });
+
+  it('the pto-coverage handoff manifest length matches its item_count (contract §2)', () => {
+    const handoff = syntheticOnCallSeedV1.handoffs.find(
+      (record) => record.handoffId === 'handoff-noor-pto-0001',
+    );
+    expect(handoff?.kind).toBe('pto-coverage');
+    expect(handoff?.itemCount).toBe(handoff?.manifest.length);
+    expect(handoff?.itemCount).toBe(2);
   });
 });
 

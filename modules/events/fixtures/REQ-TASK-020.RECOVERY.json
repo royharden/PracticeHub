@@ -1,0 +1,24 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-020",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "after the failed move, the corrected bulk plan reassigns every thread with context",
+      "op": "plan-coverage",
+      "window": {
+        "coverageId": "cov-noor-0001",
+        "ownerRef": "synthetic-guide:noor",
+        "fromAt": "2026-03-10T00:00:00Z",
+        "toAt": "2026-03-14T00:00:00Z",
+        "coverageTargetRef": "synthetic-guide:maya",
+        "targetKind": "owner",
+        "reason": "pto",
+        "status": "planned"
+      },
+      "ownedItemIds": ["wi-a", "wi-b"],
+      "withContext": true,
+      "expectCount": 2
+    }
+  ]
+}

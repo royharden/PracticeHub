@@ -1,0 +1,24 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-TASK-003",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a pre-absence handoff that drops a thread’s context is refused (E1 — no rushed orphan)",
+      "op": "plan-coverage",
+      "window": {
+        "coverageId": "cov-noor-0001",
+        "ownerRef": "synthetic-guide:noor",
+        "fromAt": "2026-03-10T00:00:00Z",
+        "toAt": "2026-03-14T00:00:00Z",
+        "coverageTargetRef": "synthetic-guide:maya",
+        "targetKind": "owner",
+        "reason": "pto",
+        "status": "planned"
+      },
+      "ownedItemIds": ["wi-thread-0011", "wi-thread-0012"],
+      "withContext": false,
+      "expectThrow": true
+    }
+  ]
+}
