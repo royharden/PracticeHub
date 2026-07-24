@@ -18,6 +18,7 @@
     "verify:imports": "pnpm --filter @practicehub/validators run verify:imports",
     "verify:handlers": "pnpm --filter @practicehub/validators run verify:handlers",
     "verify:planning": "pnpm --filter @practicehub/validators run verify:planning",
+    "verify:adapters": "pnpm --filter @practicehub/validators run verify:adapters",
     "verify:phi": "pnpm --filter @practicehub/validators run verify:phi",
     "verify:secrets": "pnpm --filter @practicehub/validators run verify:secrets",
     "verify:config": "pnpm --filter @practicehub/validators run verify:config",

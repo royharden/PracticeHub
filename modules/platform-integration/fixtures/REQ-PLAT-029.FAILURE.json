@@ -1,0 +1,18 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-029",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "overriding a block to an uncovered (suspended) vendor is impossible — it stays blocked",
+      "op": "egress",
+      "vendor": {
+        "status": "suspended"
+      },
+      "request": {},
+      "expectAllow": false,
+      "expectReason": "vendor-suspended",
+      "expectAuditDecision": "deny"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-080",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "no CPT license on record disables the dependent command (fail closed)",
+      "op": "license",
+      "license": null,
+      "contentFamily": "cpt",
+      "expectPermitted": false,
+      "expectLicenseReason": "no-license-on-record"
+    }
+  ]
+}

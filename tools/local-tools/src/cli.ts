@@ -189,6 +189,10 @@ function seed(): void {
     readFileSync(join(repoRoot, 'infra/postgres/seed/018-documents-records-seed.sql'), 'utf8'),
   );
   console.log('seeded infra/postgres/seed/018-documents-records-seed.sql');
+  psqlStdin(
+    readFileSync(join(repoRoot, 'infra/postgres/seed/019-vendor-registry-seed.sql'), 'utf8'),
+  );
+  console.log('seeded infra/postgres/seed/019-vendor-registry-seed.sql');
 }
 
 function testLocal(): void {
@@ -1027,6 +1031,66 @@ function testLocal(): void {
     throw new Error(`documents disclosure standing proof differs: ${disclosurePosture}`);
   }
 
+  // WP-026: the vendor-registry capability sits at the package ceiling with the
+  // opposite-state tenant proof (northwind scaffolded, riverbend disabled).
+  const vendorRegistryCapabilityStates = scalar(
+    "SELECT string_agg(tenant_id || ':' || state, ',' ORDER BY tenant_id) " +
+      "FROM platform_core.capability_grant WHERE capability_id = 'platform.vendor-registry';",
+  );
+  if (
+    vendorRegistryCapabilityStates !== 'northwind-synthetic:scaffolded,riverbend-synthetic:disabled'
+  ) {
+    throw new Error(
+      `vendor-registry capability tenant states differ: ${vendorRegistryCapabilityStates}`,
+    );
+  }
+
+  // WP-026: the vendor registry standing posture holds at rest — the lapsed
+  // vendor is suspended (REQ-PLAT-029), the AI-uncovered vendor lacks its
+  // no-training clause (R6-REQ-103), and the labs vendor is NOT permitted GEN
+  // (the egress-guard (e) block proof, R6-REQ-009).
+  const vendorPosture = scalar(
+    "SELECT (SELECT status FROM platform_integration.vendor WHERE vendor_id = 'synthetic-lapsed-vendor') " +
+      "|| '|' || (SELECT no_training_on_phi::text FROM platform_integration.vendor WHERE vendor_id = 'synthetic-ai-uncovered') " +
+      "|| '|' || (SELECT ('GEN' = ANY(permitted_categories))::text FROM platform_integration.vendor WHERE vendor_id = 'synthetic-labs-vendor') " +
+      'FROM (SELECT 1) AS _;',
+  );
+  if (vendorPosture !== 'suspended|false|false') {
+    throw new Error(`vendor registry standing posture differs: ${vendorPosture}`);
+  }
+
+  // WP-026: the egress-decision activity feed carries an allow beside a
+  // block-with-incident (REQ-PLAT-001 AC-8 / REQ-PLAT-029), and the vendor
+  // projection version equals its lifecycle log's max version (materialized read
+  // model, not a second source of truth).
+  const egressFeedPosture = scalar(
+    'SELECT (SELECT count(*) FROM platform_integration.egress_decision ' +
+      "WHERE tenant_id = 'northwind-synthetic' AND decision = 'allow' AND NOT incident_opened)::text " +
+      "|| '|' || (SELECT count(*) FROM platform_integration.egress_decision " +
+      "WHERE tenant_id = 'northwind-synthetic' AND decision = 'deny' AND incident_opened)::text;",
+  );
+  if (!/^[1-9][0-9]*\|[1-9][0-9]*$/.test(egressFeedPosture)) {
+    throw new Error(`egress-decision feed standing proof broken: ${egressFeedPosture}`);
+  }
+  const vendorProjectionDrift = scalar(
+    'SELECT count(*)::text FROM platform_integration.vendor v ' +
+      'WHERE v.version <> (SELECT max(e.version) FROM platform_integration.vendor_event e ' +
+      'WHERE e.tenant_id = v.tenant_id AND e.vendor_id = v.vendor_id);',
+  );
+  if (vendorProjectionDrift !== '0') {
+    throw new Error(`vendor projection out of sync: version drift=${vendorProjectionDrift}`);
+  }
+
+  // WP-026: the content-license gate posture — an active CPT license beside a
+  // lapsed drug-compendium license (R6-REQ-080/081).
+  const licensePosture = scalar(
+    "SELECT string_agg(content_family || ':' || status, ',' ORDER BY content_family) " +
+      "FROM platform_integration.content_license WHERE tenant_id = 'northwind-synthetic';",
+  );
+  if (licensePosture !== 'cpt:active,drug-compendium:lapsed') {
+    throw new Error(`content-license standing posture differs: ${licensePosture}`);
+  }
+
   // WP-010: the DB-level cross-tenant negative suite runs against the live stack.
   run('pnpm', ['--filter', '@practicehub/platform-core', 'run', 'test:db'], {
     stdio: 'inherit',
@@ -1065,6 +1129,13 @@ function testLocal(): void {
     stdio: 'inherit',
   });
 
+  // WP-026: the vendor-registry DB suite (append-only postures, structural
+  // CHECKs, projection-vs-fold, seeded posture, cross-tenant negatives) runs the
+  // same way against the shared service container.
+  run('pnpm', ['--filter', '@practicehub/platform-integration', 'run', 'test:db'], {
+    stdio: 'inherit',
+  });
+
   // WP-014: the dex federation e2e runs against the live compose dex —
   // discovery, mock-connector code flow, crosswalk mapping, and the
   // dark-by-registry denial proof.
@@ -1078,7 +1149,7 @@ function testLocal(): void {
       'identity_model=OK authn_model=OK merge_governance=OK pdp_model=OK ' +
       'gipa_partition=OK audit_store=OK consent_ledger=OK event_spine=OK ' +
       'policy_clocks=OK tasking_engine=OK break_glass=OK oncall_coverage=OK ' +
-      'documents_model=OK documents_records=OK ' +
+      'documents_model=OK documents_records=OK vendor_registry=OK ' +
       'dex_federation=OK cross_tenant_db_suite=OK synthetic_stack=OK',
   );
 }

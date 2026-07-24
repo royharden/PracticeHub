@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-005",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "PHI to a vendor with no registry row is blocked, logged, and opens an incident",
+      "op": "egress",
+      "vendor": null,
+      "request": {},
+      "expectAllow": false,
+      "expectReason": "no-registry-row",
+      "expectIncident": true,
+      "expectAuditDecision": "deny"
+    }
+  ]
+}

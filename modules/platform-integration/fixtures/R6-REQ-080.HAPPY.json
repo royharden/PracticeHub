@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-080",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "an active in-date CPT license permits the dependent command",
+      "op": "license",
+      "license": {
+        "contentFamily": "cpt"
+      },
+      "contentFamily": "cpt",
+      "expectPermitted": true
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-009",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "after the registry grants CHD permission, the previously-blocked CHD egress is allowed",
+      "op": "egress",
+      "vendor": {
+        "permittedCategories": ["ID", "CLIN", "CHD"]
+      },
+      "request": {
+        "categories": ["CHD"]
+      },
+      "expectAllow": true
+    }
+  ]
+}

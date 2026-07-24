@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-029",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "the BAA is expired one day past expiry — the guard fails closed",
+      "op": "egress",
+      "vendor": {
+        "baaExpiry": "2026-05-31"
+      },
+      "request": {
+        "asOf": "2026-06-01"
+      },
+      "expectAllow": false,
+      "expectReason": "baa-expired",
+      "expectIncident": true
+    }
+  ]
+}

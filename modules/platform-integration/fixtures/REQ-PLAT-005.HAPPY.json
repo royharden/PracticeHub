@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-005",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "PHI to an executed, in-date, permitted vendor is allowed and audited",
+      "op": "egress",
+      "vendor": {},
+      "request": {},
+      "expectAllow": true,
+      "expectReason": "permitted",
+      "expectAuditDecision": "allow"
+    }
+  ]
+}

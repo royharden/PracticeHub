@@ -1,0 +1,52 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-001",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "a BAA lapse is immediately reflected — the row suspends (exception 2)",
+      "op": "fold",
+      "events": [
+        {
+          "tenantId": "northwind-synthetic",
+          "vendorId": "synthetic-vendor",
+          "version": 1,
+          "kind": "registered",
+          "vendorClass": "labs",
+          "isAiVendor": false,
+          "enforcementPoint": "synthetic-boundary",
+          "baaStatus": "required",
+          "permittedCategories": ["ID", "CLIN"],
+          "approvedBy": "synthetic-compliance-officer",
+          "evidenceRef": "synthetic-baa:synthetic-vendor-reg",
+          "occurredAt": "2026-01-02T00:00:00Z",
+          "synthetic": true
+        },
+        {
+          "tenantId": "northwind-synthetic",
+          "vendorId": "synthetic-vendor",
+          "version": 2,
+          "kind": "baa-executed",
+          "baaStatus": "executed",
+          "baaEffective": "2026-01-05",
+          "baaExpiry": "2026-03-05",
+          "permittedCategories": ["ID", "CLIN"],
+          "approvedBy": "synthetic-compliance-officer",
+          "evidenceRef": "synthetic-baa:synthetic-vendor-exe",
+          "occurredAt": "2026-01-05T00:00:00Z",
+          "synthetic": true
+        },
+        {
+          "tenantId": "northwind-synthetic",
+          "vendorId": "synthetic-vendor",
+          "version": 3,
+          "kind": "baa-lapsed",
+          "evidenceRef": "synthetic-baa:synthetic-vendor-lapse",
+          "occurredAt": "2026-03-06T00:00:00Z",
+          "synthetic": true
+        }
+      ],
+      "expectStatus": "suspended"
+    }
+  ]
+}

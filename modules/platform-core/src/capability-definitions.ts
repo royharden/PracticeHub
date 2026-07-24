@@ -233,6 +233,19 @@ export const capabilityDefinitionsV1: readonly CapabilityDefinition[] = [
       'never gated: the original version and a patient statement-of-disagreement (HIPAA ' +
       '§164.526) append ungated, search is a read, and destruction eligibility is pure.',
   },
+  {
+    capabilityId: 'platform.vendor-registry',
+    ownerRole: 'security',
+    dimensions: [],
+    description:
+      'Vendor registry + PHI-class/vendor-BAA egress guards + adapter framework (M07, ' +
+      'WP-026): the BAA inventory the runtime egress guard reads, its versioned lifecycle ' +
+      'log, and the content-license gate. Registering a vendor, executing/renewing a BAA, ' +
+      'and expanding permitted PHI categories are permission-increasing (they widen what may ' +
+      'egress) and floor at simulated; the egress guard’s own evaluate/block and the ' +
+      'protective directions (suspend, baa-lapsed, reinstate) are NEVER gated — a block ' +
+      'must always fire and a lapse must always be recordable (the audit.emit precedent).',
+  },
 ];
 
 /** Exact mirror of docs/architecture/capability-edge-preconditions.csv (FROZEN). */
@@ -515,6 +528,16 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       rollbackRef: 'already-disabled',
       synthetic: true,
     },
+    {
+      capabilityId: 'platform.vendor-registry',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
   ],
   events: [
     chainEvent(
@@ -732,6 +755,20 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       'disabled',
       'scaffolded',
       'synthetic-gate:wp-025-documents-records-scaffold',
+    ),
+    // WP-026: the vendor registry + egress guard + adapter framework lands at
+    // its package ceiling — `scaffolded`. The registerVendorBaa command (floored
+    // `simulated`) therefore DENIES a live BAA registration against this seed, by
+    // design; the egress guard's evaluate/block and protective directions
+    // (suspend/lapse/reinstate) are never gated. Riverbend stays the
+    // opposite-state proof.
+    chainEvent(
+      'synthetic-cap-evt-0021',
+      'platform.vendor-registry',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-026-vendor-registry-scaffold',
     ),
   ],
 };

@@ -1,0 +1,18 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-080",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "a checksum mismatch retains the pinned edition and is refused",
+      "op": "license",
+      "license": {
+        "contentFamily": "cpt"
+      },
+      "contentFamily": "cpt",
+      "expectedChecksum": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "expectPermitted": false,
+      "expectLicenseReason": "checksum-mismatch"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-103",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "an AI vendor missing the no-training clause is blocked for all AI PHI",
+      "op": "egress",
+      "vendor": {
+        "isAiVendor": true,
+        "noTrainingOnPhi": false,
+        "zeroRetention": true
+      },
+      "request": {},
+      "expectAllow": false,
+      "expectReason": "ai-no-training-clause"
+    }
+  ]
+}

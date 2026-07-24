@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-081",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "an active in-date drug-compendium license permits the dependent command",
+      "op": "license",
+      "license": {
+        "contentFamily": "drug-compendium"
+      },
+      "contentFamily": "drug-compendium",
+      "expectPermitted": true
+    }
+  ]
+}

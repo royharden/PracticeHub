@@ -1,0 +1,18 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-103",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "a non-AI vendor is not subject to the AI clauses and is allowed",
+      "op": "egress",
+      "vendor": {
+        "isAiVendor": false,
+        "noTrainingOnPhi": false,
+        "zeroRetention": false
+      },
+      "request": {},
+      "expectAllow": true
+    }
+  ]
+}

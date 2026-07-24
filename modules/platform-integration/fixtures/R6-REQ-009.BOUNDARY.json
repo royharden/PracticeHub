@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-009",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "(e) GEN to a CLIN-only vendor is blocked",
+      "op": "egress",
+      "vendor": {
+        "permittedCategories": ["ID", "CLIN"]
+      },
+      "request": {
+        "categories": ["GEN"],
+        "phiClass": "PHI-restricted"
+      },
+      "expectAllow": false,
+      "expectReason": "category-not-permitted"
+    },
+    {
+      "name": "(f) CHD to a vendor without CHD permission is blocked",
+      "op": "egress",
+      "vendor": {
+        "permittedCategories": ["ID", "CLIN"]
+      },
+      "request": {
+        "categories": ["CHD"]
+      },
+      "expectAllow": false,
+      "expectReason": "category-not-permitted"
+    }
+  ]
+}

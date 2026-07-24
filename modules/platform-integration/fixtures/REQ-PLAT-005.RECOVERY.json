@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-005",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "stale/ambiguous registry data fails closed rather than trusting the row (exception 3)",
+      "op": "egress",
+      "vendor": {
+        "baaEffective": null
+      },
+      "request": {},
+      "expectAllow": false,
+      "expectReason": "ambiguous-registry-data"
+    }
+  ]
+}

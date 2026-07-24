@@ -1,0 +1,31 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-008",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a PHI-path vendor with no executed BAA (TBD) blocks go-live completeness",
+      "op": "completeness",
+      "events": [
+        {
+          "tenantId": "northwind-synthetic",
+          "vendorId": "synthetic-vendor",
+          "version": 1,
+          "kind": "registered",
+          "vendorClass": "labs",
+          "isAiVendor": false,
+          "enforcementPoint": "synthetic-boundary",
+          "baaStatus": "required",
+          "permittedCategories": ["ID", "CLIN"],
+          "approvedBy": "synthetic-compliance-officer",
+          "evidenceRef": "synthetic-baa:synthetic-vendor-reg",
+          "occurredAt": "2026-01-02T00:00:00Z",
+          "synthetic": true
+        }
+      ],
+      "phiPathVendorIds": ["synthetic-vendor", "synthetic-missing"],
+      "expectComplete": false,
+      "expectIncomplete": ["synthetic-vendor", "synthetic-missing"]
+    }
+  ]
+}

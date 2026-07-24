@@ -1,0 +1,45 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-008",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "a BAA in-date exactly on its expiry day still counts complete",
+      "op": "completeness",
+      "events": [
+        {
+          "tenantId": "northwind-synthetic",
+          "vendorId": "synthetic-vendor",
+          "version": 1,
+          "kind": "registered",
+          "vendorClass": "labs",
+          "isAiVendor": false,
+          "enforcementPoint": "synthetic-boundary",
+          "baaStatus": "required",
+          "permittedCategories": ["ID", "CLIN"],
+          "approvedBy": "synthetic-compliance-officer",
+          "evidenceRef": "synthetic-baa:synthetic-vendor-reg",
+          "occurredAt": "2026-01-02T00:00:00Z",
+          "synthetic": true
+        },
+        {
+          "tenantId": "northwind-synthetic",
+          "vendorId": "synthetic-vendor",
+          "version": 2,
+          "kind": "baa-executed",
+          "baaStatus": "executed",
+          "baaEffective": "2026-01-05",
+          "baaExpiry": "2026-06-01",
+          "permittedCategories": ["ID", "CLIN"],
+          "approvedBy": "synthetic-compliance-officer",
+          "evidenceRef": "synthetic-baa:synthetic-vendor-exe",
+          "occurredAt": "2026-01-05T00:00:00Z",
+          "synthetic": true
+        }
+      ],
+      "phiPathVendorIds": ["synthetic-vendor"],
+      "asOf": "2026-06-01",
+      "expectComplete": true
+    }
+  ]
+}

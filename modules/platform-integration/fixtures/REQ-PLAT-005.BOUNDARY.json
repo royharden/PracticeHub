@@ -1,0 +1,21 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-005",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "genetic data to a CLIN-only vendor is blocked (categories evaluated independently)",
+      "op": "egress",
+      "vendor": {
+        "permittedCategories": ["ID", "CLIN"]
+      },
+      "request": {
+        "categories": ["GEN"],
+        "phiClass": "PHI-restricted"
+      },
+      "expectAllow": false,
+      "expectReason": "category-not-permitted",
+      "expectPartitionTags": ["gipa-genetic"]
+    }
+  ]
+}

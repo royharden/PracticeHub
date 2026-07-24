@@ -1,0 +1,40 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-009",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "(b) PHI to a vendor with no row is blocked",
+      "op": "egress",
+      "vendor": null,
+      "request": {},
+      "expectAllow": false,
+      "expectReason": "no-registry-row",
+      "expectIncident": true
+    },
+    {
+      "name": "(c) PHI to an AI vendor missing the no-training clause is blocked",
+      "op": "egress",
+      "vendor": {
+        "isAiVendor": true,
+        "noTrainingOnPhi": false,
+        "zeroRetention": true
+      },
+      "request": {},
+      "expectAllow": false,
+      "expectReason": "ai-no-training-clause"
+    },
+    {
+      "name": "(d) PHI to an expired-BAA vendor is blocked",
+      "op": "egress",
+      "vendor": {
+        "baaExpiry": "2026-05-31"
+      },
+      "request": {
+        "asOf": "2026-06-01"
+      },
+      "expectAllow": false,
+      "expectReason": "baa-expired"
+    }
+  ]
+}

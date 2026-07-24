@@ -1,0 +1,54 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-001",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "a compliance-approved category expansion unions the permitted categories",
+      "op": "fold",
+      "events": [
+        {
+          "tenantId": "northwind-synthetic",
+          "vendorId": "synthetic-vendor",
+          "version": 1,
+          "kind": "registered",
+          "vendorClass": "labs",
+          "isAiVendor": false,
+          "enforcementPoint": "synthetic-boundary",
+          "baaStatus": "required",
+          "permittedCategories": ["ID", "CLIN"],
+          "approvedBy": "synthetic-compliance-officer",
+          "evidenceRef": "synthetic-baa:synthetic-vendor-reg",
+          "occurredAt": "2026-01-02T00:00:00Z",
+          "synthetic": true
+        },
+        {
+          "tenantId": "northwind-synthetic",
+          "vendorId": "synthetic-vendor",
+          "version": 2,
+          "kind": "baa-executed",
+          "baaStatus": "executed",
+          "baaEffective": "2026-01-05",
+          "baaExpiry": "2027-01-05",
+          "permittedCategories": ["ID", "CLIN"],
+          "approvedBy": "synthetic-compliance-officer",
+          "evidenceRef": "synthetic-baa:synthetic-vendor-exe",
+          "occurredAt": "2026-01-05T00:00:00Z",
+          "synthetic": true
+        },
+        {
+          "tenantId": "northwind-synthetic",
+          "vendorId": "synthetic-vendor",
+          "version": 3,
+          "kind": "category-expanded",
+          "permittedCategories": ["GEN"],
+          "approvedBy": "synthetic-compliance-officer",
+          "evidenceRef": "synthetic-baa:synthetic-vendor-expand",
+          "occurredAt": "2026-02-01T00:00:00Z",
+          "synthetic": true
+        }
+      ],
+      "expectCategories": ["ID", "CLIN", "GEN"]
+    }
+  ]
+}

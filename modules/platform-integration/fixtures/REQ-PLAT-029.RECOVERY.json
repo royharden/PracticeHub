@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-029",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "after renewal (window extended, row active) egress is permitted again",
+      "op": "egress",
+      "vendor": {
+        "baaExpiry": "2028-01-01",
+        "status": "active"
+      },
+      "request": {},
+      "expectAllow": true
+    }
+  ]
+}

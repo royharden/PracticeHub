@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-009",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "(a) PHI to a covered vendor is allowed and logged",
+      "op": "egress",
+      "vendor": {},
+      "request": {},
+      "expectAllow": true,
+      "expectReason": "permitted"
+    }
+  ]
+}

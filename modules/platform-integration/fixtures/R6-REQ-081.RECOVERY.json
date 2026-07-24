@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-081",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "an expired compendium license is refused as of the check date",
+      "op": "license",
+      "license": {
+        "contentFamily": "drug-compendium",
+        "expiry": "2026-01-01"
+      },
+      "contentFamily": "drug-compendium",
+      "asOf": "2026-06-01",
+      "expectPermitted": false,
+      "expectLicenseReason": "license-expired"
+    }
+  ]
+}

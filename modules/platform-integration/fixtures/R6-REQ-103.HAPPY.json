@@ -1,0 +1,18 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-103",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "an AI vendor with BOTH no-training and zero-retention receives PHI",
+      "op": "egress",
+      "vendor": {
+        "isAiVendor": true,
+        "noTrainingOnPhi": true,
+        "zeroRetention": true
+      },
+      "request": {},
+      "expectAllow": true
+    }
+  ]
+}

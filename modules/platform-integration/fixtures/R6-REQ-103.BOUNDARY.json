@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-103",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "an AI vendor with no-training but missing zero-retention is blocked",
+      "op": "egress",
+      "vendor": {
+        "isAiVendor": true,
+        "noTrainingOnPhi": true,
+        "zeroRetention": false
+      },
+      "request": {},
+      "expectAllow": false,
+      "expectReason": "ai-no-zero-retention"
+    }
+  ]
+}

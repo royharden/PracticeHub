@@ -1,0 +1,18 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-080",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "a CPT license valid exactly on its expiry day still permits",
+      "op": "license",
+      "license": {
+        "contentFamily": "cpt",
+        "expiry": "2026-06-01"
+      },
+      "contentFamily": "cpt",
+      "asOf": "2026-06-01",
+      "expectPermitted": true
+    }
+  ]
+}

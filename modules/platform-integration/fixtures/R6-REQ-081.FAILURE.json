@@ -1,0 +1,18 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-081",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a lapsed compendium license disables dependent commands (license-lapse-disable)",
+      "op": "license",
+      "license": {
+        "contentFamily": "drug-compendium",
+        "status": "lapsed"
+      },
+      "contentFamily": "drug-compendium",
+      "expectPermitted": false,
+      "expectLicenseReason": "license-lapsed"
+    }
+  ]
+}

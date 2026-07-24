@@ -24,6 +24,9 @@ const publicSteps = [
 
 const privateSteps = [
   ['verify:planning'],
+  // WP-026: reads docs/architecture/authority-rail-join.csv (gitignored), so it
+  // is a private step — a public clone cannot run it.
+  ['verify:adapters'],
   ['verify:corpus'],
   ['verify:publication'],
   ['verify:temporal'],

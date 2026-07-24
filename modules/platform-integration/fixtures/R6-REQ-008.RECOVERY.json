@@ -1,0 +1,29 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-008",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "the registry reflects a registered-but-unexecuted vendor as required",
+      "op": "fold",
+      "events": [
+        {
+          "tenantId": "northwind-synthetic",
+          "vendorId": "synthetic-vendor",
+          "version": 1,
+          "kind": "registered",
+          "vendorClass": "labs",
+          "isAiVendor": false,
+          "enforcementPoint": "synthetic-boundary",
+          "baaStatus": "required",
+          "permittedCategories": ["ID", "CLIN"],
+          "approvedBy": "synthetic-compliance-officer",
+          "evidenceRef": "synthetic-baa:synthetic-vendor-reg",
+          "occurredAt": "2026-01-02T00:00:00Z",
+          "synthetic": true
+        }
+      ],
+      "expectBaaStatus": "required"
+    }
+  ]
+}

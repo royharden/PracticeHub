@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-081",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "a pending compendium license is refused (not yet in force)",
+      "op": "license",
+      "license": {
+        "contentFamily": "drug-compendium",
+        "status": "pending",
+        "effective": null,
+        "expiry": null
+      },
+      "contentFamily": "drug-compendium",
+      "expectPermitted": false,
+      "expectLicenseReason": "license-pending"
+    }
+  ]
+}

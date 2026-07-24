@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT-001",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a permission-increasing event without compliance sign-off is refused (exception 4)",
+      "op": "validate-refused",
+      "event": {
+        "tenantId": "northwind-synthetic",
+        "vendorId": "synthetic-vendor",
+        "version": 2,
+        "kind": "baa-executed",
+        "baaStatus": "executed",
+        "baaEffective": "2026-01-05",
+        "baaExpiry": "2027-01-05",
+        "occurredAt": "2026-01-05T00:00:00Z",
+        "synthetic": true
+      },
+      "expectError": "approvedBy"
+    }
+  ]
+}
