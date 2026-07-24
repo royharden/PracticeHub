@@ -1,0 +1,59 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-010",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "an unmatched document is filed once the patient is identified (a certified match with evidence)",
+      "op": "lifecycle",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "inbound_fax",
+          "occurredAt": "2026-03-10T08:00:00Z"
+        },
+        {
+          "id": "nde-fx-2",
+          "type": "auto_match_failed",
+          "occurredAt": "2026-03-10T08:05:00Z",
+          "holdFrom": "2026-03-10T08:05:00Z"
+        },
+        {
+          "id": "nde-fx-3",
+          "type": "filed",
+          "occurredAt": "2026-03-12T09:00:00Z",
+          "matchedPersonRef": "np-sam-porter",
+          "evidence": true
+        }
+      ],
+      "expectStatus": "filed"
+    },
+    {
+      "name": "the filing decision is auditable through the real audit emitter (access stream)",
+      "op": "audit",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "inbound_fax",
+          "occurredAt": "2026-03-10T08:00:00Z"
+        },
+        {
+          "id": "nde-fx-2",
+          "type": "auto_match_failed",
+          "occurredAt": "2026-03-10T08:05:00Z",
+          "holdFrom": "2026-03-10T08:05:00Z"
+        },
+        {
+          "id": "nde-fx-3",
+          "type": "filed",
+          "occurredAt": "2026-03-12T09:00:00Z",
+          "matchedPersonRef": "np-sam-porter",
+          "evidence": true
+        }
+      ],
+      "expectDecision": "allow"
+    }
+  ]
+}

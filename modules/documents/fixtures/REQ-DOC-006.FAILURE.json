@@ -1,0 +1,47 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-006",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a raw value smuggled in as an attribute name is refused — the queue holds no PHI",
+      "op": "lifecycle",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "partner_exchange",
+          "occurredAt": "2026-03-02T14:00:00Z"
+        }
+      ],
+      "event": {
+        "id": "nde-fx-2",
+        "type": "quarantined",
+        "occurredAt": "2026-03-02T14:30:00Z",
+        "quarantineReason": "wrong-patient",
+        "observedAttributeNames": ["unlisted-attribute"]
+      },
+      "expectError": "attribute NAME"
+    },
+    {
+      "name": "a quarantine with no observed attributes and no reason is unrepresentable",
+      "op": "lifecycle",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "partner_exchange",
+          "occurredAt": "2026-03-02T14:00:00Z"
+        }
+      ],
+      "event": {
+        "id": "nde-fx-2",
+        "type": "quarantined",
+        "occurredAt": "2026-03-02T14:30:00Z",
+        "quarantineReason": "wrong-patient",
+        "observedAttributeNames": []
+      },
+      "expectError": "observed attributes"
+    }
+  ]
+}

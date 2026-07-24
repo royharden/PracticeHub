@@ -1,0 +1,27 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-010",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "one second before the hold deadline the unmatched document is still within hold",
+      "op": "hold",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "inbound_fax",
+          "occurredAt": "2026-03-10T08:00:00Z"
+        },
+        {
+          "id": "nde-fx-2",
+          "type": "auto_match_failed",
+          "occurredAt": "2026-03-10T08:05:00Z",
+          "holdUntil": "2026-04-09T08:05:00Z"
+        }
+      ],
+      "asOf": "2026-04-09T08:04:59Z",
+      "expectHold": "within-hold"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-011",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a disposition that names no outcome or carries no destruction/return evidence is unrepresentable",
+      "op": "lifecycle",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "inbound_fax",
+          "occurredAt": "2026-01-05T07:00:00Z"
+        },
+        {
+          "id": "nde-fx-2",
+          "type": "auto_match_failed",
+          "occurredAt": "2026-01-05T07:05:00Z",
+          "holdUntil": "2026-02-04T07:05:00Z"
+        }
+      ],
+      "event": {
+        "id": "nde-fx-3",
+        "type": "disposition_decided",
+        "occurredAt": "2026-02-05T07:05:00Z",
+        "disposition": "returned"
+      },
+      "expectError": "destruction/return evidence"
+    }
+  ]
+}

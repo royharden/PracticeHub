@@ -208,6 +208,18 @@ export const capabilityDefinitionsV1: readonly CapabilityDefinition[] = [
       'attestation) are NEVER gated, and break-glass never bypasses consent/partition/' +
       'deceased egress guards (ADR-006 Decision 3 — it widens read scope only).',
   },
+  {
+    capabilityId: 'documents.intake',
+    ownerRole: 'security',
+    dimensions: [],
+    description:
+      'Document intake: content-addressed blob store, metadata, wrong-patient ' +
+      'quarantine, and the unmatched-patient queue with a hold-period timer (M06, ' +
+      'WP-024). Filing a document to a patient chart attaches PHI to a person and is ' +
+      'authority-increasing — the fileDocument command floors at simulated; protective/' +
+      'automatic writes (quarantine, hold, disposition-at-expiry, redirect) are never ' +
+      'gated (a misdirected record must always be containable, the audit.emit precedent).',
+  },
 ];
 
 /** Exact mirror of docs/architecture/capability-edge-preconditions.csv (FROZEN). */
@@ -470,6 +482,16 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       rollbackRef: 'already-disabled',
       synthetic: true,
     },
+    {
+      capabilityId: 'documents.intake',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
   ],
   events: [
     chainEvent(
@@ -661,6 +683,18 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       'disabled',
       'scaffolded',
       'synthetic-gate:wp-017-break-glass-scaffold',
+    ),
+    // WP-024: document intake lands at its package ceiling — `scaffolded`. The
+    // fileDocument command (floored `simulated`) therefore DENIES a live filing
+    // against this seed, by design; quarantine/hold/disposition/redirect are
+    // never gated. Riverbend stays the opposite-state proof.
+    chainEvent(
+      'synthetic-cap-evt-0019',
+      'documents.intake',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-024-documents-scaffold',
     ),
   ],
 };

@@ -183,6 +183,8 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/015-elevation-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/016-oncall-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/016-oncall-seed.sql');
+  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/017-documents-seed.sql'), 'utf8'));
+  console.log('seeded infra/postgres/seed/017-documents-seed.sql');
 }
 
 function testLocal(): void {
@@ -910,6 +912,52 @@ function testLocal(): void {
     throw new Error(`coverage handoff standing proof differs: ${handoffPosture}`);
   }
 
+  // WP-024: document intake landed at its package ceiling `scaffolded` with the
+  // opposite-state tenant proof (northwind scaffolded, riverbend disabled).
+  const documentsCapabilityStates = scalar(
+    "SELECT string_agg(tenant_id || ':' || state, ',' ORDER BY tenant_id) " +
+      "FROM platform_core.capability_grant WHERE capability_id = 'documents.intake';",
+  );
+  if (documentsCapabilityStates !== 'northwind-synthetic:scaffolded,riverbend-synthetic:disabled') {
+    throw new Error(`documents capability tenant states differ: ${documentsCapabilityStates}`);
+  }
+
+  // WP-024: quarantine standing proof (REQ-DOC-006) — the wrong-patient record
+  // is quarantined with a reason and holds attribute NAMES only (never values).
+  const quarantinePosture = scalar(
+    "SELECT status || '|' || quarantine_reason FROM documents.document_state " +
+      "WHERE tenant_id = 'northwind-synthetic' AND document_id = 'nd-0002';",
+  );
+  if (quarantinePosture !== 'quarantined|wrong-patient') {
+    throw new Error(`documents quarantine standing proof differs: ${quarantinePosture}`);
+  }
+
+  // WP-024: the unknown-patient hold timer at rest (REQ-DOC-010/011) — an
+  // unmatched document still on hold beside an over-held one disposed by return.
+  const documentHoldPosture = scalar(
+    "SELECT (SELECT status FROM documents.document_state WHERE document_id = 'nd-0003') || '|' || " +
+      "(SELECT status || ':' || disposition FROM documents.document_state WHERE document_id = 'nd-0004') " +
+      'FROM (SELECT 1) AS _;',
+  );
+  if (documentHoldPosture !== 'unmatched|disposed:returned') {
+    throw new Error(`documents hold-timer standing proof differs: ${documentHoldPosture}`);
+  }
+
+  // WP-024: projection<->log linkage — every document_state row names the latest
+  // event of its document (the fold is a materialized read model, not a second
+  // source of truth).
+  const documentProjectionDrift = scalar(
+    'SELECT count(*)::text FROM documents.document_state s ' +
+      'WHERE s.last_event_id <> (SELECT e.document_event_id FROM documents.document_event e ' +
+      'WHERE e.tenant_id = s.tenant_id AND e.document_id = s.document_id ' +
+      'ORDER BY e.occurred_at DESC, e.document_event_id DESC LIMIT 1);',
+  );
+  if (documentProjectionDrift !== '0') {
+    throw new Error(
+      `documents projection out of sync: last_event drift=${documentProjectionDrift}`,
+    );
+  }
+
   // WP-010: the DB-level cross-tenant negative suite runs against the live stack.
   run('pnpm', ['--filter', '@practicehub/platform-core', 'run', 'test:db'], {
     stdio: 'inherit',
@@ -940,6 +988,14 @@ function testLocal(): void {
     stdio: 'inherit',
   });
 
+  // WP-024: the documents DB suite (append-only lifecycle log, structural
+  // intake/quarantine/filed/hold/disposition CHECKs, quarantine names-only,
+  // hash-integrity anchor, projection linkage, cross-tenant negatives) runs the
+  // same way.
+  run('pnpm', ['--filter', '@practicehub/documents', 'run', 'test:db'], {
+    stdio: 'inherit',
+  });
+
   // WP-014: the dex federation e2e runs against the live compose dex —
   // discovery, mock-connector code flow, crosswalk mapping, and the
   // dark-by-registry denial proof.
@@ -953,6 +1009,7 @@ function testLocal(): void {
       'identity_model=OK authn_model=OK merge_governance=OK pdp_model=OK ' +
       'gipa_partition=OK audit_store=OK consent_ledger=OK event_spine=OK ' +
       'policy_clocks=OK tasking_engine=OK break_glass=OK oncall_coverage=OK ' +
+      'documents_model=OK ' +
       'dex_federation=OK cross_tenant_db_suite=OK synthetic_stack=OK',
   );
 }

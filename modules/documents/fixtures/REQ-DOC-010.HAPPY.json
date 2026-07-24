@@ -1,0 +1,46 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-010",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "an inbound fax that fails auto-match lands in the unmatched queue with a hold deadline",
+      "op": "lifecycle",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "inbound_fax",
+          "occurredAt": "2026-03-10T08:00:00Z"
+        },
+        {
+          "id": "nde-fx-2",
+          "type": "auto_match_failed",
+          "occurredAt": "2026-03-10T08:05:00Z",
+          "holdFrom": "2026-03-10T08:05:00Z"
+        }
+      ],
+      "expectStatus": "unmatched"
+    },
+    {
+      "name": "the unmatched document surfaces as admin resolution work",
+      "op": "descriptor",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "inbound_fax",
+          "occurredAt": "2026-03-10T08:00:00Z"
+        },
+        {
+          "id": "nde-fx-2",
+          "type": "auto_match_failed",
+          "occurredAt": "2026-03-10T08:05:00Z",
+          "holdFrom": "2026-03-10T08:05:00Z"
+        }
+      ],
+      "expectOrigin": "admin",
+      "expectSummary": "unmatched-patient-resolution"
+    }
+  ]
+}

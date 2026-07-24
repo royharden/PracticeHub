@@ -1,0 +1,33 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-006",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "a quarantined wrong-patient record is redirected to its correct recipient (certified disposition)",
+      "op": "lifecycle",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "partner_exchange",
+          "occurredAt": "2026-03-02T14:00:00Z"
+        },
+        {
+          "id": "nde-fx-2",
+          "type": "quarantined",
+          "occurredAt": "2026-03-02T14:30:00Z",
+          "quarantineReason": "suspected-misdirection",
+          "observedAttributeNames": ["patient-name", "sender-fax"]
+        },
+        {
+          "id": "nde-fx-3",
+          "type": "redirected",
+          "occurredAt": "2026-03-04T10:00:00Z",
+          "redirectTarget": "synthetic-practice:correct-recipient-0007"
+        }
+      ],
+      "expectStatus": "redirected"
+    }
+  ]
+}

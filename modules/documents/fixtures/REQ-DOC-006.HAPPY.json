@@ -1,0 +1,48 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-006",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "an unsolicited wrong-patient partner record is quarantined (attribute names only)",
+      "op": "lifecycle",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "partner_exchange",
+          "occurredAt": "2026-03-02T14:00:00Z"
+        },
+        {
+          "id": "nde-fx-2",
+          "type": "quarantined",
+          "occurredAt": "2026-03-02T14:30:00Z",
+          "quarantineReason": "wrong-patient",
+          "observedAttributeNames": ["patient-name", "date-of-birth", "sender-fax"]
+        }
+      ],
+      "expectStatus": "quarantined"
+    },
+    {
+      "name": "the quarantined record surfaces as admin review work (never auto-filed)",
+      "op": "descriptor",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "partner_exchange",
+          "occurredAt": "2026-03-02T14:00:00Z"
+        },
+        {
+          "id": "nde-fx-2",
+          "type": "quarantined",
+          "occurredAt": "2026-03-02T14:30:00Z",
+          "quarantineReason": "unsolicited",
+          "observedAttributeNames": ["patient-name"]
+        }
+      ],
+      "expectOrigin": "admin",
+      "expectSummary": "quarantine-review"
+    }
+  ]
+}

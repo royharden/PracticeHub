@@ -1,0 +1,54 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-011",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "past the hold deadline an unmatched inbound fax is returned to its sender",
+      "op": "disposition",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "inbound_fax",
+          "occurredAt": "2026-01-05T07:00:00Z"
+        },
+        {
+          "id": "nde-fx-2",
+          "type": "auto_match_failed",
+          "occurredAt": "2026-01-05T07:05:00Z",
+          "holdUntil": "2026-02-04T07:05:00Z"
+        }
+      ],
+      "asOf": "2026-02-05T07:05:00Z",
+      "expectExpired": true,
+      "expectDisposition": "returned"
+    },
+    {
+      "name": "the disposition is recorded and closes the document (disposed)",
+      "op": "lifecycle",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "inbound_fax",
+          "occurredAt": "2026-01-05T07:00:00Z"
+        },
+        {
+          "id": "nde-fx-2",
+          "type": "auto_match_failed",
+          "occurredAt": "2026-01-05T07:05:00Z",
+          "holdUntil": "2026-02-04T07:05:00Z"
+        },
+        {
+          "id": "nde-fx-3",
+          "type": "disposition_decided",
+          "occurredAt": "2026-02-05T07:05:00Z",
+          "disposition": "returned",
+          "evidence": true
+        }
+      ],
+      "expectStatus": "disposed"
+    }
+  ]
+}

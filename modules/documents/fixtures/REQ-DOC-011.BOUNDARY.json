@@ -1,0 +1,47 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-011",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "at exactly the hold deadline the hold has expired (inclusive — fail toward disposition)",
+      "op": "hold",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "inbound_fax",
+          "occurredAt": "2026-01-05T07:00:00Z"
+        },
+        {
+          "id": "nde-fx-2",
+          "type": "auto_match_failed",
+          "occurredAt": "2026-01-05T07:05:00Z",
+          "holdUntil": "2026-02-04T07:05:00Z"
+        }
+      ],
+      "asOf": "2026-02-04T07:05:00Z",
+      "expectHold": "expired"
+    },
+    {
+      "name": "before the deadline no disposition is recommended yet",
+      "op": "disposition",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "inbound_fax",
+          "occurredAt": "2026-01-05T07:00:00Z"
+        },
+        {
+          "id": "nde-fx-2",
+          "type": "auto_match_failed",
+          "occurredAt": "2026-01-05T07:05:00Z",
+          "holdUntil": "2026-02-04T07:05:00Z"
+        }
+      ],
+      "asOf": "2026-01-20T00:00:00Z",
+      "expectExpired": false
+    }
+  ]
+}

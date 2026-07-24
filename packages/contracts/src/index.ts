@@ -13,6 +13,14 @@ export type PersonId = string & { readonly __personId: unique symbol };
 export type PatientRecordId = string & { readonly __patientRecordId: unique symbol };
 
 /**
+ * Document ids frozen by WP-024 (docs/contracts/blob-api.md). A DocumentId
+ * names a received artifact (fax page-set, portal upload, partner exchange);
+ * its bytes live in the object store under a content-addressed BlobRef, and
+ * cross-module references pair the id with its tenant id like every id above.
+ */
+export type DocumentId = string & { readonly __documentId: unique symbol };
+
+/**
  * The only shape module APIs accept for tenancy scoping — frozen by WP-010
  * (docs/contracts/tenancy-types.md). Cross-module references to tenancy rows
  * always pair the id with its tenant id.

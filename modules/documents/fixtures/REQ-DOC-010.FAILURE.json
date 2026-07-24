@@ -1,0 +1,49 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-010",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a document queued as unmatched with no hold deadline is unrepresentable",
+      "op": "lifecycle",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "inbound_fax",
+          "occurredAt": "2026-03-10T08:00:00Z"
+        }
+      ],
+      "event": {
+        "id": "nde-fx-2",
+        "type": "auto_match_failed",
+        "occurredAt": "2026-03-10T08:05:00Z"
+      },
+      "expectError": "hold-until deadline"
+    },
+    {
+      "name": "an unmatched document cannot be filed without identifying the patient and its evidence",
+      "op": "lifecycle",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "inbound_fax",
+          "occurredAt": "2026-03-10T08:00:00Z"
+        },
+        {
+          "id": "nde-fx-2",
+          "type": "auto_match_failed",
+          "occurredAt": "2026-03-10T08:05:00Z",
+          "holdFrom": "2026-03-10T08:05:00Z"
+        }
+      ],
+      "event": {
+        "id": "nde-fx-3",
+        "type": "filed",
+        "occurredAt": "2026-03-11T09:00:00Z"
+      },
+      "expectError": "authority-bearing"
+    }
+  ]
+}

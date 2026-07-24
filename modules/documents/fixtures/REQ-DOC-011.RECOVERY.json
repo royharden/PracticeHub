@@ -1,0 +1,54 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-011",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "an over-held portal upload (no returnable sender) is destroyed at expiry",
+      "op": "disposition",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "portal_upload",
+          "occurredAt": "2026-01-05T07:00:00Z"
+        },
+        {
+          "id": "nde-fx-2",
+          "type": "auto_match_failed",
+          "occurredAt": "2026-01-05T07:05:00Z",
+          "holdUntil": "2026-02-04T07:05:00Z"
+        }
+      ],
+      "asOf": "2026-03-01T00:00:00Z",
+      "expectExpired": true,
+      "expectDisposition": "destroyed"
+    },
+    {
+      "name": "the destruction disposition closes the document with evidence (disposed)",
+      "op": "lifecycle",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "portal_upload",
+          "occurredAt": "2026-01-05T07:00:00Z"
+        },
+        {
+          "id": "nde-fx-2",
+          "type": "auto_match_failed",
+          "occurredAt": "2026-01-05T07:05:00Z",
+          "holdUntil": "2026-02-04T07:05:00Z"
+        },
+        {
+          "id": "nde-fx-3",
+          "type": "disposition_decided",
+          "occurredAt": "2026-03-01T00:00:00Z",
+          "disposition": "destroyed",
+          "evidence": true
+        }
+      ],
+      "expectStatus": "disposed"
+    }
+  ]
+}

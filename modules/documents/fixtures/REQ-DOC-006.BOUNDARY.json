@@ -1,0 +1,34 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-006",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "a quarantined record is not terminal — a certified match files it to the chart",
+      "op": "lifecycle",
+      "events": [
+        {
+          "id": "nde-fx-1",
+          "type": "received",
+          "source": "partner_exchange",
+          "occurredAt": "2026-03-02T14:00:00Z"
+        },
+        {
+          "id": "nde-fx-2",
+          "type": "quarantined",
+          "occurredAt": "2026-03-02T14:30:00Z",
+          "quarantineReason": "no-matching-record",
+          "observedAttributeNames": ["patient-name", "mrn"]
+        },
+        {
+          "id": "nde-fx-3",
+          "type": "filed",
+          "occurredAt": "2026-03-03T09:00:00Z",
+          "matchedPersonRef": "np-sam-porter",
+          "evidence": true
+        }
+      ],
+      "expectStatus": "filed"
+    }
+  ]
+}
