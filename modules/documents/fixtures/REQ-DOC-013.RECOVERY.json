@@ -1,0 +1,30 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-013",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "re-scoping to minimum-necessary: a clinical-only clearance surfaces the clinical record and never the consent-segment one, even on a shared search term",
+      "op": "search",
+      "index": [
+        {
+          "documentId": "nd-clin",
+          "versionNo": 1,
+          "docType": "visit-note",
+          "searchTerms": "shared record note",
+          "segments": ["clinical"]
+        },
+        {
+          "documentId": "nd-consent",
+          "versionNo": 1,
+          "docType": "consent-form",
+          "searchTerms": "shared record note",
+          "segments": ["consent"]
+        }
+      ],
+      "query": "record",
+      "clearanceSegments": ["clinical"],
+      "expectDocIds": ["nd-clin"]
+    }
+  ]
+}

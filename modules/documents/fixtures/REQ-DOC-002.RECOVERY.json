@@ -1,0 +1,18 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-002",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "a transmitted disclosure is recovered to a closed state once delivery evidence arrives (transmission is not closure)",
+      "op": "disclose",
+      "candidates": [{ "token": "referral", "segment": "clinical" }],
+      "allowedSegments": ["clinical"],
+      "allowedPartitionTags": [],
+      "sendDate": "2026-03-15",
+      "expectIncludedTokens": ["referral"],
+      "closeWith": "synthetic-disclosure-receipt:delayed-ack",
+      "expectClosure": "closed-with-evidence"
+    }
+  ]
+}

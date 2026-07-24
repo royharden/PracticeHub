@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-016",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a subpoena that reaches into the genetic partition still excludes genetic content with no valid authorization — the scope limit is not a GIPA override",
+      "op": "disclose",
+      "candidates": [
+        { "token": "referral", "segment": "clinical" },
+        { "token": "genetic", "partitionTags": ["gipa-genetic"], "segment": "clinical" }
+      ],
+      "allowedSegments": ["clinical"],
+      "allowedPartitionTags": ["gipa-genetic"],
+      "sendDate": "2026-03-15",
+      "expectIncludedTokens": ["referral"],
+      "expectExcludedGeneticTokens": ["genetic"]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-016",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "partition-scoped search negative: a subpoena search without genetic clearance never surfaces the genetic record (recovery from over-disclosure)",
+      "op": "search",
+      "index": [
+        {
+          "documentId": "nd-referral",
+          "versionNo": 1,
+          "docType": "referral-summary",
+          "searchTerms": "cardiology panel referral",
+          "segments": ["clinical"]
+        },
+        {
+          "documentId": "nd-genetic",
+          "versionNo": 1,
+          "docType": "genetic-panel-result",
+          "searchTerms": "hereditary panel sequencing",
+          "partitionTags": ["gipa-genetic"],
+          "segments": ["clinical"]
+        }
+      ],
+      "query": "hereditary",
+      "clearancePartitions": [],
+      "clearanceSegments": ["clinical"],
+      "expectDocIds": []
+    }
+  ]
+}

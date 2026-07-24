@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-013",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "the requested clinical scope compiles the clinical record while the out-of-scope billing record is accounted as excluded",
+      "op": "disclose",
+      "candidates": [
+        { "token": "referral", "segment": "clinical" },
+        { "token": "billing-statement", "segment": "billing" }
+      ],
+      "allowedSegments": ["clinical"],
+      "allowedPartitionTags": [],
+      "sendDate": "2026-03-15",
+      "expectIncludedTokens": ["referral"],
+      "expectExcludedOutOfScopeTokens": ["billing-statement"]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-003",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "a patient correction supersedes the source and the source is preserved in the lineage",
+      "op": "version",
+      "versions": [
+        { "id": "v1", "versionNo": 1, "kind": "original" },
+        {
+          "id": "v2",
+          "versionNo": 2,
+          "kind": "correction",
+          "supersedesVersionNo": 1,
+          "reasonRef": "synthetic-correction-request:wrong-dob"
+        }
+      ],
+      "expectCurrentVersion": 2,
+      "expectLineageLength": 2
+    }
+  ]
+}

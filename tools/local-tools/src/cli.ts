@@ -185,6 +185,10 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/016-oncall-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/017-documents-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/017-documents-seed.sql');
+  psqlStdin(
+    readFileSync(join(repoRoot, 'infra/postgres/seed/018-documents-records-seed.sql'), 'utf8'),
+  );
+  console.log('seeded infra/postgres/seed/018-documents-records-seed.sql');
 }
 
 function testLocal(): void {
@@ -958,6 +962,71 @@ function testLocal(): void {
     );
   }
 
+  // WP-025: document records landed at its package ceiling `scaffolded` with the
+  // opposite-state tenant proof (northwind scaffolded, riverbend disabled).
+  const documentsRecordsCapabilityStates = scalar(
+    "SELECT string_agg(tenant_id || ':' || state, ',' ORDER BY tenant_id) " +
+      "FROM platform_core.capability_grant WHERE capability_id = 'documents.records';",
+  );
+  if (
+    documentsRecordsCapabilityStates !==
+    'northwind-synthetic:scaffolded,riverbend-synthetic:disabled'
+  ) {
+    throw new Error(
+      `documents.records capability tenant states differ: ${documentsRecordsCapabilityStates}`,
+    );
+  }
+
+  // WP-025: supersession at rest (REQ-DOC-003) — nd-0001's current head is the
+  // correction (v2), the source (v1) is PRESERVED, and the denied-correction
+  // document (nd-0005) keeps its source (v1) current beside the disagreement.
+  const supersessionPosture = scalar(
+    "SELECT (SELECT version_no::text || ':' || kind FROM documents.document_version dv " +
+      "WHERE tenant_id = 'northwind-synthetic' AND document_id = 'nd-0001' " +
+      "AND kind <> 'statement-of-disagreement' " +
+      'AND NOT EXISTS (SELECT 1 FROM documents.document_version w ' +
+      'WHERE w.tenant_id = dv.tenant_id AND w.document_id = dv.document_id ' +
+      'AND w.supersedes_version_no = dv.version_no) ORDER BY version_no DESC LIMIT 1) ' +
+      "|| '|' || (SELECT count(*)::text FROM documents.document_version WHERE document_id = 'nd-0001') " +
+      "|| '|' || (SELECT version_no::text FROM documents.document_version dv " +
+      "WHERE tenant_id = 'northwind-synthetic' AND document_id = 'nd-0005' " +
+      "AND kind <> 'statement-of-disagreement' " +
+      'AND NOT EXISTS (SELECT 1 FROM documents.document_version w ' +
+      'WHERE w.tenant_id = dv.tenant_id AND w.document_id = dv.document_id ' +
+      'AND w.supersedes_version_no = dv.version_no) ORDER BY version_no DESC LIMIT 1);',
+  );
+  if (supersessionPosture !== '2:correction|2|1') {
+    throw new Error(`documents supersession standing proof differs: ${supersessionPosture}`);
+  }
+
+  // WP-025: partition-scoped search negative at rest (REQ-DOC-013/016) — the
+  // genetic panel never surfaces without genetic clearance, and does with it.
+  const searchScopePosture = scalar(
+    'SELECT (SELECT count(*)::text FROM documents.document_search_index ' +
+      "WHERE tenant_id = 'northwind-synthetic' " +
+      "AND search_vector @@ plainto_tsquery('english', 'panel') " +
+      "AND partition_tags <@ '{}'::text[]) || '|' || " +
+      '(SELECT count(*)::text FROM documents.document_search_index ' +
+      "WHERE tenant_id = 'northwind-synthetic' " +
+      "AND search_vector @@ plainto_tsquery('english', 'panel') " +
+      "AND partition_tags <@ ARRAY['gipa-genetic']::text[]);",
+  );
+  if (searchScopePosture !== '0|1') {
+    throw new Error(
+      `documents partition-scoped-search standing proof differs: ${searchScopePosture}`,
+    );
+  }
+
+  // WP-025: disclosure accounting at rest (REQ-DOC-002/016) — the seeded audit
+  // export is closed with evidence and excludes the genetic artifact.
+  const disclosurePosture = scalar(
+    "SELECT closure_status || '|' || array_length(excluded_genetic_refs, 1)::text " +
+      "FROM documents.records_disclosure WHERE disclosure_id = 'ndd-0001';",
+  );
+  if (disclosurePosture !== 'closed-with-evidence|1') {
+    throw new Error(`documents disclosure standing proof differs: ${disclosurePosture}`);
+  }
+
   // WP-010: the DB-level cross-tenant negative suite runs against the live stack.
   run('pnpm', ['--filter', '@practicehub/platform-core', 'run', 'test:db'], {
     stdio: 'inherit',
@@ -1009,7 +1078,7 @@ function testLocal(): void {
       'identity_model=OK authn_model=OK merge_governance=OK pdp_model=OK ' +
       'gipa_partition=OK audit_store=OK consent_ledger=OK event_spine=OK ' +
       'policy_clocks=OK tasking_engine=OK break_glass=OK oncall_coverage=OK ' +
-      'documents_model=OK ' +
+      'documents_model=OK documents_records=OK ' +
       'dex_federation=OK cross_tenant_db_suite=OK synthetic_stack=OK',
   );
 }

@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-003",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a correction without a recorded reason is refused (the amendment basis is required)",
+      "op": "version",
+      "versions": [
+        { "id": "v1", "versionNo": 1, "kind": "original" },
+        { "id": "v2", "versionNo": 2, "kind": "correction", "supersedesVersionNo": 1 }
+      ],
+      "expectError": "records its reason"
+    },
+    {
+      "name": "a second original is refused — the source is never overwritten",
+      "op": "version",
+      "versions": [
+        { "id": "v1", "versionNo": 1, "kind": "original" },
+        { "id": "v1b", "versionNo": 1, "kind": "original" }
+      ],
+      "expectError": "exactly one"
+    }
+  ]
+}

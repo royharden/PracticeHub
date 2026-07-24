@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-013",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "scope selection surfaces a consent-segment record exactly when the caller clearance includes that segment",
+      "op": "search",
+      "index": [
+        {
+          "documentId": "nd-consent",
+          "versionNo": 1,
+          "docType": "consent-form",
+          "searchTerms": "treatment consent authorization",
+          "segments": ["consent"]
+        }
+      ],
+      "query": "consent",
+      "clearanceSegments": ["clinical", "consent"],
+      "expectDocIds": ["nd-consent"]
+    }
+  ]
+}

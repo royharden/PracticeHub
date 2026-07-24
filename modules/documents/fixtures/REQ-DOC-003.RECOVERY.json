@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-003",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "a DENIED correction lands the patient statement of disagreement; the source stays current",
+      "op": "version",
+      "versions": [
+        { "id": "v1", "versionNo": 1, "kind": "original" },
+        {
+          "id": "v2",
+          "versionNo": 2,
+          "kind": "statement-of-disagreement",
+          "concernsVersionNo": 1
+        }
+      ],
+      "expectCurrentVersion": 1,
+      "expectLineageLength": 2
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-002",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "a lawful records request compiles the in-scope clinical record and is closed with delivery evidence (disclosure proof)",
+      "op": "disclose",
+      "candidates": [{ "token": "referral", "segment": "clinical" }],
+      "allowedSegments": ["clinical"],
+      "allowedPartitionTags": [],
+      "sendDate": "2026-03-15",
+      "expectIncludedTokens": ["referral"],
+      "closeWith": "synthetic-disclosure-receipt:requester-ack",
+      "expectClosure": "closed-with-evidence"
+    }
+  ]
+}

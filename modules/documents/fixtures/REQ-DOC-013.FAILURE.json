@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-013",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a request whose candidates are all outside the selected scope compiles nothing and accounts every exclusion",
+      "op": "disclose",
+      "candidates": [
+        { "token": "billing-statement", "segment": "billing" },
+        { "token": "admin-letter", "segment": "administrative" }
+      ],
+      "allowedSegments": ["clinical"],
+      "allowedPartitionTags": [],
+      "sendDate": "2026-03-15",
+      "expectIncludedTokens": [],
+      "expectExcludedOutOfScopeTokens": ["billing-statement", "admin-letter"]
+    }
+  ]
+}

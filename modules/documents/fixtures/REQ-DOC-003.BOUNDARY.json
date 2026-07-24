@@ -1,0 +1,24 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-003",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "a three-step lineage (original, correction, amendment) preserves every prior version",
+      "op": "version",
+      "versions": [
+        { "id": "v1", "versionNo": 1, "kind": "original" },
+        {
+          "id": "v2",
+          "versionNo": 2,
+          "kind": "correction",
+          "supersedesVersionNo": 1,
+          "reasonRef": "synthetic-correction-request:wrong-dob"
+        },
+        { "id": "v3", "versionNo": 3, "kind": "amendment", "supersedesVersionNo": 2 }
+      ],
+      "expectCurrentVersion": 3,
+      "expectLineageLength": 3
+    }
+  ]
+}

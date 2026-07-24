@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-016",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "a subpoena export limited to the clinical scope excludes a genetic record that falls outside the ordered scope",
+      "op": "disclose",
+      "candidates": [
+        { "token": "referral", "segment": "clinical" },
+        { "token": "genetic", "partitionTags": ["gipa-genetic"], "segment": "clinical" }
+      ],
+      "allowedSegments": ["clinical"],
+      "allowedPartitionTags": [],
+      "sendDate": "2026-03-15",
+      "expectIncludedTokens": ["referral"],
+      "expectExcludedOutOfScopeTokens": ["genetic"]
+    }
+  ]
+}

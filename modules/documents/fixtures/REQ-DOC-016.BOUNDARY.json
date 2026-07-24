@@ -1,0 +1,21 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-016",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "a genetic authorization that expires exactly on the send date is invalid at the exclusive upper boundary — genetic stays excluded even under subpoena scope",
+      "op": "disclose",
+      "candidates": [
+        { "token": "referral", "segment": "clinical" },
+        { "token": "genetic", "partitionTags": ["gipa-genetic"], "segment": "clinical" }
+      ],
+      "allowedSegments": ["clinical"],
+      "allowedPartitionTags": ["gipa-genetic"],
+      "authorization": { "grantedOn": "2025-03-15", "expiresOn": "2026-03-15" },
+      "sendDate": "2026-03-15",
+      "expectIncludedTokens": ["referral"],
+      "expectExcludedGeneticTokens": ["genetic"]
+    }
+  ]
+}

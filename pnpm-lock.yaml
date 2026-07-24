@@ -81,6 +81,9 @@ importers:
 
   modules/documents:
     dependencies:
+      '@practicehub/audit-evidence':
+        specifier: workspace:*
+        version: link:../audit-evidence
       '@practicehub/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
@@ -88,9 +91,9 @@ importers:
         specifier: workspace:*
         version: link:../platform-core
     devDependencies:
-      '@practicehub/audit-evidence':
+      '@practicehub/identity':
         specifier: workspace:*
-        version: link:../audit-evidence
+        version: link:../identity
       '@practicehub/testkit':
         specifier: workspace:*
         version: link:../../packages/testkit
@@ -176,6 +179,12 @@ importers:
         version: link:../contracts
 
   packages/testkit: {}
+
+  sims/esign-sim:
+    dependencies:
+      '@practicehub/documents':
+        specifier: workspace:*
+        version: link:../../modules/documents
 
   sims/fax-sim:
     dependencies:

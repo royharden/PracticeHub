@@ -222,7 +222,7 @@ BEGIN
      AND c.relkind = 'r'
      AND (NOT c.relrowsecurity
           OR NOT c.relforcerowsecurity
-          OR c.relname NOT IN ('document_event', 'document_state'));
+          OR c.relname NOT IN ('document_event', 'document_search_index', 'document_state', 'document_version', 'records_disclosure'));
   IF offender IS NOT NULL THEN
     RAISE EXCEPTION 'rls coverage failure in schema documents: %', offender;
   END IF;

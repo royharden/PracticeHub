@@ -220,6 +220,19 @@ export const capabilityDefinitionsV1: readonly CapabilityDefinition[] = [
       'automatic writes (quarantine, hold, disposition-at-expiry, redirect) are never ' +
       'gated (a misdirected record must always be containable, the audit.emit precedent).',
   },
+  {
+    capabilityId: 'documents.records',
+    ownerRole: 'security',
+    dimensions: [],
+    description:
+      'Document records: versioning/supersession, e-sign artifacts, PDP/partition-scoped ' +
+      'full-text search, and records-request disclosure + destruction over the retention ' +
+      'engine (M06, WP-025). Record-altering writes (amendment, correction, e-sign ' +
+      'execution), releasing a disclosure (PHI egress), and executing a destruction are ' +
+      'authority-increasing and floor at simulated. Protective/patient-right writes are ' +
+      'never gated: the original version and a patient statement-of-disagreement (HIPAA ' +
+      '§164.526) append ungated, search is a read, and destruction eligibility is pure.',
+  },
 ];
 
 /** Exact mirror of docs/architecture/capability-edge-preconditions.csv (FROZEN). */
@@ -492,6 +505,16 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       rollbackRef: 'already-disabled',
       synthetic: true,
     },
+    {
+      capabilityId: 'documents.records',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
   ],
   events: [
     chainEvent(
@@ -695,6 +718,20 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       'disabled',
       'scaffolded',
       'synthetic-gate:wp-024-documents-scaffold',
+    ),
+    // WP-025: document records (versioning/e-sign/scoped-search/disclosure/
+    // destruction) lands at its package ceiling — `scaffolded`. The amend,
+    // disclose, and destroy commands (floored `simulated`) therefore DENY a live
+    // amendment/disclosure/destruction against this seed, by design; protective/
+    // patient-right writes and reads are never gated. Riverbend stays the
+    // opposite-state proof.
+    chainEvent(
+      'synthetic-cap-evt-0020',
+      'documents.records',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-025-documents-records-scaffold',
     ),
   ],
 };
