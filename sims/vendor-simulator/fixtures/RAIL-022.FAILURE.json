@@ -1,0 +1,49 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-022",
+  "class": "FAILURE",
+  "description": "model-sim: the provider returns a payload its own contract forbids, so the output has no authority and the effect state is unknown.",
+  "cases": [
+    {
+      "op": "arm",
+      "name": "arm X-17",
+      "primitiveId": "X-17"
+    },
+    {
+      "op": "dispatch",
+      "name": "the request fails without landing a clean effect",
+      "request": {
+        "operation": "complete",
+        "idempotencyKey": "synthetic-rail-022-failure",
+        "payloadRef": "synthetic-payload-rail-022-failure",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-failure"
+        }
+      },
+      "expect": {
+        "status": "malformed",
+        "effectState": "unknown",
+        "receiptRef": "absent",
+        "requiresReconciliation": true
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "no receipt is emitted for a failed request",
+      "expect": {
+        "kinds": []
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "the ledger records the attempt and its state, never a phantom success",
+      "expect": {
+        "effects": 1,
+        "receipts": 0,
+        "effectState": "unknown"
+      }
+    }
+  ]
+}

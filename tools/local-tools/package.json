@@ -14,6 +14,7 @@
     "seed": "pnpm build && node dist/cli.js seed",
     "test:local": "pnpm build && node dist/cli.js test",
     "down": "pnpm build && node dist/cli.js down",
-    "reset": "pnpm build && node dist/cli.js reset"
+    "reset": "pnpm build && node dist/cli.js reset",
+    "sim": "pnpm build && node dist/cli.js sim"
   }
 }

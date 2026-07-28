@@ -80,6 +80,14 @@ services:
     environment:
       PORT: '9090'
       PRACTICEHUB_DATA_POLICY: synthetic-only
+      # WP-027: the effect ledger lives on a named volume, so it outlives the
+      # process. That durability is what makes "no duplicate external effect
+      # across a crash" provable rather than asserted; `local:reset` drops the
+      # volume, which is the rail-sim rollback path.
+      VENDOR_SIM_STATE_PATH: /var/lib/vendor-sim/state.json
+    labels: *persistent-security-labels
+    volumes:
+      - vendor-sim-data:/var/lib/vendor-sim
     ports:
       - '127.0.0.1:58090:9090'
     healthcheck:
@@ -201,6 +209,7 @@ volumes:
   app-postgres-data:
   minio-data:
   mailpit-data:
+  vendor-sim-data:
   medplum-postgres-data:
   medplum-redis-data:
   medplum-binary-data:

@@ -1,0 +1,64 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-008",
+  "class": "HAPPY",
+  "description": "stripe-sim: a clean send lands one effect with one receipt, and a re-delivery of the same idempotency key resolves to that same effect rather than a second send.",
+  "cases": [
+    {
+      "op": "dispatch",
+      "name": "a clean send lands and issues its receipt",
+      "request": {
+        "operation": "create-payment-intent",
+        "idempotencyKey": "synthetic-rail-008-happy",
+        "payloadRef": "synthetic-payload-rail-008-happy",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-happy"
+        }
+      },
+      "expect": {
+        "status": "accepted",
+        "effectState": "landed",
+        "receiptRef": "present",
+        "attempts": 1,
+        "requiresReconciliation": false
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "exactly one primary receipt is emitted",
+      "expect": {
+        "kinds": ["primary"]
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "the same idempotency key resolves to the original effect",
+      "request": {
+        "operation": "create-payment-intent",
+        "idempotencyKey": "synthetic-rail-008-happy",
+        "payloadRef": "synthetic-payload-rail-008-happy",
+        "requestedAt": "2026-01-01T00:01:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-happy"
+        }
+      },
+      "expect": {
+        "status": "deduplicated",
+        "effectState": "landed",
+        "duplicateOf": "present",
+        "attempts": 2
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "one ledger record, and the re-delivery issued no new receipt",
+      "expect": {
+        "effects": 1,
+        "receipts": 0
+      }
+    }
+  ]
+}

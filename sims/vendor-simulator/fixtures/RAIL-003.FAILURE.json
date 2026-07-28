@@ -1,0 +1,49 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-003",
+  "class": "FAILURE",
+  "description": "twilio-sim: the voice artifact cannot be fetched during the outage; no effect lands and nothing is inferred from the absence.",
+  "cases": [
+    {
+      "op": "arm",
+      "name": "arm X-16",
+      "primitiveId": "X-16"
+    },
+    {
+      "op": "dispatch",
+      "name": "the request fails without landing a clean effect",
+      "request": {
+        "operation": "fetch-transcript",
+        "idempotencyKey": "synthetic-rail-003-failure",
+        "payloadRef": "synthetic-payload-rail-003-failure",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-failure"
+        }
+      },
+      "expect": {
+        "status": "unavailable",
+        "effectState": "not-landed",
+        "receiptRef": "absent",
+        "requiresReconciliation": false
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "no receipt is emitted for a failed request",
+      "expect": {
+        "kinds": []
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "the ledger records the attempt and its state, never a phantom success",
+      "expect": {
+        "effects": 1,
+        "receipts": 0,
+        "effectState": "not-landed"
+      }
+    }
+  ]
+}

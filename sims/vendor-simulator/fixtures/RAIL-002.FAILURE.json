@@ -1,0 +1,49 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-002",
+  "class": "FAILURE",
+  "description": "athena-sim: the incumbent answers with a payload its own contract forbids, so the effect state is unknown and nothing may be overwritten.",
+  "cases": [
+    {
+      "op": "arm",
+      "name": "arm X-17",
+      "primitiveId": "X-17"
+    },
+    {
+      "op": "dispatch",
+      "name": "the request fails without landing a clean effect",
+      "request": {
+        "operation": "write-appointment",
+        "idempotencyKey": "synthetic-rail-002-failure",
+        "payloadRef": "synthetic-payload-rail-002-failure",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-failure"
+        }
+      },
+      "expect": {
+        "status": "malformed",
+        "effectState": "unknown",
+        "receiptRef": "absent",
+        "requiresReconciliation": true
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "no receipt is emitted for a failed request",
+      "expect": {
+        "kinds": []
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "the ledger records the attempt and its state, never a phantom success",
+      "expect": {
+        "effects": 1,
+        "receipts": 0,
+        "effectState": "unknown"
+      }
+    }
+  ]
+}

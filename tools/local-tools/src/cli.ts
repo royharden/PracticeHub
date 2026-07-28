@@ -136,7 +136,10 @@ function doctor(): void {
 }
 
 function up(): void {
-  run('pnpm', ['--filter', '@practicehub/vendor-simulator', 'build'], { stdio: 'inherit' });
+  // WP-027: `...` builds the workspace packages the image copies alongside the
+  // service (the sim kit and the module-declared control port it validates
+  // against), so a from-context rebuild never ships a stale dist.
+  run('pnpm', ['--filter', '@practicehub/vendor-simulator...', 'build'], { stdio: 'inherit' });
   compose(['--profile', 'observability', 'up', '--detach', '--build', '--wait']);
   migrate();
 }
@@ -195,7 +198,172 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/019-vendor-registry-seed.sql');
 }
 
-function testLocal(): void {
+const vendorSimBase = 'http://127.0.0.1:58090';
+
+interface SimCallOptions {
+  readonly method?: string;
+  readonly body?: unknown;
+  /** A dispatch that trips an armed process-crash primitive never answers. */
+  readonly expectDeath?: boolean;
+}
+
+async function simCall(
+  path: string,
+  options: SimCallOptions = {},
+): Promise<Record<string, unknown>> {
+  const method = options.method ?? 'GET';
+  try {
+    const response = await fetch(`${vendorSimBase}${path}`, {
+      method,
+      ...(options.body === undefined
+        ? {}
+        : {
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(options.body),
+          }),
+    });
+    const text = await response.text();
+    if (options.expectDeath) {
+      throw new Error(`vendor-sim answered ${response.status} where a process death was armed`);
+    }
+    if (!response.ok) {
+      throw new Error(`vendor-sim ${method} ${path} -> ${response.status} ${text}`);
+    }
+    return JSON.parse(text) as Record<string, unknown>;
+  } catch (error) {
+    if (options.expectDeath && error instanceof TypeError) {
+      // The socket died with the process, which is the point of the drill.
+      return {};
+    }
+    throw error;
+  }
+}
+
+function simRequestBody(key: string, at: string): Record<string, unknown> {
+  return {
+    idempotencyKey: `synthetic-local-${key}`,
+    payloadRef: `synthetic-local-payload-${key}`,
+    requestedAt: at,
+    // A deliberately identifier-shaped payload: the ledger dump is scanned for
+    // these values below, so "the sim store holds no payload" is exercised on
+    // the LIVE service, not only in the unit suite.
+    payload: { mrn: 'synthetic-local-mrn-55512345', phone: 'synthetic-local-phone-7025550143' },
+    synthetic: true,
+  };
+}
+
+/**
+ * WP-027 rail-simulator probes against the LIVE service: the frozen surface,
+ * the process-kill hook across a real container death (the ledger survives and
+ * a re-delivery reconciles instead of sending twice), the PHI scan of the live
+ * store, and the reset rollback.
+ */
+async function probeRailSimulator(): Promise<void> {
+  const health = await simCall('/healthz');
+  if (health.dataPolicy !== 'synthetic-only' || health.rails !== 5 || health.primitives !== 18) {
+    throw new Error(
+      `vendor-sim health differs: dataPolicy=${String(health.dataPolicy)} rails=${String(health.rails)} primitives=${String(health.primitives)}`,
+    );
+  }
+
+  // Start from the rollback state so the drill is deterministic across runs.
+  await simCall('/control/reset', { method: 'POST' });
+
+  const catalog = (await simCall('/primitives')).catalog as { primitiveId: string }[];
+  const catalogIds = catalog.map((primitive) => primitive.primitiveId).join(',');
+  const expectedIds = Array.from(
+    { length: 18 },
+    (_, index) => `X-${String(index + 1).padStart(2, '0')}`,
+  ).join(',');
+  if (catalogIds !== expectedIds) {
+    throw new Error(`vendor-sim primitive catalog differs: ${catalogIds}`);
+  }
+
+  // The process-kill drill. Arm a crash between the external effect and its
+  // receipt, drive the rail, and let the container die.
+  await simCall('/scenarios/RAIL-008/X-02', {
+    method: 'POST',
+    body: { killPoint: 'after-effect-before-receipt' },
+  });
+  await simCall('/rails/RAIL-008/create-payment-intent', {
+    method: 'POST',
+    body: simRequestBody('kill-drill', '2026-01-01T00:00:00Z'),
+    expectDeath: true,
+  });
+
+  let died = false;
+  for (let attempt = 0; attempt < 25 && !died; attempt += 1) {
+    died = /"State":\s*"exited"/.test(
+      compose(['ps', '--all', '--format', 'json', 'vendor-simulator'], 'pipe'),
+    );
+    if (!died) {
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+  }
+  if (!died) {
+    throw new Error('vendor-sim did not die on the armed process-crash primitive');
+  }
+  compose(['up', '--detach', '--wait', 'vendor-simulator']);
+
+  const recovered = (await simCall('/state')).state as {
+    effects: { idempotencyKey: string; state: string; receiptRef: string | null }[];
+    receipts: unknown[];
+  };
+  const killed = recovered.effects.find(
+    (effect) => effect.idempotencyKey === 'synthetic-local-kill-drill',
+  );
+  if (
+    killed?.state !== 'unknown' ||
+    killed.receiptRef !== null ||
+    recovered.receipts.length !== 0
+  ) {
+    throw new Error(
+      `vendor-sim ledger did not survive the kill as an unknown effect: ${JSON.stringify(killed)}`,
+    );
+  }
+
+  const replayed = (
+    await simCall('/rails/RAIL-008/create-payment-intent', {
+      method: 'POST',
+      body: simRequestBody('kill-drill', '2026-01-01T00:05:00Z'),
+    })
+  ).response as { status: string; attempts: number; resendsExternalEffect: boolean };
+  if (
+    replayed.status !== 'uncertain' ||
+    replayed.attempts !== 2 ||
+    replayed.resendsExternalEffect !== false
+  ) {
+    throw new Error(
+      `vendor-sim re-delivery after a crash did not reconcile: ${JSON.stringify(replayed)}`,
+    );
+  }
+
+  // PHI scan of the live sim store: the identifier-shaped payload values above
+  // must appear nowhere in the ledger, and every record carries the watermark.
+  const dumped = (await simCall('/state')).state as {
+    effects: { synthetic: boolean }[];
+  };
+  const dumpText = JSON.stringify(dumped);
+  for (const value of ['synthetic-local-mrn-55512345', 'synthetic-local-phone-7025550143']) {
+    if (dumpText.includes(value)) {
+      throw new Error(`vendor-sim store leaked a request payload value (${value})`);
+    }
+  }
+  if (dumped.effects.length !== 1 || dumped.effects.some((effect) => effect.synthetic !== true)) {
+    throw new Error(`vendor-sim store holds an unwatermarked or unexpected record: ${dumpText}`);
+  }
+
+  // The rollback expectation: `sim reset` clears the ledger.
+  const reset = (await simCall('/control/reset', { method: 'POST' })).state as {
+    effects: unknown[];
+    receipts: unknown[];
+  };
+  if (reset.effects.length !== 0 || reset.receipts.length !== 0) {
+    throw new Error(`vendor-sim reset left state behind: ${JSON.stringify(reset)}`);
+  }
+}
+
+async function testLocal(): Promise<void> {
   const expected = new Set([
     'app-postgres',
     'dex',
@@ -1091,6 +1259,24 @@ function testLocal(): void {
     throw new Error(`content-license standing posture differs: ${licensePosture}`);
   }
 
+  // WP-027: the rail simulator lands at its package ceiling — northwind
+  // `scaffolded` beside riverbend `disabled`, so the injectRailScenario command
+  // (floored `simulated`) denies a live injection by design.
+  const railSimulatorCapabilityStates = scalar(
+    "SELECT string_agg(tenant_id || ':' || state, ',' ORDER BY tenant_id) FROM platform_core.capability_grant WHERE capability_id = 'platform.rail-simulator';",
+  );
+  if (
+    railSimulatorCapabilityStates !== 'northwind-synthetic:scaffolded,riverbend-synthetic:disabled'
+  ) {
+    throw new Error(
+      `rail-simulator capability tenant states differ: ${railSimulatorCapabilityStates}`,
+    );
+  }
+
+  // WP-027: the live scenario-control surface, the process-kill drill across a
+  // real container death, the PHI scan of the live sim store, and the reset.
+  await probeRailSimulator();
+
   // WP-010: the DB-level cross-tenant negative suite runs against the live stack.
   run('pnpm', ['--filter', '@practicehub/platform-core', 'run', 'test:db'], {
     stdio: 'inherit',
@@ -1149,9 +1335,23 @@ function testLocal(): void {
       'identity_model=OK authn_model=OK merge_governance=OK pdp_model=OK ' +
       'gipa_partition=OK audit_store=OK consent_ledger=OK event_spine=OK ' +
       'policy_clocks=OK tasking_engine=OK break_glass=OK oncall_coverage=OK ' +
-      'documents_model=OK documents_records=OK vendor_registry=OK ' +
+      'documents_model=OK documents_records=OK vendor_registry=OK rail_simulator=OK ' +
       'dex_federation=OK cross_tenant_db_suite=OK synthetic_stack=OK',
   );
+}
+
+/** ADR-003's uniform failure injection: `pnpm sim <RAIL-###> <X-##>`. */
+async function sim(railId: string | undefined, primitiveId: string | undefined): Promise<void> {
+  if (railId === undefined || primitiveId === undefined) {
+    throw new Error('usage: pnpm sim <RAIL-###> <X-##> (or `reset` as the rail id to roll back)');
+  }
+  if (railId === 'reset') {
+    const reset = await simCall('/control/reset', { method: 'POST' });
+    console.log(`sim reset ${JSON.stringify(reset.state)}`);
+    return;
+  }
+  const armed = await simCall(`/scenarios/${railId}/${primitiveId}`, { method: 'POST' });
+  console.log(`sim armed ${JSON.stringify(armed.armed)}`);
 }
 
 const action = process.argv[2];
@@ -1169,7 +1369,10 @@ switch (action) {
     seed();
     break;
   case 'test':
-    testLocal();
+    await testLocal();
+    break;
+  case 'sim':
+    await sim(process.argv[3], process.argv[4] ?? 'X-00');
     break;
   case 'down':
     compose(['--profile', 'observability', 'down']);

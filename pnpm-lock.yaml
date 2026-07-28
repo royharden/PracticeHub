@@ -224,7 +224,23 @@ importers:
         specifier: workspace:*
         version: link:../../packages/contracts
 
-  sims/vendor-simulator: {}
+  sims/vendor-sim-kit:
+    dependencies:
+      '@practicehub/platform':
+        specifier: workspace:*
+        version: link:../../packages/platform
+      '@practicehub/platform-integration':
+        specifier: workspace:*
+        version: link:../../modules/platform-integration
+
+  sims/vendor-simulator:
+    dependencies:
+      '@practicehub/platform-integration':
+        specifier: workspace:*
+        version: link:../../modules/platform-integration
+      '@practicehub/vendor-sim-kit':
+        specifier: workspace:*
+        version: link:../vendor-sim-kit
 
   tools/local-tools: {}
 
@@ -239,6 +255,12 @@ importers:
       '@practicehub/testkit':
         specifier: workspace:*
         version: link:../../packages/testkit
+      '@practicehub/vendor-sim-kit':
+        specifier: workspace:*
+        version: link:../../sims/vendor-sim-kit
+      '@practicehub/vendor-simulator':
+        specifier: workspace:*
+        version: link:../../sims/vendor-simulator
 
 packages:
   '@emnapi/core@1.11.1':

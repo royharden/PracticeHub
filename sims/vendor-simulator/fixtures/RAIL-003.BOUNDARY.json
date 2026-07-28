@@ -1,0 +1,67 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-003",
+  "class": "BOUNDARY",
+  "description": "twilio-sim: the exact edge — the carrier double-fires the delivery receipt: two receipts, one message.",
+  "cases": [
+    {
+      "op": "arm",
+      "name": "arm X-04 for exactly one request",
+      "primitiveId": "X-04",
+      "options": {
+        "count": 1
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "the armed X-04 shapes the first request",
+      "request": {
+        "operation": "send-message",
+        "idempotencyKey": "synthetic-rail-003-boundary",
+        "payloadRef": "synthetic-payload-rail-003-boundary",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      },
+      "expect": {
+        "status": "accepted",
+        "effectState": "landed",
+        "receiptRef": "present"
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "one effect, two receipts",
+      "expect": {
+        "kinds": ["primary", "duplicate"]
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "the landed effect still dedupes on the very next attempt",
+      "request": {
+        "operation": "send-message",
+        "idempotencyKey": "synthetic-rail-003-boundary",
+        "payloadRef": "synthetic-payload-rail-003-boundary",
+        "requestedAt": "2026-01-01T00:01:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      },
+      "expect": {
+        "status": "deduplicated",
+        "attempts": 2
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "still exactly one ledger record for the key",
+      "expect": {
+        "effects": 1
+      }
+    }
+  ]
+}

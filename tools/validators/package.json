@@ -13,6 +13,7 @@
     "verify:handlers": "pnpm run build:with-deps && node dist/handler-coverage.js",
     "verify:planning": "pnpm run build:with-deps && node dist/planning.js",
     "verify:adapters": "pnpm run build:with-deps && node dist/adapters.js",
+    "verify:sims": "pnpm run build:with-deps && node dist/sims.js",
     "verify:corpus": "pnpm run build:with-deps && node dist/corpus.js",
     "verify:phi": "pnpm run build:with-deps && node dist/phi-fixtures.js",
     "verify:secrets": "pnpm run build:with-deps && node dist/secrets.js",
@@ -21,6 +22,8 @@
   "dependencies": {
     "@practicehub/platform-core": "workspace:*",
     "@practicehub/platform-integration": "workspace:*",
-    "@practicehub/testkit": "workspace:*"
+    "@practicehub/testkit": "workspace:*",
+    "@practicehub/vendor-sim-kit": "workspace:*",
+    "@practicehub/vendor-simulator": "workspace:*"
   }
 }

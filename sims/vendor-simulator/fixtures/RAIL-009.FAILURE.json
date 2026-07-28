@@ -1,0 +1,49 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-009",
+  "class": "FAILURE",
+  "description": "esp-sim: the provider rate-limits the send; no effect lands and the retry allowance is named rather than guessed.",
+  "cases": [
+    {
+      "op": "arm",
+      "name": "arm X-13",
+      "primitiveId": "X-13"
+    },
+    {
+      "op": "dispatch",
+      "name": "the request fails without landing a clean effect",
+      "request": {
+        "operation": "send-email",
+        "idempotencyKey": "synthetic-rail-009-failure",
+        "payloadRef": "synthetic-payload-rail-009-failure",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-failure"
+        }
+      },
+      "expect": {
+        "status": "throttled",
+        "effectState": "not-landed",
+        "receiptRef": "absent",
+        "requiresReconciliation": false
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "no receipt is emitted for a failed request",
+      "expect": {
+        "kinds": []
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "the ledger records the attempt and its state, never a phantom success",
+      "expect": {
+        "effects": 1,
+        "receipts": 0,
+        "effectState": "not-landed"
+      }
+    }
+  ]
+}

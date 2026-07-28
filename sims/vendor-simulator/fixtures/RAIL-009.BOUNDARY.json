@@ -1,0 +1,68 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-009",
+  "class": "BOUNDARY",
+  "description": "esp-sim: the exact edge — the address bounces (no effect lands); the corrected address on the retry sends.",
+  "cases": [
+    {
+      "op": "arm",
+      "name": "arm X-12 for exactly one request",
+      "primitiveId": "X-12",
+      "options": {
+        "count": 1
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "the armed X-12 shapes the first request",
+      "request": {
+        "operation": "send-email",
+        "idempotencyKey": "synthetic-rail-009-boundary",
+        "payloadRef": "synthetic-payload-rail-009-boundary",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      },
+      "expect": {
+        "status": "rejected",
+        "effectState": "not-landed",
+        "attempts": 1
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "a request that never landed issues no receipt",
+      "expect": {
+        "kinds": []
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "the scenario is exhausted, so the retry of the not-landed effect lands",
+      "request": {
+        "operation": "send-email",
+        "idempotencyKey": "synthetic-rail-009-boundary",
+        "payloadRef": "synthetic-payload-rail-009-boundary",
+        "requestedAt": "2026-01-01T00:01:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      },
+      "expect": {
+        "status": "accepted",
+        "effectState": "landed",
+        "attempts": 2
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "still exactly one ledger record for the key",
+      "expect": {
+        "effects": 1
+      }
+    }
+  ]
+}

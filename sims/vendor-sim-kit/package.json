@@ -1,5 +1,5 @@
 {
-  "name": "@practicehub/vendor-simulator",
+  "name": "@practicehub/vendor-sim-kit",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,11 +9,10 @@
     "build": "tsc -p tsconfig.json",
     "lint": "eslint src --max-warnings=0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run",
-    "start": "node dist/server.js"
+    "test": "vitest run"
   },
   "dependencies": {
-    "@practicehub/platform-integration": "workspace:*",
-    "@practicehub/vendor-sim-kit": "workspace:*"
+    "@practicehub/platform": "workspace:*",
+    "@practicehub/platform-integration": "workspace:*"
   }
 }

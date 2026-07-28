@@ -15,6 +15,9 @@ const publicSteps = [
   ['-r', 'test'],
   ['verify:imports'],
   ['verify:handlers'],
+  // WP-027: the vendor-sim gate reads only platform code (catalog, rail
+  // declarations, the sim store's own shape), so it is a PUBLIC step.
+  ['verify:sims'],
   ['verify:secrets'],
   ['verify:phi'],
   ['verify:cross-tenant'],

@@ -246,6 +246,18 @@ export const capabilityDefinitionsV1: readonly CapabilityDefinition[] = [
       'protective directions (suspend, baa-lapsed, reinstate) are NEVER gated — a block ' +
       'must always fire and a lapse must always be recordable (the audit.emit precedent).',
   },
+  {
+    capabilityId: 'platform.rail-simulator',
+    ownerRole: 'architecture',
+    dimensions: [],
+    description:
+      'Vendor-sim framework + scenario-control API + the first five rail sims (WP-027): the ' +
+      'failure-injection primitive catalog, the effect ledger that keeps one external effect ' +
+      'per idempotency key across crashes and replays, and the process-kill hooks. Arming a ' +
+      'scenario changes what an external rail does, so injectRailScenario floors at simulated; ' +
+      'reads and the reset (rollback) direction are never gated. Arming is refused outright ' +
+      'outside a synthetic-only environment — below the registry, with no override path.',
+  },
 ];
 
 /** Exact mirror of docs/architecture/capability-edge-preconditions.csv (FROZEN). */
@@ -538,6 +550,16 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       rollbackRef: 'already-disabled',
       synthetic: true,
     },
+    {
+      capabilityId: 'platform.rail-simulator',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
   ],
   events: [
     chainEvent(
@@ -769,6 +791,19 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       'disabled',
       'scaffolded',
       'synthetic-gate:wp-026-vendor-registry-scaffold',
+    ),
+    // WP-027: the rail-simulator framework lands at its package ceiling —
+    // `scaffolded`. The injectRailScenario command (floored `simulated`)
+    // therefore DENIES a live scenario injection against this seed, by design;
+    // reads and the reset direction are never gated. Riverbend stays the
+    // opposite-state proof.
+    chainEvent(
+      'synthetic-cap-evt-0022',
+      'platform.rail-simulator',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-027-rail-simulator-scaffold',
     ),
   ],
 };

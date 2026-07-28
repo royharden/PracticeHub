@@ -1,0 +1,49 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-008",
+  "class": "FAILURE",
+  "description": "stripe-sim: the processor refuses the credential; no money moves and no retry can fix it without a credential change.",
+  "cases": [
+    {
+      "op": "arm",
+      "name": "arm X-14",
+      "primitiveId": "X-14"
+    },
+    {
+      "op": "dispatch",
+      "name": "the request fails without landing a clean effect",
+      "request": {
+        "operation": "create-payment-intent",
+        "idempotencyKey": "synthetic-rail-008-failure",
+        "payloadRef": "synthetic-payload-rail-008-failure",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-failure"
+        }
+      },
+      "expect": {
+        "status": "unauthorized",
+        "effectState": "not-landed",
+        "receiptRef": "absent",
+        "requiresReconciliation": false
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "no receipt is emitted for a failed request",
+      "expect": {
+        "kinds": []
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "the ledger records the attempt and its state, never a phantom success",
+      "expect": {
+        "effects": 1,
+        "receipts": 0,
+        "effectState": "not-landed"
+      }
+    }
+  ]
+}

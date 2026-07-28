@@ -28,6 +28,7 @@ import {
   railIdPattern,
 } from '@practicehub/platform-integration';
 import { parseCsv } from '@practicehub/testkit';
+import { railSimsV1 } from '@practicehub/vendor-simulator';
 
 import { collectFiles, failIfAny, repoRoot } from './common.js';
 
@@ -51,6 +52,8 @@ const cell = (row: readonly string[], name: string): string => {
 };
 
 const authorityIds = new Set<string>();
+/** authority id -> how many simulator scenarios its join row names (WP-027). */
+const authorityScenarioCounts = new Map<string, number>();
 let externalRails = 0;
 for (const [index, row] of joinRows.slice(1).entries()) {
   if (row.every((value) => value.trim() === '')) {
@@ -82,6 +85,12 @@ for (const [index, row] of joinRows.slice(1).entries()) {
       }
     }
   }
+  authorityScenarioCounts.set(
+    authorityId,
+    cell(row, 'simulator_scenarios')
+      .split('|')
+      .filter((scenario) => scenario.trim() !== '').length,
+  );
   // Every row is a complete contract binding.
   for (const column of [
     'effect_key_contract',
@@ -134,6 +143,67 @@ if (existsSync(adaptersRoot)) {
 if (adapterContractRequiredFields.length === 0) {
   errors.push('adapterContractRequiredFields is empty — the AdapterContract shape is undefined');
 }
+
+// (4) WP-027: every rail sim maps to the join, and every simulator scenario an
+// IMPLEMENTED authority names has exactly one declared preset. Presets bind by
+// ORDINAL, so the public rail code never mirrors the private join's scenario
+// strings. Scenarios of an implemented authority whose other rails are not built
+// yet, and authorities with no rail at all, are REPORTED as deferred — never
+// silently passed (the adapter_contracts_deferred discipline).
+const coveredScenarios = new Map<string, Set<number>>();
+for (const rail of railSimsV1) {
+  const scenarioCount = authorityScenarioCounts.get(rail.authorityId);
+  if (scenarioCount === undefined) {
+    errors.push(
+      `${rail.railId}: authorityId ${rail.authorityId} is absent from the authority-rail join`,
+    );
+    continue;
+  }
+  const covered = coveredScenarios.get(rail.authorityId) ?? new Set<number>();
+  for (const preset of rail.presets) {
+    if (preset.authorityScenarioIndex >= scenarioCount) {
+      errors.push(
+        `${rail.railId}/${preset.presetId}: authority scenario ordinal ${preset.authorityScenarioIndex} ` +
+          `exceeds the ${scenarioCount} scenario(s) ${rail.authorityId} names`,
+      );
+      continue;
+    }
+    if (covered.has(preset.authorityScenarioIndex)) {
+      errors.push(
+        `${rail.authorityId} scenario ordinal ${preset.authorityScenarioIndex} is claimed by two presets`,
+      );
+    }
+    covered.add(preset.authorityScenarioIndex);
+  }
+  coveredScenarios.set(rail.authorityId, covered);
+}
+
+const deferredScenarios: string[] = [];
+const deferredAuthorities: string[] = [];
+for (const [authorityId, scenarioCount] of [...authorityScenarioCounts.entries()].sort()) {
+  const covered = coveredScenarios.get(authorityId);
+  if (covered === undefined) {
+    deferredAuthorities.push(authorityId);
+    continue;
+  }
+  const uncovered = Array.from({ length: scenarioCount }, (_, index) => index).filter(
+    (index) => !covered.has(index),
+  );
+  for (const index of uncovered) {
+    deferredScenarios.push(`${authorityId}:${index}`);
+  }
+}
+if (deferredAuthorities.length > 0) {
+  console.log(`sim_rails_deferred=${deferredAuthorities.join(',')}`);
+}
+if (deferredScenarios.length > 0) {
+  console.log(`sim_scenarios_deferred=${deferredScenarios.join(',')}`);
+}
+const coveredCount = [...coveredScenarios.values()].reduce(
+  (total, covered) => total + covered.size,
+  0,
+);
+console.log(`declared_rail_sims=${railSimsV1.length} covered_authority_scenarios=${coveredCount}`);
 
 if (deferredAdapters.length > 0) {
   // No silent caps: name the adapters whose contracts are deferred to their
