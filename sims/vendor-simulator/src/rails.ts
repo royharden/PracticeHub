@@ -15,12 +15,10 @@
  * every primitive drives every rail without per-rail special cases.
  */
 
-import type { RailRequest, RailSim } from '@practicehub/vendor-sim-kit';
+import type { RailSim } from '@practicehub/vendor-sim-kit';
 
-const effectKeyFactory =
-  (railSlug: string) =>
-  (operation: string, request: RailRequest): string =>
-    `synthetic:${railSlug}/${operation}/${request.idempotencyKey}`;
+import { effectKeyFactory } from './effect-key.js';
+import { remainingRailSimsV1 } from './rails-remaining.js';
 
 /** Practice-management coexistence rail (athena-class). */
 export const athenaSim: RailSim = {
@@ -38,6 +36,7 @@ export const athenaSim: RailSim = {
         'The incumbent moved the resource under a cutover: a stale write conflicts, and the answer arrives from an unpinned version that must reconcile rather than overwrite.',
     },
   ],
+  heartbeat: { expectedEffectsPerWindow: 60, volumeTolerance: 15, emitsIdleHeartbeat: true },
   effectKeyFor: effectKeyFactory('rail-002'),
 };
 
@@ -64,6 +63,7 @@ export const twilioSim: RailSim = {
         'The voice artifact cannot be fetched: the call effect stands, its transcript does not, and nothing may be inferred from the absence.',
     },
   ],
+  heartbeat: { expectedEffectsPerWindow: 120, volumeTolerance: 30, emitsIdleHeartbeat: true },
   effectKeyFor: effectKeyFactory('rail-003'),
 };
 
@@ -83,6 +83,7 @@ export const stripeSim: RailSim = {
         'The money moves but its webhook never lands, and the make-up delivery arrives twice; the ledger still holds exactly one payment effect.',
     },
   ],
+  heartbeat: { expectedEffectsPerWindow: 25, volumeTolerance: 8, emitsIdleHeartbeat: true },
   effectKeyFor: effectKeyFactory('rail-008'),
 };
 
@@ -102,6 +103,7 @@ export const espSim: RailSim = {
         'The address bounces (no effect lands) and a complaint arrives late; both suppress future sends and neither can resubscribe anyone.',
     },
   ],
+  heartbeat: { expectedEffectsPerWindow: 50, volumeTolerance: 15, emitsIdleHeartbeat: false },
   effectKeyFor: effectKeyFactory('rail-009'),
 };
 
@@ -121,8 +123,20 @@ export const modelSim: RailSim = {
         'The provider answers from a model version other than the pinned one, then returns a payload its own contract forbids; a stale output can never regain tool authority.',
     },
   ],
+  heartbeat: { expectedEffectsPerWindow: 35, volumeTolerance: 10, emitsIdleHeartbeat: false },
   effectKeyFor: effectKeyFactory('rail-022'),
 };
 
-/** The rails this package registers, in rail-id order. */
-export const railSimsV1: readonly RailSim[] = [athenaSim, twilioSim, stripeSim, espSim, modelSim];
+/**
+ * The rails this service registers, in rail-id order — the WP-027 five plus the
+ * WP-028 remainder. One registry, one boot unit (ADR-003): every gate, probe,
+ * and fixture floor reads this list, so a rail cannot be delivered half-way.
+ */
+export const railSimsV1: readonly RailSim[] = [
+  athenaSim,
+  twilioSim,
+  stripeSim,
+  espSim,
+  modelSim,
+  ...remainingRailSimsV1,
+].sort((left, right) => left.railId.localeCompare(right.railId));

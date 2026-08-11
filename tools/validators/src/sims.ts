@@ -3,15 +3,18 @@
  * is platform code, so a public clone runs it exactly as the development
  * machine does.
  *
- * Three things the WP-027 gate names:
+ * Three things the WP-027 gate names, extended by WP-028 at (1c):
  *   1. the injection-primitive catalog is complete and well-formed (eighteen
  *      unique, contiguous `X-##` ids drawn from the declared vocabularies), and
  *      every declared rail is a complete declaration bound to an `AUTH-###`
- *      authority with distinct scenario ordinals and catalog-known primitives;
- *   2. "PHI scan of sim stores", STATICALLY: the two persisted sim shapes
- *      (`SimEffectRecord`, `SimReceipt`) may not carry a field that could hold a
- *      value rather than a reference — a risky field name is admissible only as
- *      a `...Hash` or `...Ref`;
+ *      authority with distinct scenario ordinals and catalog-known primitives
+ *      — plus (1c) an expected-volume band each rail is EXERCISED against on a
+ *      silent window, so `sim_rails_loud_when_silent` is an earned count rather
+ *      than a restatement of how many rails carry a mandatory field;
+ *   2. "PHI scan of sim stores", STATICALLY: the persisted sim shapes
+ *      (`SimEffectRecord`, `SimReceipt`, `SimHeartbeat`) may not carry a field
+ *      that could hold a value rather than a reference — a risky field name is
+ *      admissible only as a `...Hash` or `...Ref`;
  *   3. "PHI scan of sim stores", DYNAMICALLY: a request whose payload carries
  *      identifiers is driven through every rail, and the resulting ledger dump
  *      is scanned for those values. Structure is asserted AND exercised.
@@ -20,6 +23,8 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import {
+  assertRailHeartbeatModel,
+  evaluateRailHeartbeat,
   injectionOutcomeClasses,
   injectionPrimitiveFamilies,
   injectionPrimitiveIdPattern,
@@ -70,6 +75,14 @@ for (const [index, primitive] of injectionPrimitivesV1.entries()) {
 
 // (1b) The rails.
 const seenRailIds = new Set<string>();
+/**
+ * Rails PROVEN loud on a silent window — not a count of rails carrying the
+ * (mandatory, therefore tautological) field. It equals `declared_rail_sims`
+ * only when every band was actually exercised and alarmed.
+ */
+let railsLoudWhenSilent = 0;
+/** Rails whose band was refused at (1c); section (3) must not construct them. */
+const railsWithRefusedBands = new Set<string>();
 for (const rail of railSimsV1) {
   if (!railIdPattern.test(rail.railId)) {
     errors.push(`rail ${JSON.stringify(rail.railId)} is not a RAIL-### id`);
@@ -106,13 +119,37 @@ for (const rail of railSimsV1) {
     }
     ordinals.add(preset.authorityScenarioIndex);
   }
+  // (1c) WP-028: every rail carries an expected-volume band under which total
+  // silence is loud. `assertRailHeartbeatModel` is the same check the engine
+  // applies at construction — the gate states it so a rail cannot reach the
+  // service without one. A rail whose model is already refused is NOT then
+  // evaluated: `evaluateRailHeartbeat` re-asserts and would throw, turning a
+  // named gate failure into a stack trace.
+  try {
+    assertRailHeartbeatModel(rail.railId, rail.heartbeat);
+  } catch (error) {
+    errors.push(error instanceof Error ? error.message : String(error));
+    railsWithRefusedBands.add(rail.railId);
+    continue;
+  }
+  const silent = evaluateRailHeartbeat(rail.heartbeat, {
+    railId: rail.railId,
+    observedEffects: 0,
+    observedHeartbeats: 0,
+    reconciliationRan: true,
+  });
+  if (silent.verdict === 'alarm') {
+    railsLoudWhenSilent += 1;
+  } else {
+    errors.push(`${rail.railId}: a silent reconciliation window does not alarm under its band`);
+  }
 }
 
 // (2) The persisted shapes hold refs, never values.
 const storeSource = readFileSync(resolve(repoRoot, 'sims/vendor-sim-kit/src/store.ts'), 'utf8');
 const riskyFieldName =
   /^(?:.*(?:payload|body|content|value|text|message|note|name|email|phone|address|dob|birth|mrn|ssn).*)$/i;
-for (const shape of ['SimEffectRecord', 'SimReceipt']) {
+for (const shape of ['SimEffectRecord', 'SimReceipt', 'SimHeartbeat']) {
   const declaration = new RegExp(`interface ${shape} \\{([\\s\\S]*?)\\n\\}`).exec(storeSource);
   if (!declaration?.[1]) {
     errors.push(`the persisted shape ${shape} is not declared in the sim store`);
@@ -129,12 +166,18 @@ for (const shape of ['SimEffectRecord', 'SimReceipt']) {
 }
 
 // (3) The same claim, exercised: drive every rail and scan the ledger dump.
+//
+// Only rails whose band survived (1c) are driven. `VendorSimEngine` re-asserts
+// the model at construction, so passing a refused rail here would abort the run
+// with a stack trace — losing this section's findings AND the receipt line to a
+// fault (1c) has already named precisely. A gate must report, not crash.
 const identifiers = ['synthetic-secret-mrn-55512345', 'synthetic-secret-phone-7025550143'];
+const drivableRails = railSimsV1.filter((rail) => !railsWithRefusedBands.has(rail.railId));
 const engine = new VendorSimEngine({
-  rails: railSimsV1,
+  rails: drivableRails,
   store: new InMemorySimStateStore(),
 });
-for (const rail of railSimsV1) {
+for (const rail of drivableRails) {
   const operation = rail.operations[0] ?? '';
   engine.dispatch({
     railId: rail.railId,
@@ -145,8 +188,11 @@ for (const rail of railSimsV1) {
     payload: { mrn: identifiers[0], phone: identifiers[1] },
     synthetic: true,
   });
+  // The heartbeat records land in the same dump, so the scan covers the WP-028
+  // surface too rather than only the effect ledger.
+  engine.recordHeartbeat(rail.railId, '2026-01-01T00:00:00Z');
 }
-const dump = JSON.stringify(engine.snapshot());
+const dump = JSON.stringify({ state: engine.snapshot(), heartbeat: engine.heartbeatSweep() });
 for (const identifier of identifiers) {
   if (dump.includes(identifier)) {
     errors.push(`the sim ledger dump carries a request payload value (${identifier})`);
@@ -155,6 +201,7 @@ for (const identifier of identifiers) {
 
 console.log(
   `sim_primitives=${injectionPrimitivesV1.length} declared_rail_sims=${railSimsV1.length} ` +
+    `sim_rails_loud_when_silent=${railsLoudWhenSilent} ` +
     `sim_store_payload_leaks=${errors.filter((error) => error.includes('payload value')).length}`,
 );
 failIfAny('sims', errors);

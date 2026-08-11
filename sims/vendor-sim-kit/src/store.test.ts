@@ -124,8 +124,14 @@ describe('sim state store — ledger behaviour', () => {
     const store = new InMemorySimStateStore();
     store.writeEffect(record);
     store.appendReceipts([receipt]);
+    store.recordHeartbeat('RAIL-008', '2026-01-01T00:00:00Z');
     store.reset();
-    expect(store.snapshot()).toEqual({ effects: [], receipts: [], synthetic: true });
+    expect(store.snapshot()).toEqual({
+      effects: [],
+      receipts: [],
+      heartbeats: [],
+      synthetic: true,
+    });
   });
 
   it('hashes payloads canonically — key order never changes the digest', () => {

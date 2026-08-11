@@ -1,0 +1,62 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-012",
+  "class": "FAILURE",
+  "description": "imaging-sim: the receiving destination rejects the order; the loop stays open and owned.",
+  "cases": [
+    {
+      "op": "arm",
+      "name": "arm X-12",
+      "primitiveId": "X-12"
+    },
+    {
+      "op": "dispatch",
+      "name": "the request fails without landing a clean effect",
+      "request": {
+        "operation": "place-order",
+        "idempotencyKey": "synthetic-rail-012-failure",
+        "payloadRef": "synthetic-payload-rail-012-failure",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-failure"
+        }
+      },
+      "expect": {
+        "status": "rejected",
+        "effectState": "not-landed",
+        "receiptRef": "absent",
+        "requiresReconciliation": false
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "no receipt is emitted for a request that carried nothing",
+      "expect": {
+        "kinds": []
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "the ledger records the attempt and its state, never a phantom success",
+      "expect": {
+        "effects": 1,
+        "receipts": 0,
+        "effectState": "not-landed"
+      }
+    },
+    {
+      "op": "record-heartbeat",
+      "name": "the rail is alive and answering — it simply carried nothing",
+      "at": "2026-01-01T00:01:00Z"
+    },
+    {
+      "op": "heartbeat",
+      "name": "a rail that answers and carries nothing is loud, not calm",
+      "expect": {
+        "verdict": "alarm",
+        "reasons": ["volume-below-band"]
+      }
+    }
+  ]
+}

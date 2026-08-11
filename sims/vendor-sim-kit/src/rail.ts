@@ -5,6 +5,7 @@
 
 import type { RailSimulatorKillPoint } from '@practicehub/platform-integration';
 
+import type { RailHeartbeatModel } from './heartbeat.js';
 import type { InjectionOutcomeClass } from './primitives.js';
 import type { SimEffectState } from './store.js';
 
@@ -43,6 +44,11 @@ export interface RailSim {
   readonly pinnedVendorVersion: string;
   readonly operations: readonly string[];
   readonly presets: readonly RailScenarioPreset[];
+  /**
+   * The rail's expected-volume band (WP-028). REQUIRED, so a rail that cannot
+   * be judged for silence is unrepresentable rather than merely ungated.
+   */
+  readonly heartbeat: RailHeartbeatModel;
   /** The rail's external-effect key for this request (its effect-key contract). */
   effectKeyFor(operation: string, request: RailRequest): string;
 }

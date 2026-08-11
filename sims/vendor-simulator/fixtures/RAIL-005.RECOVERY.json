@@ -1,0 +1,91 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-005",
+  "class": "RECOVERY",
+  "description": "fax-sim: the process dies between the external effect and its receipt. The unknown state is persisted BEFORE the death, so the restarted process reconciles instead of calling again.",
+  "cases": [
+    {
+      "op": "arm",
+      "name": "arm the process-crash primitive between effect and receipt",
+      "primitiveId": "X-02",
+      "options": {
+        "killPoint": "after-effect-before-receipt"
+      }
+    },
+    {
+      "op": "dispatch-expect-kill",
+      "name": "the rail process dies without answering",
+      "request": {
+        "operation": "send-fax",
+        "idempotencyKey": "synthetic-rail-005-recovery",
+        "payloadRef": "synthetic-payload-rail-005-recovery",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-recovery"
+        }
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "the unknown state survived the death, with no receipt",
+      "expect": {
+        "effects": 1,
+        "receipts": 0,
+        "effectState": "unknown"
+      }
+    },
+    {
+      "op": "restart",
+      "name": "the process restarts: the armed scenario is gone, the ledger is not"
+    },
+    {
+      "op": "dispatch",
+      "name": "the re-delivery reconciles and never re-sends the external effect",
+      "request": {
+        "operation": "send-fax",
+        "idempotencyKey": "synthetic-rail-005-recovery",
+        "payloadRef": "synthetic-payload-rail-005-recovery",
+        "requestedAt": "2026-01-01T00:05:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-recovery"
+        }
+      },
+      "expect": {
+        "status": "uncertain",
+        "effectState": "unknown",
+        "requiresReconciliation": true,
+        "attempts": 2
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "still one ledger record; recovery never duplicated the effect",
+      "expect": {
+        "effects": 1,
+        "receipts": 0
+      }
+    },
+    {
+      "op": "reset",
+      "name": "the rollback path clears the ledger"
+    },
+    {
+      "op": "snapshot",
+      "name": "reset leaves nothing behind",
+      "expect": {
+        "effects": 0,
+        "receipts": 0
+      }
+    },
+    {
+      "op": "heartbeat",
+      "name": "after the rollback the rail is dark, and that is reported rather than assumed calm",
+      "expect": {
+        "verdict": "alarm",
+        "reasonsInclude": ["rail-dark"]
+      }
+    }
+  ]
+}

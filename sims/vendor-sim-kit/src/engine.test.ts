@@ -14,6 +14,7 @@ const testRail: RailSim = {
   pinnedVendorVersion: '2026-01-01',
   operations: ['send'],
   presets: [],
+  heartbeat: { expectedEffectsPerWindow: 2, volumeTolerance: 0, emitsIdleHeartbeat: false },
   effectKeyFor: (operation, request) => `synthetic:rail-000/${operation}/${request.idempotencyKey}`,
 };
 
@@ -253,6 +254,11 @@ describe('scenario controller — deterministic arming', () => {
     sim.dispatch(request());
     sim.reset();
     expect(sim.controller.listArmed()).toHaveLength(0);
-    expect(sim.snapshot()).toEqual({ effects: [], receipts: [], synthetic: true });
+    expect(sim.snapshot()).toEqual({
+      effects: [],
+      receipts: [],
+      heartbeats: [],
+      synthetic: true,
+    });
   });
 });

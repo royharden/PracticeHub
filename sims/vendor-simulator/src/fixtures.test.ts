@@ -39,6 +39,10 @@ const acceptedOps = [
   'snapshot',
   'restart',
   'reset',
+  // WP-028: the expected-volume heartbeat, exercised per rail alongside its
+  // injection story rather than only in the unit suite.
+  'record-heartbeat',
+  'heartbeat',
 ] as const;
 type FixtureOp = (typeof acceptedOps)[number];
 
@@ -46,6 +50,8 @@ interface FixtureCase {
   readonly op: FixtureOp;
   readonly name: string;
   readonly primitiveId?: string;
+  /** Caller-supplied instant for ops that carry one but drive no request. */
+  readonly at?: string;
   readonly options?: Record<string, unknown>;
   readonly request?: {
     readonly operation: string;
@@ -210,6 +216,26 @@ function runPack(rail: RailSim, pack: FixturePack): void {
       }
       case 'reset': {
         engine.reset();
+        break;
+      }
+      case 'record-heartbeat': {
+        engine.recordHeartbeat(rail.railId, fixtureCase.at ?? '2026-01-01T00:00:00Z');
+        break;
+      }
+      case 'heartbeat': {
+        const evaluation = engine.heartbeatSweep()[0];
+        expect(evaluation?.railId, fixtureCase.name).toBe(rail.railId);
+        if (expected.verdict !== undefined) {
+          expect(evaluation?.verdict, `${fixtureCase.name}: verdict`).toBe(expected.verdict);
+        }
+        if (expected.reasons !== undefined) {
+          expect(evaluation?.reasons, `${fixtureCase.name}: reasons`).toEqual(expected.reasons);
+        }
+        if (expected.reasonsInclude !== undefined) {
+          for (const reason of expected.reasonsInclude as readonly string[]) {
+            expect(evaluation?.reasons, `${fixtureCase.name}: reasons`).toContain(reason);
+          }
+        }
         break;
       }
       default: {

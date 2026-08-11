@@ -1,0 +1,68 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-011",
+  "class": "BOUNDARY",
+  "description": "lab-sim: the exact edge — a corrected result supersedes the first — the prior version survives with its lineage and the review obligation reopens.",
+  "cases": [
+    {
+      "op": "arm",
+      "name": "arm X-09 for exactly one request",
+      "primitiveId": "X-09",
+      "options": {
+        "count": 1
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "the armed X-09 shapes the first request",
+      "request": {
+        "operation": "place-order",
+        "idempotencyKey": "synthetic-rail-011-boundary",
+        "payloadRef": "synthetic-payload-rail-011-boundary",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      },
+      "expect": {
+        "status": "accepted",
+        "effectState": "landed",
+        "receiptRef": "present",
+        "requiresReconciliation": true
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "the receipts the rail actually emitted, in drain order",
+      "expect": {
+        "kinds": ["primary", "corrected"]
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "the very next attempt on the same key adds no second external effect",
+      "request": {
+        "operation": "place-order",
+        "idempotencyKey": "synthetic-rail-011-boundary",
+        "payloadRef": "synthetic-payload-rail-011-boundary",
+        "requestedAt": "2026-01-01T00:01:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      },
+      "expect": {
+        "attempts": 2,
+        "resendsExternalEffect": false
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "still exactly one ledger record for the key",
+      "expect": {
+        "effects": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-013",
+  "class": "HAPPY",
+  "description": "idproof-sim-rail: a clean call lands one effect with one receipt, a re-delivery of the same idempotency key resolves to that same effect, and the window is judged against the rail's declared volume band.",
+  "cases": [
+    {
+      "op": "dispatch",
+      "name": "a clean call lands and issues its receipt",
+      "request": {
+        "operation": "start-proofing",
+        "idempotencyKey": "synthetic-rail-013-happy",
+        "payloadRef": "synthetic-payload-rail-013-happy",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-happy"
+        }
+      },
+      "expect": {
+        "status": "accepted",
+        "effectState": "landed",
+        "receiptRef": "present",
+        "attempts": 1,
+        "requiresReconciliation": false
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "exactly one primary receipt is emitted",
+      "expect": {
+        "kinds": ["primary"]
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "the same idempotency key resolves to the original effect",
+      "request": {
+        "operation": "start-proofing",
+        "idempotencyKey": "synthetic-rail-013-happy",
+        "payloadRef": "synthetic-payload-rail-013-happy",
+        "requestedAt": "2026-01-01T00:01:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-happy"
+        }
+      },
+      "expect": {
+        "status": "deduplicated",
+        "effectState": "landed",
+        "duplicateOf": "present",
+        "attempts": 2
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "one ledger record, and the re-delivery issued no new receipt",
+      "expect": {
+        "effects": 1,
+        "receipts": 0
+      }
+    },
+    {
+      "op": "record-heartbeat",
+      "name": "the rail reports itself alive for the window",
+      "at": "2026-01-01T00:02:00Z"
+    },
+    {
+      "op": "heartbeat",
+      "name": "one carried effect does not fill the declared band for this rail",
+      "expect": {
+        "verdict": "alarm",
+        "reasons": ["volume-below-band"]
+      }
+    }
+  ]
+}

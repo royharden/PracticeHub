@@ -166,6 +166,30 @@ export function handleSimRequest(
     return ok({ state: engine.snapshot() });
   }
 
+  // WP-028 heartbeat surface. Additive to the WP-027 route table: it changes no
+  // frozen route's meaning, and it carries COUNTS only — a rail's liveness is
+  // observable without anything that could hold a value.
+  if (request.method === 'GET' && head === 'heartbeat' && parts.length === 1) {
+    return ok({
+      heartbeat: engine.heartbeatSweep(),
+      models: engine.rails().map((rail) => ({ railId: rail.railId, ...rail.heartbeat })),
+    });
+  }
+
+  if (
+    request.method === 'POST' &&
+    head === 'heartbeat' &&
+    parts.length === 2 &&
+    first !== undefined
+  ) {
+    try {
+      const body = (request.body ?? {}) as Record<string, unknown>;
+      return ok({ heartbeat: engine.recordHeartbeat(first, String(body.recordedAt ?? '')) });
+    } catch (error) {
+      return badRequest(error);
+    }
+  }
+
   if (request.method === 'POST' && head === 'control' && first === 'reset' && parts.length === 2) {
     engine.reset();
     return ok({ reset: true, state: engine.snapshot() });

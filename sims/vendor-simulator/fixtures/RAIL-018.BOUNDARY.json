@@ -1,0 +1,68 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-018",
+  "class": "BOUNDARY",
+  "description": "clearinghouse-sim: the exact edge — the batch lands only in part — the frozen attempt owns the claims it carried, and the remainder is not a second submission.",
+  "cases": [
+    {
+      "op": "arm",
+      "name": "arm X-11 for exactly one request",
+      "primitiveId": "X-11",
+      "options": {
+        "count": 1
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "the armed X-11 shapes the first request",
+      "request": {
+        "operation": "submit-claim-batch",
+        "idempotencyKey": "synthetic-rail-018-boundary",
+        "payloadRef": "synthetic-payload-rail-018-boundary",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      },
+      "expect": {
+        "status": "accepted",
+        "effectState": "partial",
+        "receiptRef": "present",
+        "requiresReconciliation": true
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "the receipts the rail actually emitted, in drain order",
+      "expect": {
+        "kinds": ["partial"]
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "the very next attempt on the same key adds no second external effect",
+      "request": {
+        "operation": "submit-claim-batch",
+        "idempotencyKey": "synthetic-rail-018-boundary",
+        "payloadRef": "synthetic-payload-rail-018-boundary",
+        "requestedAt": "2026-01-01T00:01:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      },
+      "expect": {
+        "attempts": 2,
+        "resendsExternalEffect": false
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "still exactly one ledger record for the key",
+      "expect": {
+        "effects": 1
+      }
+    }
+  ]
+}

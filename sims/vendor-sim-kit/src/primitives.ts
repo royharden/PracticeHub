@@ -2,15 +2,22 @@
  * Failure-injection primitive catalog (WP-027). Contract:
  * docs/contracts/vendor-sim-scenario-api.md (FROZEN) §1.
  *
- * The catalog is DATA of record, versioned `v1` with status `draft`: the work
- * grid names "X-01..X-18" and ADR-009 cites a planning-archive simulator catalog
- * that resolves nowhere in this repository. Four ids are PINNED by in-repo
- * sources (the event-spine contract's forward-obligation and the matching
- * register row fix crash / replay / duplicate / out-of-order as X-02/03/04/07,
- * in that order); the remaining fourteen are derived from the failure shapes the
- * authority-rail join names across its rows. Graduating or blessing the catalog
- * is a data revision, never a code change — the same posture WP-012 used for its
- * approval matrix.
+ * The catalog is DATA of record, versioned `v1`, status ACCEPTED by ruling
+ * ADR-ADJ-010 (remediation item R-1, applied by WP-028). Four ids are PINNED by
+ * in-repo sources (the event-spine contract's forward-obligation and the
+ * matching register row fix crash / replay / duplicate / out-of-order as
+ * X-02/03/04/07, in that order); the remaining fourteen are derived from the
+ * failure shapes the authority-rail join names across its rows. The ruling found
+ * that derivation faithful to every in-repo source that governed it.
+ *
+ * The catalog ADR-009 cites now resolves in-repo, at
+ * `docs/architecture/simulator-failure-catalog.md`. It is a DIFFERENT 18-member
+ * set that does not agree id-for-id with this table — a coverage register traced
+ * to exception stories, where this is the implementation vocabulary. Per the
+ * ruling: an unqualified `X-##` anywhere in this repository means the primitive
+ * below, and the graduated catalog's ids are cited `C-X-##`. The two sets are
+ * never merged and neither is renumbered; the coverage delta between them is
+ * carried by `FWD-SIM-COVERAGE-CATALOG`.
  *
  * Primitives are RAIL-AGNOSTIC: the dispatcher applies them, so "every primitive
  * drives every sim" is a full matrix, not per-rail special cases.
@@ -66,8 +73,8 @@ export const injectionPrimitiveIdPattern = /^X-\d{2}$/;
 
 export const injectionPrimitiveCatalogStatus = {
   version: 'v1',
-  status: 'draft',
-  pendingRef: 'c-catalog-x-primitives-graduation',
+  status: 'accepted',
+  ruledBy: 'ADR-ADJ-010',
 } as const;
 
 const eventSpinePin = 'docs/contracts/event-spine.md#forward-obligations';

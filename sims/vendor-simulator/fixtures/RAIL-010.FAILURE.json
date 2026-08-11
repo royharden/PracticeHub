@@ -1,0 +1,62 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-010",
+  "class": "FAILURE",
+  "description": "reviews-sim: the platform throttles the invitation; eligibility is unchanged and nothing is sent.",
+  "cases": [
+    {
+      "op": "arm",
+      "name": "arm X-13",
+      "primitiveId": "X-13"
+    },
+    {
+      "op": "dispatch",
+      "name": "the request fails without landing a clean effect",
+      "request": {
+        "operation": "request-review-invite",
+        "idempotencyKey": "synthetic-rail-010-failure",
+        "payloadRef": "synthetic-payload-rail-010-failure",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-failure"
+        }
+      },
+      "expect": {
+        "status": "throttled",
+        "effectState": "not-landed",
+        "receiptRef": "absent",
+        "requiresReconciliation": false
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "no receipt is emitted for a request that carried nothing",
+      "expect": {
+        "kinds": []
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "the ledger records the attempt and its state, never a phantom success",
+      "expect": {
+        "effects": 1,
+        "receipts": 0,
+        "effectState": "not-landed"
+      }
+    },
+    {
+      "op": "record-heartbeat",
+      "name": "the rail is alive and answering — it simply carried nothing",
+      "at": "2026-01-01T00:01:00Z"
+    },
+    {
+      "op": "heartbeat",
+      "name": "a rail that answers and carries nothing is loud, not calm",
+      "expect": {
+        "verdict": "alarm",
+        "reasons": ["volume-below-band"]
+      }
+    }
+  ]
+}

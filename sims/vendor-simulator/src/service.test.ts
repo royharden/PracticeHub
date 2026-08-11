@@ -43,24 +43,40 @@ describe('scenario-control surface', () => {
       service: 'practicehub-vendor-simulator',
       status: 'ok',
       dataPolicy: 'synthetic-only',
-      rails: 5,
+      rails: 17,
       primitives: 18,
       synthetic: true,
     });
   });
 
-  it('serves the primitive catalog with its draft status, and the rail declarations', () => {
+  it('serves the primitive catalog with its accepted status, and the rail declarations', () => {
     const catalog = call(service(), 'GET', '/primitives');
     expect((catalog.body.catalog as unknown[]).length).toBe(18);
-    expect(catalog.body.catalogStatus).toMatchObject({ version: 'v1', status: 'draft' });
+    expect(catalog.body.catalogStatus).toMatchObject({
+      version: 'v1',
+      status: 'accepted',
+      ruledBy: 'ADR-ADJ-010',
+    });
 
     const rails = call(service(), 'GET', '/rails');
     const declared = rails.body.rails as { railId: string; authorityId: string }[];
     expect(declared.map((rail) => rail.railId)).toEqual([
       'RAIL-002',
       'RAIL-003',
+      'RAIL-005',
+      'RAIL-006',
+      'RAIL-007',
       'RAIL-008',
       'RAIL-009',
+      'RAIL-010',
+      'RAIL-011',
+      'RAIL-012',
+      'RAIL-013',
+      'RAIL-014',
+      'RAIL-015',
+      'RAIL-016',
+      'RAIL-017',
+      'RAIL-018',
       'RAIL-022',
     ]);
     expect(declared.every((rail) => /^AUTH-\d{3}$/.test(rail.authorityId))).toBe(true);
@@ -119,8 +135,49 @@ describe('scenario-control surface', () => {
     expect(call(engine, 'GET', '/state').body.state).toEqual({
       effects: [],
       receipts: [],
+      heartbeats: [],
       synthetic: true,
     });
+  });
+
+  it('serves the heartbeat sweep: a fleet with no traffic is loud on every rail', () => {
+    const engine = service();
+    const swept = call(engine, 'GET', '/heartbeat').body.heartbeat as {
+      railId: string;
+      verdict: string;
+      reasons: string[];
+    }[];
+    expect(swept).toHaveLength(railSimsV1.length);
+    expect(swept.every((entry) => entry.verdict === 'alarm')).toBe(true);
+    expect(swept.every((entry) => entry.reasons.includes('rail-dark'))).toBe(true);
+  });
+
+  it('records an idle tick, which separates a quiet rail from a dead one', () => {
+    const engine = service();
+    const recorded = call(engine, 'POST', '/heartbeat/RAIL-016', {
+      recordedAt: '2026-01-01T00:00:00Z',
+    });
+    expect(recorded.status).toBe(200);
+    expect(recorded.body.heartbeat).toMatchObject({
+      railId: 'RAIL-016',
+      sequence: 1,
+      synthetic: true,
+    });
+
+    const swept = call(engine, 'GET', '/heartbeat').body.heartbeat as {
+      railId: string;
+      reasons: string[];
+    }[];
+    const rail = swept.find((entry) => entry.railId === 'RAIL-016');
+    expect(rail?.reasons).toEqual(['volume-below-band']);
+    // The heartbeat surface carries counts, never a payload field.
+    expect(JSON.stringify(swept)).not.toContain('payload');
+  });
+
+  it('refuses a heartbeat for an undeclared rail rather than inventing one', () => {
+    expect(
+      call(service(), 'POST', '/heartbeat/RAIL-999', { recordedAt: '2026-01-01T00:00:00Z' }).status,
+    ).toBe(400);
   });
 
   it('lets an armed process-crash escape to the bootstrap instead of answering 400', () => {

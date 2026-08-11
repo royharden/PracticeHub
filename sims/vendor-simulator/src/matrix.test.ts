@@ -178,8 +178,8 @@ function freshEngine(rail: RailSim): VendorSimEngine {
 }
 
 describe('primitive x rail matrix — every primitive drives every sim', () => {
-  it('covers exactly five rails and eighteen primitives', () => {
-    expect(railSimsV1).toHaveLength(5);
+  it('covers the whole declared fleet and eighteen primitives', () => {
+    expect(railSimsV1).toHaveLength(17);
     expect(injectionPrimitivesV1).toHaveLength(18);
   });
 

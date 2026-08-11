@@ -21,6 +21,12 @@ import type {
   RailSimulatorKillPoint,
 } from '@practicehub/platform-integration';
 
+import {
+  assertRailHeartbeatModel,
+  sweepRailHeartbeats,
+  type RailHeartbeatEvaluation,
+  type RailWindowObservation,
+} from './heartbeat.js';
 import type { InjectionPrimitive } from './primitives.js';
 import { ScenarioController } from './scenario.js';
 import {
@@ -37,6 +43,7 @@ import {
   InMemorySimStateStore,
   type SimEffectRecord,
   type SimEffectState,
+  type SimHeartbeat,
   type SimReceipt,
   type SimReceiptKind,
   type SimStateSnapshot,
@@ -207,6 +214,11 @@ export class VendorSimEngine {
     if (this.railsById.size !== options.rails.length) {
       throw new RailSimError('two rails declare the same railId');
     }
+    // A rail whose declared band could contain zero would make silence quiet:
+    // refused HERE, so no engine can ever be built around one.
+    for (const rail of options.rails) {
+      assertRailHeartbeatModel(rail.railId, rail.heartbeat);
+    }
     this.store = options.store ?? new InMemorySimStateStore();
     this.controller = options.controller ?? new ScenarioController();
     this.dataPolicy = options.dataPolicy ?? 'synthetic-only';
@@ -233,6 +245,45 @@ export class VendorSimEngine {
 
   public snapshot(): SimStateSnapshot {
     return this.store.snapshot();
+  }
+
+  /**
+   * Record one idle liveness tick. The sim owns no clock (§3 of the WP-027
+   * contract), so the caller supplies the instant and the sweep stays
+   * reproducible.
+   */
+  public recordHeartbeat(railId: string, recordedAt: string): SimHeartbeat {
+    this.rail(railId);
+    return this.store.recordHeartbeat(railId, recordedAt);
+  }
+
+  /**
+   * Derive one rail's window observation FROM THE LEDGER: an effect counts as
+   * carried only when something actually landed (`landed` or `partial`). An
+   * `unknown` outcome deliberately does not count — uncertainty reads as loss,
+   * which is the fail-closed direction.
+   */
+  public observeWindow(railId: string, reconciliationRan = true): RailWindowObservation {
+    this.rail(railId);
+    const carried = (record: SimEffectRecord): boolean =>
+      record.railId === railId && (record.state === 'landed' || record.state === 'partial');
+    return {
+      railId,
+      observedEffects: this.store.listEffects().filter(carried).length,
+      observedHeartbeats: this.store
+        .listHeartbeats()
+        .filter((heartbeat) => heartbeat.railId === railId).length,
+      reconciliationRan,
+    };
+  }
+
+  /** Every declared rail, judged against its own band. No rail is ever skipped. */
+  public heartbeatSweep(reconciliationRan = true): readonly RailHeartbeatEvaluation[] {
+    const rails = this.rails();
+    return sweepRailHeartbeats(
+      rails,
+      rails.map((rail) => this.observeWindow(rail.railId, reconciliationRan)),
+    );
   }
 
   /** Rollback: disarm every scenario and clear the ledger (the `sim reset` expectation). */

@@ -1,0 +1,68 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-014",
+  "class": "BOUNDARY",
+  "description": "erx-vendor-sim: the exact edge — the vendor confirms one transaction twice — the pending prescription resolves once, from the vendor record.",
+  "cases": [
+    {
+      "op": "arm",
+      "name": "arm X-04 for exactly one request",
+      "primitiveId": "X-04",
+      "options": {
+        "count": 1
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "the armed X-04 shapes the first request",
+      "request": {
+        "operation": "submit-prescription",
+        "idempotencyKey": "synthetic-rail-014-boundary",
+        "payloadRef": "synthetic-payload-rail-014-boundary",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      },
+      "expect": {
+        "status": "accepted",
+        "effectState": "landed",
+        "receiptRef": "present",
+        "requiresReconciliation": false
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "the receipts the rail actually emitted, in drain order",
+      "expect": {
+        "kinds": ["primary", "duplicate"]
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "the very next attempt on the same key adds no second external effect",
+      "request": {
+        "operation": "submit-prescription",
+        "idempotencyKey": "synthetic-rail-014-boundary",
+        "payloadRef": "synthetic-payload-rail-014-boundary",
+        "requestedAt": "2026-01-01T00:01:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      },
+      "expect": {
+        "attempts": 2,
+        "resendsExternalEffect": false
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "still exactly one ledger record for the key",
+      "expect": {
+        "effects": 1
+      }
+    }
+  ]
+}

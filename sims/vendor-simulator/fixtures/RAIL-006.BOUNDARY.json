@@ -1,0 +1,68 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-006",
+  "class": "BOUNDARY",
+  "description": "video-sim: the exact edge — the media event lands after the visit moved on — a late event is evidence, never a correction to the encounter.",
+  "cases": [
+    {
+      "op": "arm",
+      "name": "arm X-08 for exactly one request",
+      "primitiveId": "X-08",
+      "options": {
+        "count": 1
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "the armed X-08 shapes the first request",
+      "request": {
+        "operation": "create-session",
+        "idempotencyKey": "synthetic-rail-006-boundary",
+        "payloadRef": "synthetic-payload-rail-006-boundary",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      },
+      "expect": {
+        "status": "accepted",
+        "effectState": "landed",
+        "receiptRef": "present",
+        "requiresReconciliation": true
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "the receipts the rail actually emitted, in drain order",
+      "expect": {
+        "kinds": ["late"]
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "the very next attempt on the same key adds no second external effect",
+      "request": {
+        "operation": "create-session",
+        "idempotencyKey": "synthetic-rail-006-boundary",
+        "payloadRef": "synthetic-payload-rail-006-boundary",
+        "requestedAt": "2026-01-01T00:01:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      },
+      "expect": {
+        "attempts": 2,
+        "resendsExternalEffect": false
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "still exactly one ledger record for the key",
+      "expect": {
+        "effects": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-007",
+  "class": "BOUNDARY",
+  "description": "esign-sim-rail: the exact edge — the signature completes and its callback never lands — the envelope stands and is reconciled, never re-collected.",
+  "cases": [
+    {
+      "op": "arm",
+      "name": "arm X-06 for exactly one request",
+      "primitiveId": "X-06",
+      "options": {
+        "count": 1
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "the armed X-06 shapes the first request",
+      "request": {
+        "operation": "create-envelope",
+        "idempotencyKey": "synthetic-rail-007-boundary",
+        "payloadRef": "synthetic-payload-rail-007-boundary",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      },
+      "expect": {
+        "status": "accepted",
+        "effectState": "landed",
+        "receiptRef": "absent",
+        "requiresReconciliation": true
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "the receipts the rail actually emitted, in drain order",
+      "expect": {
+        "kinds": []
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "the very next attempt on the same key adds no second external effect",
+      "request": {
+        "operation": "create-envelope",
+        "idempotencyKey": "synthetic-rail-007-boundary",
+        "payloadRef": "synthetic-payload-rail-007-boundary",
+        "requestedAt": "2026-01-01T00:01:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      },
+      "expect": {
+        "attempts": 2,
+        "resendsExternalEffect": false
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "still exactly one ledger record for the key",
+      "expect": {
+        "effects": 1
+      }
+    }
+  ]
+}

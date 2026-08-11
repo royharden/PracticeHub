@@ -1,0 +1,62 @@
+{
+  "synthetic": true,
+  "railId": "RAIL-018",
+  "class": "FAILURE",
+  "description": "clearinghouse-sim: the batch outcome is unknown; a claim may never be submitted twice to resolve the doubt.",
+  "cases": [
+    {
+      "op": "arm",
+      "name": "arm X-05",
+      "primitiveId": "X-05"
+    },
+    {
+      "op": "dispatch",
+      "name": "the request fails without landing a clean effect",
+      "request": {
+        "operation": "submit-claim-batch",
+        "idempotencyKey": "synthetic-rail-018-failure",
+        "payloadRef": "synthetic-payload-rail-018-failure",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-failure"
+        }
+      },
+      "expect": {
+        "status": "uncertain",
+        "effectState": "unknown",
+        "receiptRef": "absent",
+        "requiresReconciliation": true
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "no receipt is emitted for a request that carried nothing",
+      "expect": {
+        "kinds": []
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "the ledger records the attempt and its state, never a phantom success",
+      "expect": {
+        "effects": 1,
+        "receipts": 0,
+        "effectState": "unknown"
+      }
+    },
+    {
+      "op": "record-heartbeat",
+      "name": "the rail is alive and answering — it simply carried nothing",
+      "at": "2026-01-01T00:01:00Z"
+    },
+    {
+      "op": "heartbeat",
+      "name": "a rail that answers and carries nothing is loud, not calm",
+      "expect": {
+        "verdict": "alarm",
+        "reasons": ["volume-below-band"]
+      }
+    }
+  ]
+}

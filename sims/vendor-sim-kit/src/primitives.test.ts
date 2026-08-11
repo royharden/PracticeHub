@@ -36,12 +36,16 @@ describe('injection-primitive catalog (X-01..X-18)', () => {
     }
   });
 
-  it('carries the draft status and its graduation pointer (the catalog is data, not code)', () => {
+  it('carries the accepted status and its ruling pointer (the catalog is data, not code)', () => {
+    // ADR-ADJ-010 R-1: the derivation is BLESSED, so the graduation pointer is
+    // discharged rather than carried. A regression to `draft` — or a stray
+    // `pendingRef` — means the ruling was undone.
     expect(injectionPrimitiveCatalogStatus).toEqual({
       version: 'v1',
-      status: 'draft',
-      pendingRef: 'c-catalog-x-primitives-graduation',
+      status: 'accepted',
+      ruledBy: 'ADR-ADJ-010',
     });
+    expect(Object.keys(injectionPrimitiveCatalogStatus)).not.toContain('pendingRef');
   });
 
   it('draws every family and outcome class from the frozen vocabularies', () => {

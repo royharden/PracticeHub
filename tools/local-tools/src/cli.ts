@@ -260,7 +260,7 @@ function simRequestBody(key: string, at: string): Record<string, unknown> {
  */
 async function probeRailSimulator(): Promise<void> {
   const health = await simCall('/healthz');
-  if (health.dataPolicy !== 'synthetic-only' || health.rails !== 5 || health.primitives !== 18) {
+  if (health.dataPolicy !== 'synthetic-only' || health.rails !== 17 || health.primitives !== 18) {
     throw new Error(
       `vendor-sim health differs: dataPolicy=${String(health.dataPolicy)} rails=${String(health.rails)} primitives=${String(health.primitives)}`,
     );
@@ -357,10 +357,77 @@ async function probeRailSimulator(): Promise<void> {
   const reset = (await simCall('/control/reset', { method: 'POST' })).state as {
     effects: unknown[];
     receipts: unknown[];
+    heartbeats: unknown[];
   };
-  if (reset.effects.length !== 0 || reset.receipts.length !== 0) {
+  if (reset.effects.length !== 0 || reset.receipts.length !== 0 || reset.heartbeats.length !== 0) {
     throw new Error(`vendor-sim reset left state behind: ${JSON.stringify(reset)}`);
   }
+
+  await probeRailFleetHeartbeat();
+}
+
+interface HeartbeatEvaluation {
+  readonly railId: string;
+  readonly verdict: string;
+  readonly reasons: readonly string[];
+}
+
+/**
+ * WP-028 fleet probes against the LIVE service: every declared rail is bound to
+ * an authority, the whole fleet is judged for silence (a rail carrying nothing
+ * is loud, never assumed calm), and carrying one rail to its declared band
+ * quiets that rail alone.
+ */
+async function probeRailFleetHeartbeat(): Promise<void> {
+  const declared = (await simCall('/rails')).rails as {
+    railId: string;
+    authorityId: string;
+    presets: { authorityScenarioIndex: number }[];
+  }[];
+  const bare = declared.filter(
+    (rail) => !/^AUTH-\d{3}$/.test(rail.authorityId) || rail.presets.length === 0,
+  );
+  if (declared.length !== 17 || bare.length > 0) {
+    throw new Error(
+      `vendor-sim rail fleet differs: rails=${declared.length} unbound=${bare.map((rail) => rail.railId).join(',')}`,
+    );
+  }
+
+  // A fleet with no traffic: every rail alarms, and each names why.
+  const dark = (await simCall('/heartbeat')).heartbeat as HeartbeatEvaluation[];
+  const calm = dark.filter((entry) => entry.verdict !== 'alarm').map((entry) => entry.railId);
+  if (dark.length !== declared.length || calm.length > 0) {
+    throw new Error(
+      `vendor-sim heartbeat sweep read a silent rail as calm: swept=${dark.length} calm=${calm.join(',')}`,
+    );
+  }
+  if (!dark.every((entry) => entry.reasons.includes('rail-dark'))) {
+    throw new Error('vendor-sim heartbeat sweep did not name a dark rail as dark');
+  }
+
+  // Carry the lowest-band rail to its expectation: it, and only it, goes quiet.
+  await simCall('/rails/RAIL-016/fetch-edition', {
+    method: 'POST',
+    body: simRequestBody('band', '2026-01-01T00:10:00Z'),
+  });
+  await simCall('/heartbeat/RAIL-016', {
+    method: 'POST',
+    body: { recordedAt: '2026-01-01T00:10:00Z' },
+  });
+  const swept = (await simCall('/heartbeat')).heartbeat as HeartbeatEvaluation[];
+  const quiet = swept.filter((entry) => entry.verdict === 'quiet').map((entry) => entry.railId);
+  if (quiet.join(',') !== 'RAIL-016') {
+    throw new Error(`vendor-sim heartbeat band probe differs: quiet=${quiet.join(',')}`);
+  }
+
+  const heartbeatDump = JSON.stringify(swept);
+  for (const value of ['synthetic-local-mrn-55512345', 'synthetic-local-phone-7025550143']) {
+    if (heartbeatDump.includes(value)) {
+      throw new Error(`vendor-sim heartbeat surface leaked a request payload value (${value})`);
+    }
+  }
+
+  await simCall('/control/reset', { method: 'POST' });
 }
 
 async function testLocal(): Promise<void> {
@@ -1336,6 +1403,7 @@ async function testLocal(): Promise<void> {
       'gipa_partition=OK audit_store=OK consent_ledger=OK event_spine=OK ' +
       'policy_clocks=OK tasking_engine=OK break_glass=OK oncall_coverage=OK ' +
       'documents_model=OK documents_records=OK vendor_registry=OK rail_simulator=OK ' +
+      'rail_fleet=OK rail_heartbeat=OK ' +
       'dex_federation=OK cross_tenant_db_suite=OK synthetic_stack=OK',
   );
 }
