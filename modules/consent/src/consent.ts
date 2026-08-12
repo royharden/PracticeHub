@@ -372,7 +372,7 @@ export function appendConsentEvent(
   return { event, log: [...log, event] };
 }
 
-const stateKey = (personRef: string, scopeKey: string): string => `${personRef} ${scopeKey}`;
+const stateKey = (personRef: string, scopeKey: string): string => `${personRef}\u0000${scopeKey}`;
 
 function projectRow(event: ConsentEvent): ConsentStateRow {
   return {

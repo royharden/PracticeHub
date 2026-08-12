@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "domain": "CORPUS-REPLAY",
+  "fixtureClass": "FAILURE",
+  "cases": [
+    {
+      "name": "a restore whose manifest checkpoint does not recompute is refused before any plan exists",
+      "op": "replay-refuses-unfenced-checkpoint",
+      "input": {
+        "entityRefs": ["sg-p-0001"],
+        "tamperField": "corpus_version",
+        "tamperValue": "SynthCorpus-tampered"
+      },
+      "expect": {
+        "throwsMatching": "does not recompute"
+      }
+    }
+  ]
+}

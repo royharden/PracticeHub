@@ -1,0 +1,27 @@
+{
+  "synthetic": true,
+  "domain": "CORPUS-IDENTITY",
+  "fixtureClass": "FAILURE",
+  "cases": [
+    {
+      "name": "an endpoint-only overlap is never merge-sufficient, however many contact facts collide",
+      "op": "collision-endpoint-only-never-merge-sufficient",
+      "input": {
+        "sharedAttributeNames": ["phoneEndpoint", "emailEndpoint", "postalAddress"]
+      },
+      "expect": {
+        "mergeSufficient": false
+      }
+    },
+    {
+      "name": "a single contact fact is not sufficient either",
+      "op": "collision-endpoint-only-never-merge-sufficient",
+      "input": {
+        "sharedAttributeNames": ["phoneEndpoint"]
+      },
+      "expect": {
+        "mergeSufficient": false
+      }
+    }
+  ]
+}

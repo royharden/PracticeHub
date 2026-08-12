@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "domain": "CORPUS-IDENTITY",
+  "fixtureClass": "HAPPY",
+  "cases": [
+    {
+      "name": "a multi-member household shares one phone and one email endpoint id",
+      "op": "household-shares-endpoints",
+      "input": {
+        "householdCount": 24,
+        "masterSeed": "fixture-identity-happy"
+      },
+      "expect": {
+        "minMultiMemberHouseholds": 1,
+        "distinctPhoneIdsPerHousehold": 1,
+        "distinctEmailIdsPerHousehold": 1
+      }
+    }
+  ]
+}

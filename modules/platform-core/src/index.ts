@@ -2,6 +2,8 @@ export * from './capability.js';
 export * from './capability-definitions.js';
 export * from './commands.js';
 export * from './commands/capability-transition.command.js';
+export * from './corpus-load.js';
+export * from './commands/load-corpus-version.command.js';
 export * from './config-registry.js';
 export * from './effective-dating.js';
 export * from './jurisdiction.js';

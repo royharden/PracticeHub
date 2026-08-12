@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "domain": "CORPUS-IDENTITY",
+  "fixtureClass": "RECOVERY",
+  "cases": [
+    {
+      "name": "every recorded known truth recomputes from its overlap after regeneration",
+      "op": "collision-truth-derivable",
+      "input": {
+        "householdCount": 24,
+        "masterSeed": "fixture-identity-recovery"
+      },
+      "expect": {
+        "allDerivable": true,
+        "minSamePersonPairs": 1,
+        "minDistinctPersonPairs": 1
+      }
+    }
+  ]
+}

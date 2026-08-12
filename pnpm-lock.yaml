@@ -224,6 +224,12 @@ importers:
         specifier: workspace:*
         version: link:../../packages/contracts
 
+  sims/synthea-runner:
+    dependencies:
+      '@practicehub/synthgen':
+        specifier: workspace:*
+        version: link:../../tools/synthgen
+
   sims/vendor-sim-kit:
     dependencies:
       '@practicehub/platform':
@@ -244,6 +250,15 @@ importers:
 
   tools/local-tools: {}
 
+  tools/synthgen:
+    dependencies:
+      '@practicehub/platform':
+        specifier: workspace:*
+        version: link:../../packages/platform
+      '@practicehub/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+
   tools/validators:
     dependencies:
       '@practicehub/platform-core':
@@ -252,6 +267,12 @@ importers:
       '@practicehub/platform-integration':
         specifier: workspace:*
         version: link:../../modules/platform-integration
+      '@practicehub/synthea-runner':
+        specifier: workspace:*
+        version: link:../../sims/synthea-runner
+      '@practicehub/synthgen':
+        specifier: workspace:*
+        version: link:../synthgen
       '@practicehub/testkit':
         specifier: workspace:*
         version: link:../../packages/testkit

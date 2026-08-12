@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "domain": "CORPUS-SYNTHEA-IMPORT",
+  "fixtureClass": "HAPPY",
+  "cases": [
+    {
+      "name": "every export row that resolves to a known subject lands on the backbone",
+      "op": "import-maps-known-subjects",
+      "input": {
+        "subjectRefs": ["sg-p-0001", "sg-p-0002"],
+        "orphanRowEveryN": 0
+      },
+      "expect": {
+        "backboneCount": 2,
+        "quarantineCount": 0
+      }
+    }
+  ]
+}

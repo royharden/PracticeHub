@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "domain": "CORPUS-SYNTHEA-IMPORT",
+  "fixtureClass": "BOUNDARY",
+  "cases": [
+    {
+      "name": "an orphaned clinical row is quarantined, not attached to the nearest subject",
+      "op": "import-quarantines-orphan",
+      "input": {
+        "subjectRefs": ["sg-p-0001", "sg-p-0002"],
+        "orphanRowEveryN": 2
+      },
+      "expect": {
+        "minQuarantine": 1,
+        "reason": "unresolved-subject",
+        "observedAttributeNames": ["subjectRef"]
+      }
+    }
+  ]
+}

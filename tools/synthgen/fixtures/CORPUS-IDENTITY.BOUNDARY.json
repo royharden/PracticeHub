@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "domain": "CORPUS-IDENTITY",
+  "fixtureClass": "BOUNDARY",
+  "cases": [
+    {
+      "name": "the smallest world that still covers every declared persona covers it exactly",
+      "op": "world-covers-personas",
+      "input": {
+        "householdCount": 3,
+        "masterSeed": "fixture-identity-boundary",
+        "personaSlugs": ["prospective-patient", "data-migration-engineer", "concierge-guide"]
+      },
+      "expect": {
+        "allPersonasCovered": true
+      }
+    }
+  ]
+}

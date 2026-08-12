@@ -1,0 +1,432 @@
+/**
+ * synthgen corpus gate (WP-029). Contract: docs/contracts/synthgen-corpus-api.md
+ * (FROZEN), docs/contracts/synthetic-corpus-manifest.md (FROZEN).
+ *
+ * This is the composition root: the generator (`@practicehub/synthgen`) declares
+ * the Synthea port and never imports an implementation, and the runner
+ * (`@practicehub/synthea-runner`) implements it and never imports the corpus.
+ * They are wired together HERE, which is also why `--write` lives here — the
+ * one sanctioned regeneration path, matching `corpus.js --write`.
+ *
+ * The gate executes all four clauses of the WP-029 verification gate:
+ *
+ *   1. persona x story coverage floors on the pinned corpus
+ *   2. determinism byte-stability
+ *   3. boot watermark assertion
+ *   4. checkpoint replay emits no duplicate side effect
+ *
+ * plus the structural rule that makes clause 2 provable rather than merely
+ * asserted: no generator source may read a wall clock or an entropy source.
+ */
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+import { SyntheticSyntheaRunner } from '@practicehub/synthea-runner';
+import {
+  duplicateSideEffectsOnReplay,
+  evaluatePersonaStoryCoverage,
+  generateSynthCorpus,
+  loadSynthCorpus,
+  personaStoryCoverageErrors,
+  planCorpusReplay,
+  renderSynthgenSeedSection,
+  serializeSynthCorpus,
+  synthgenProfileV1,
+  synthgenSeedBeginMarker,
+  synthgenSeedEndMarker,
+  type CorpusPersonaAssignment,
+  type ReplayLedgerEntry,
+  type SynthCorpus,
+} from '@practicehub/synthgen';
+import { parsePersonaStoryMatrix } from '@practicehub/testkit';
+import type { PersonaStoryRow } from '@practicehub/testkit';
+
+import { collectFiles, failIfAny, repoRoot } from './common.js';
+
+const matrixPath = resolve(repoRoot, 'docs/requirements/persona-story-matrix.csv');
+const manifestPath = resolve(repoRoot, 'packages/testkit/fixtures/corpus-manifest.synthetic.json');
+const corpusDir = resolve(repoRoot, 'synthetic-corpus');
+const corpusPath = resolve(corpusDir, 'synthgen-corpus.v1.json');
+const seedPath = resolve(repoRoot, 'infra/postgres/seed/020-synthgen-corpus-seed.sql');
+
+/**
+ * The locations the corpus may attach patient records to. These mirror the
+ * WP-010 tenancy seed; a location the tenancy seed does not carry would fail
+ * the composite foreign key at load, so the list is deliberately short and
+ * explicit rather than discovered.
+ */
+const corpusLocations = [
+  { locationId: 'northwind-nv-henderson', legalEntityId: 'northwind-health-nv', stateCode: 'NV' },
+  {
+    locationId: 'northwind-fl-coral-gables',
+    legalEntityId: 'northwind-health-fl',
+    stateCode: 'FL',
+  },
+  { locationId: 'northwind-virtual-nv', legalEntityId: 'northwind-health-nv', stateCode: 'NV' },
+] as const;
+
+function readMatrixRows(): PersonaStoryRow[] {
+  return parsePersonaStoryMatrix(readFileSync(matrixPath, 'utf8'));
+}
+
+/**
+ * Persona assignments derived from the matrix, in matrix order. Every persona
+ * the matrix names gets an entry carrying the union of its journeys — so a
+ * corpus generated from these assignments covers the matrix by construction,
+ * and the coverage floor is a real check on that construction rather than a
+ * tautology (a persona the generator drops still fails).
+ */
+function personaAssignmentsFromMatrix(rows: readonly PersonaStoryRow[]): CorpusPersonaAssignment[] {
+  const order: string[] = [];
+  const byslug = new Map<string, { personaClass: string; journeys: Set<string> }>();
+  for (const row of rows) {
+    let entry = byslug.get(row.personaSlug);
+    if (!entry) {
+      entry = { personaClass: row.personaClass, journeys: new Set<string>() };
+      byslug.set(row.personaSlug, entry);
+      order.push(row.personaSlug);
+    }
+    if (row.journey.length > 0) {
+      entry.journeys.add(row.journey);
+    }
+  }
+  return order.map((slug) => {
+    const entry = byslug.get(slug);
+    if (!entry) {
+      throw new Error(`persona assignment for ${slug} vanished between passes`);
+    }
+    return {
+      slug,
+      personaClass: entry.personaClass,
+      journeys: [...entry.journeys].sort((left, right) =>
+        left < right ? -1 : left > right ? 1 : 0,
+      ),
+    };
+  });
+}
+
+function regenerate(): SynthCorpus {
+  const rows = readMatrixRows();
+  return generateSynthCorpus(
+    {
+      corpusVersion: synthgenProfileV1.corpusVersion,
+      recoveryEpoch: synthgenProfileV1.recoveryEpoch,
+      simulatedClockEpoch: synthgenProfileV1.simulatedClockEpoch,
+      masterSeed: synthgenProfileV1.masterSeed,
+      generator: synthgenProfileV1.generator,
+      tenantId: synthgenProfileV1.tenantId,
+      householdCount: synthgenProfileV1.householdCount,
+      locations: corpusLocations,
+      personaAssignments: personaAssignmentsFromMatrix(rows),
+    },
+    new SyntheticSyntheaRunner({ orphanRowEveryN: synthgenProfileV1.orphanRowEveryN }),
+  );
+}
+
+const seedPreamble = [
+  '-- 020-synthgen-corpus-seed.sql',
+  '--',
+  '-- GENERATED by @practicehub/validators (synthgen-corpus.js --write) from the',
+  '-- pinned synthgen corpus. Do not hand-edit: the section between the synthgen',
+  '-- markers is byte-compared against a fresh emission by `pnpm verify:synthgen`,',
+  '-- so a manual edit fails the gauntlet rather than surviving unnoticed.',
+  '--',
+  '-- Every row is watermarked `synthetic = true`; the catalog-derived watermark',
+  '-- probe in `pnpm local:test` (NR-022) covers these tables by construction.',
+  '-- Ids are prefixed `sg-` and belong to no other seed, so the standing proofs',
+  '-- seeded by earlier packages are unaffected by corpus volume.',
+  '',
+].join('\n');
+
+function renderSeedFile(corpus: SynthCorpus): string {
+  return `${seedPreamble}${renderSynthgenSeedSection(corpus)}\n`;
+}
+
+function writeMode(): void {
+  const corpus = regenerate();
+  mkdirSync(corpusDir, { recursive: true });
+  writeFileSync(corpusPath, serializeSynthCorpus(corpus), 'utf8');
+  writeFileSync(seedPath, renderSeedFile(corpus), 'utf8');
+  console.log(
+    `synthgen --write: ${String(corpus.households.length)} households, ` +
+      `${String(corpus.subjects.length)} subjects, ${String(corpus.collisions.length)} collisions, ` +
+      `${String(corpus.import_quarantine.length)} quarantined import rows`,
+  );
+}
+
+/**
+ * Blank out comments and string bodies, preserving offsets, so the scan below
+ * reads CODE. A gate that a doc comment can trip is the recurring defect this
+ * build has already recorded twice against the temporal scanner (WP-016,
+ * WP-019): prose describing a forbidden construct is not the construct.
+ */
+function codeOnly(source: string): string {
+  const out = source.split('');
+  let index = 0;
+  const blank = (from: number, to: number): void => {
+    for (let n = from; n < to && n < out.length; n += 1) {
+      if (out[n] !== '\n') {
+        out[n] = ' ';
+      }
+    }
+  };
+  while (index < source.length) {
+    const char = source[index];
+    const next = source[index + 1];
+    if (char === '/' && next === '/') {
+      const end = source.indexOf('\n', index);
+      blank(index, end < 0 ? source.length : end);
+      index = end < 0 ? source.length : end;
+      continue;
+    }
+    if (char === '/' && next === '*') {
+      const end = source.indexOf('*/', index + 2);
+      const stop = end < 0 ? source.length : end + 2;
+      blank(index, stop);
+      index = stop;
+      continue;
+    }
+    if (char === "'" || char === '"' || char === '`') {
+      let cursor = index + 1;
+      while (cursor < source.length) {
+        if (source[cursor] === '\\') {
+          cursor += 2;
+          continue;
+        }
+        if (source[cursor] === char) {
+          break;
+        }
+        cursor += 1;
+      }
+      blank(index + 1, cursor);
+      index = cursor + 1;
+      continue;
+    }
+    index += 1;
+  }
+  return out.join('');
+}
+
+/**
+ * Clause 2's structural precondition. A generator that reads a wall clock or an
+ * entropy source cannot be byte-stable, and a byte-stability check that happens
+ * to pass on one run would then be luck rather than proof.
+ */
+function wallClockScanErrors(): string[] {
+  const errors: string[] = [];
+  const forbidden = [
+    { label: 'Date.now()', pattern: /\bDate\.now\s*\(/ },
+    { label: 'new Date() without an argument', pattern: /\bnew\s+Date\s*\(\s*\)/ },
+    { label: 'Math.random()', pattern: /\bMath\.random\s*\(/ },
+    { label: 'crypto.randomUUID()', pattern: /\brandomUUID\s*\(/ },
+    { label: 'crypto.randomBytes()', pattern: /\brandomBytes\s*\(/ },
+  ];
+  for (const root of ['tools/synthgen/src', 'sims/synthea-runner/src']) {
+    for (const file of collectFiles(resolve(repoRoot, root), (path) => path.endsWith('.ts'))) {
+      const content = codeOnly(readFileSync(file, 'utf8'));
+      for (const { label, pattern } of forbidden) {
+        if (pattern.test(content)) {
+          const repoPath = file
+            .slice(repoRoot.length + 1)
+            .split('\\')
+            .join('/');
+          errors.push(
+            `${repoPath} calls ${label} — a corpus generator is deterministic by ` +
+              'construction; time and entropy enter only through the pinned simulated clock ' +
+              'and the master seed',
+          );
+        }
+      }
+    }
+  }
+  return errors;
+}
+
+function verifyMode(): void {
+  const errors: string[] = [];
+
+  errors.push(...wallClockScanErrors());
+
+  // --- clause 3: BOOT WATERMARK -------------------------------------------
+  // Load through the boot path, which asserts the watermark before anything
+  // else can look at the data.
+  let committed: SynthCorpus | null = null;
+  try {
+    committed = loadSynthCorpus(corpusPath);
+    console.log(
+      `synthgen_corpus=OK version=${committed.corpus_version} ` +
+        `recovery_epoch=${committed.recovery_epoch} subjects=${String(committed.subjects.length)}`,
+    );
+  } catch (error) {
+    errors.push(error instanceof Error ? error.message : String(error));
+  }
+
+  // The manifest and the generator profile must agree on the seed and the
+  // clock; a drifted pin would regenerate a different world under the same name.
+  let rawManifest: Record<string, unknown> | null = null;
+  try {
+    rawManifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
+    if (rawManifest.master_seed !== synthgenProfileV1.masterSeed) {
+      errors.push(
+        `manifest master_seed ${JSON.stringify(rawManifest.master_seed)} does not match the ` +
+          `synthgen profile (${synthgenProfileV1.masterSeed})`,
+      );
+    }
+    if (rawManifest.simulated_clock_epoch !== synthgenProfileV1.simulatedClockEpoch) {
+      errors.push(
+        `manifest simulated_clock_epoch ${JSON.stringify(rawManifest.simulated_clock_epoch)} ` +
+          `does not match the synthgen profile (${synthgenProfileV1.simulatedClockEpoch})`,
+      );
+    }
+    if (committed && rawManifest.corpus_version !== committed.corpus_version) {
+      errors.push(
+        `manifest corpus_version ${JSON.stringify(rawManifest.corpus_version)} does not match ` +
+          `the committed corpus (${committed.corpus_version})`,
+      );
+    }
+  } catch (error) {
+    errors.push(`corpus manifest is unreadable: ${String(error)}`);
+  }
+
+  // --- clause 2: DETERMINISM BYTE-STABILITY --------------------------------
+  const regenerated = regenerate();
+  const regeneratedText = serializeSynthCorpus(regenerated);
+  try {
+    const onDisk = readFileSync(corpusPath, 'utf8').replaceAll('\r\n', '\n');
+    if (onDisk !== regeneratedText) {
+      errors.push(
+        'synthetic-corpus/synthgen-corpus.v1.json does not match deterministic regeneration ' +
+          'from (generator version, master seed, source pins); regenerate via ' +
+          'synthgen-corpus.js --write',
+      );
+    }
+  } catch (error) {
+    errors.push(`committed corpus is unreadable: ${String(error)}`);
+  }
+  // Regenerating twice in one process must also agree — a generator that
+  // depends on call order or shared mutable state would diverge here even when
+  // it happens to match the file on disk.
+  if (serializeSynthCorpus(regenerate()) !== regeneratedText) {
+    errors.push('synthgen is not deterministic: two regenerations in one process disagree');
+  }
+
+  try {
+    const seedOnDisk = readFileSync(seedPath, 'utf8').replaceAll('\r\n', '\n');
+    const begin = seedOnDisk.indexOf(synthgenSeedBeginMarker);
+    const end = seedOnDisk.indexOf(synthgenSeedEndMarker);
+    if (begin < 0 || end < 0) {
+      errors.push('020-synthgen-corpus-seed.sql is missing its synthgen generated markers');
+    } else {
+      const embedded = seedOnDisk.slice(begin, end + synthgenSeedEndMarker.length);
+      if (embedded !== renderSynthgenSeedSection(regenerated)) {
+        errors.push(
+          '020-synthgen-corpus-seed.sql does not embed exactly the generated section — ' +
+            'regenerate via synthgen-corpus.js --write',
+        );
+      }
+    }
+  } catch (error) {
+    errors.push(`generated seed is unreadable: ${String(error)}`);
+  }
+
+  // --- clause 1: PERSONA x STORY COVERAGE FLOORS ---------------------------
+  try {
+    const rows = readMatrixRows();
+    const report = evaluatePersonaStoryCoverage(rows, regenerated.subjects);
+    errors.push(...personaStoryCoverageErrors(report));
+    console.log(
+      `persona_story_coverage=OK personas=${String(report.coveredPersonaSlugs.length)}/` +
+        `${String(report.requiredPersonaSlugs.length)} journeys=` +
+        `${String(report.coveredJourneys.length)}/${String(report.requiredJourneys.length)} ` +
+        `subjects=${String(report.subjectCount)}`,
+    );
+  } catch (error) {
+    errors.push(`persona x story coverage could not be evaluated: ${String(error)}`);
+  }
+
+  // --- clause 4: CHECKPOINT REPLAY EMITS NO DUPLICATE SIDE EFFECT ----------
+  // Clause 4's PRECONDITION, asserted structurally rather than inferred.
+  //
+  // The drill below builds its ledger from the same keys it then replays, so it
+  // is self-consistent by construction: if the keys folded the recovery epoch,
+  // both sides would fold it and the drill would stay green while the invariant
+  // was broken. (Found by probing — the drill alone was the NR-045 vacuous-
+  // assertion shape.) The documented rule is that no epoch token appears in a
+  // corpus effect key, so check exactly that.
+  const epochTokenPattern = /RE-\d{3,}/;
+  const epochKeyed = regenerated.side_effects.filter((effect) =>
+    epochTokenPattern.test(effect.idempotencyKey),
+  );
+  if (epochKeyed.length > 0) {
+    errors.push(
+      `${String(epochKeyed.length)} corpus effect key(s) carry a recovery-epoch token, starting ` +
+        `with ${String(epochKeyed[0]?.idempotencyKey)} — an epoch-keyed effect mints a fresh key ` +
+        'on every restore, so every already-landed effect looks new and the restore re-fires it',
+    );
+  }
+
+  if (rawManifest) {
+    try {
+      // The restore case: every corpus effect already landed under the PRIOR
+      // recovery epoch. Replaying under the CURRENT epoch must plan zero
+      // resends — the keys are epoch-independent on purpose, so the WP-021
+      // fence still recognises them across the boundary.
+      const landed: ReplayLedgerEntry = {
+        delivery: { status: 'published', attempts: 1 },
+        alreadyConsumed: true,
+      };
+      const ledger = new Map(
+        regenerated.side_effects.map((effect) => [effect.idempotencyKey, landed]),
+      );
+      const plan = planCorpusReplay(
+        rawManifest,
+        regenerated.recovery_epoch,
+        regenerated.side_effects,
+        ledger,
+      );
+      const duplicates = duplicateSideEffectsOnReplay(plan);
+      if (duplicates.length > 0) {
+        errors.push(
+          `checkpoint replay would re-emit ${String(duplicates.length)} already-landed corpus ` +
+            `effect(s), starting with ${String(duplicates[0])} — a restore must not duplicate ` +
+            'a side effect',
+        );
+      }
+      console.log(
+        `checkpoint_replay=OK epoch=${plan.recoveryEpoch} fenced=${String(plan.fenced.length)} ` +
+          `resend=${String(plan.resend.length)}`,
+      );
+
+      // And the fence itself must refuse an unverified checkpoint: a corpus
+      // that cannot prove what it is does not get to re-emit anything.
+      const tampered = { ...rawManifest, corpus_version: 'SynthCorpus-tampered' };
+      let refused = false;
+      try {
+        planCorpusReplay(tampered, regenerated.recovery_epoch, regenerated.side_effects, ledger);
+      } catch {
+        refused = true;
+      }
+      if (!refused) {
+        errors.push(
+          'the recovery-epoch fence accepted a manifest whose checkpoint does not recompute — ' +
+            'an unfenced restore must be refused',
+        );
+      }
+    } catch (error) {
+      errors.push(`checkpoint replay drill failed: ${String(error)}`);
+    }
+  }
+
+  console.log(
+    `synthgen_quarantine=${String(regenerated.import_quarantine.length)} ` +
+      `synthgen_collisions=${String(regenerated.collisions.length)} ` +
+      `synthgen_effects=${String(regenerated.side_effects.length)}`,
+  );
+  failIfAny('synthgen', errors);
+}
+
+if (process.argv.includes('--write')) {
+  writeMode();
+} else {
+  verifyMode();
+}

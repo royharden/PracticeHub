@@ -4,7 +4,10 @@ import { relative, resolve, sep } from 'node:path';
 import { collectFiles, failIfAny, repoRoot } from './common.js';
 
 const errors: string[] = [];
-const fixtureRoots = ['apps', 'modules', 'packages', 'adapters', 'sims'];
+// WP-029 adds `tools`: the corpus fixture packs live in tools/synthgen/fixtures,
+// and a fixture tree the PHI scan cannot see is a fixture tree the scan does not
+// protect.
+const fixtureRoots = ['apps', 'modules', 'packages', 'adapters', 'sims', 'tools'];
 const sensitivePatterns = [
   { label: 'SSN-like value', pattern: /\b(?!000|666|9\d\d)\d{3}-(?!00)\d{2}-(?!0000)\d{4}\b/ },
   {

@@ -211,7 +211,7 @@ export interface SimStateStore {
 }
 
 const effectKeyOf = (railId: string, idempotencyKey: string): string =>
-  `${railId} ${idempotencyKey}`;
+  `${railId}\u0000${idempotencyKey}`;
 
 export class InMemorySimStateStore implements SimStateStore {
   protected effects = new Map<string, SimEffectRecord>();

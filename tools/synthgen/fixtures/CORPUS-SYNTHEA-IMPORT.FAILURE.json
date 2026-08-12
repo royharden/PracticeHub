@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "domain": "CORPUS-SYNTHEA-IMPORT",
+  "fixtureClass": "FAILURE",
+  "cases": [
+    {
+      "name": "an export without the synthetic watermark is refused outright",
+      "op": "import-refuses-unwatermarked-export",
+      "input": {
+        "subjectRefs": ["sg-p-0001"]
+      },
+      "expect": {
+        "throwsMatching": "synthetic watermark"
+      }
+    }
+  ]
+}

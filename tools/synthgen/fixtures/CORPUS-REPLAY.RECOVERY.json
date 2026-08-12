@@ -1,0 +1,33 @@
+{
+  "synthetic": true,
+  "domain": "CORPUS-REPLAY",
+  "fixtureClass": "RECOVERY",
+  "cases": [
+    {
+      "name": "an effect that demonstrably never fired is resendable, so a real restore still completes",
+      "op": "replay-resends-never-emitted-effect",
+      "input": {
+        "entityRefs": ["sg-p-0001", "sg-hh-0001"],
+        "ledgerEmpty": true
+      },
+      "expect": {
+        "resendCount": 2,
+        "fencedCount": 0
+      }
+    },
+    {
+      "name": "a pending delivery is resendable; only a landed effect is fenced",
+      "op": "replay-resends-never-emitted-effect",
+      "input": {
+        "entityRefs": ["sg-p-0001"],
+        "ledgerEmpty": false,
+        "deliveryStatus": "pending",
+        "alreadyConsumed": false
+      },
+      "expect": {
+        "resendCount": 1,
+        "fencedCount": 0
+      }
+    }
+  ]
+}

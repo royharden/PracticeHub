@@ -1,0 +1,28 @@
+{
+  "synthetic": true,
+  "domain": "CORPUS-COVERAGE",
+  "fixtureClass": "HAPPY",
+  "cases": [
+    {
+      "name": "a corpus that plays every named persona and journey clears the floor",
+      "op": "coverage-complete",
+      "input": {
+        "rows": [
+          {
+            "personaSlug": "data-migration-engineer",
+            "journey": "clinic-acquisition-onboarding"
+          }
+        ],
+        "subjects": [
+          {
+            "personaSlug": "data-migration-engineer",
+            "journeys": ["clinic-acquisition-onboarding"]
+          }
+        ]
+      },
+      "expect": {
+        "errorCount": 0
+      }
+    }
+  ]
+}

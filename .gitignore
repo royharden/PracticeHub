@@ -45,3 +45,4 @@ infra/runtime/
 /publication/
 /tools/scripts/verify-publication.mjs
 /packages/testkit/fixtures/corpus-manifest.synthetic.json
+/synthetic-corpus/

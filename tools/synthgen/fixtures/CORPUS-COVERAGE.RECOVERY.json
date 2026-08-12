@@ -1,0 +1,33 @@
+{
+  "synthetic": true,
+  "domain": "CORPUS-COVERAGE",
+  "fixtureClass": "RECOVERY",
+  "cases": [
+    {
+      "name": "a journey no subject carries is named, so a dropped storyline is recoverable",
+      "op": "coverage-names-missing-journey",
+      "input": {
+        "rows": [
+          {
+            "personaSlug": "data-migration-engineer",
+            "journey": "clinic-acquisition-onboarding"
+          },
+          {
+            "personaSlug": "data-migration-engineer",
+            "journey": "glp1-epcs-journey"
+          }
+        ],
+        "subjects": [
+          {
+            "personaSlug": "data-migration-engineer",
+            "journeys": ["clinic-acquisition-onboarding"]
+          }
+        ]
+      },
+      "expect": {
+        "missingJourneys": ["glp1-epcs-journey"],
+        "mentions": "glp1-epcs-journey"
+      }
+    }
+  ]
+}

@@ -196,6 +196,10 @@ function seed(): void {
     readFileSync(join(repoRoot, 'infra/postgres/seed/019-vendor-registry-seed.sql'), 'utf8'),
   );
   console.log('seeded infra/postgres/seed/019-vendor-registry-seed.sql');
+  psqlStdin(
+    readFileSync(join(repoRoot, 'infra/postgres/seed/020-synthgen-corpus-seed.sql'), 'utf8'),
+  );
+  console.log('seeded infra/postgres/seed/020-synthgen-corpus-seed.sql');
 }
 
 const vendorSimBase = 'http://127.0.0.1:58090';
@@ -1389,6 +1393,64 @@ async function testLocal(): Promise<void> {
     stdio: 'inherit',
   });
 
+  // WP-029: synthgen corpus standing proofs, live.
+  //
+  // (a) The corpus is actually LOADED — the seeded subject count matches the
+  //     pinned corpus, so a seed that silently no-ops is caught here rather
+  //     than by a later package wondering where its data went.
+  const corpusSubjects = scalar(
+    "SELECT count(*) FROM identity.person WHERE tenant_id = 'northwind-synthetic' " +
+      "AND provenance_source LIKE 'synthgen-v1%';",
+  );
+  if (Number(corpusSubjects) < 100) {
+    throw new Error(`synthgen corpus not loaded: ${corpusSubjects} corpus persons at rest`);
+  }
+
+  // (b) SHARED-ENDPOINT AT SCALE. WP-013 proved the shape on one seeded
+  //     household; the corpus proves it holds across the whole generated
+  //     world — every corpus household endpoint attaches to >= 1 person and at
+  //     least one attaches to several, and no endpoint IS a person.
+  const sharedCorpusEndpoints = scalar(
+    'SELECT count(*) FROM (' +
+      'SELECT a.endpoint_id FROM identity.endpoint_association a ' +
+      "WHERE a.tenant_id = 'northwind-synthetic' AND a.endpoint_id LIKE 'sg-ep-%' " +
+      'GROUP BY a.endpoint_id HAVING count(DISTINCT a.person_id) > 1) shared;',
+  );
+  if (Number(sharedCorpusEndpoints) < 1) {
+    throw new Error(
+      'synthgen corpus standing proof broken: no corpus endpoint is shared across persons — ' +
+        'the household-collision world is missing',
+    );
+  }
+
+  // (c) KNOWN-TRUTH DUPLICATES ARE REAL ROWS. Every same-person collision seeds
+  //     an acquired twin: a second person carrying the same legal name with its
+  //     own crosswalk value and NO patient record. A merge queue with nothing
+  //     to merge proves nothing.
+  const acquiredTwins = scalar(
+    'SELECT count(*) FROM identity.person p ' +
+      "WHERE p.tenant_id = 'northwind-synthetic' " +
+      "AND p.provenance_source = 'synthgen-v1-acquired-clinic' " +
+      "AND p.status = 'provisional' " +
+      'AND NOT EXISTS (SELECT FROM identity.patient_record r ' +
+      'WHERE r.tenant_id = p.tenant_id AND r.person_id = p.person_id);',
+  );
+  if (Number(acquiredTwins) < 1) {
+    throw new Error(
+      `synthgen corpus standing proof broken: ${acquiredTwins} unmatched acquired twins at rest`,
+    );
+  }
+
+  // (d) The corpus capability sits at the package ceiling with the
+  //     opposite-state tenant proof.
+  const corpusCapabilityStates = scalar(
+    "SELECT string_agg(tenant_id || ':' || state, ',' ORDER BY tenant_id) " +
+      "FROM platform_core.capability_grant WHERE capability_id = 'platform.synthetic-corpus';",
+  );
+  if (corpusCapabilityStates !== 'northwind-synthetic:scaffolded,riverbend-synthetic:disabled') {
+    throw new Error(`synthetic-corpus capability tenant states differ: ${corpusCapabilityStates}`);
+  }
+
   // WP-014: the dex federation e2e runs against the live compose dex —
   // discovery, mock-connector code flow, crosswalk mapping, and the
   // dark-by-registry denial proof.
@@ -1403,7 +1465,7 @@ async function testLocal(): Promise<void> {
       'gipa_partition=OK audit_store=OK consent_ledger=OK event_spine=OK ' +
       'policy_clocks=OK tasking_engine=OK break_glass=OK oncall_coverage=OK ' +
       'documents_model=OK documents_records=OK vendor_registry=OK rail_simulator=OK ' +
-      'rail_fleet=OK rail_heartbeat=OK ' +
+      'rail_fleet=OK rail_heartbeat=OK synthgen_corpus=OK ' +
       'dex_federation=OK cross_tenant_db_suite=OK synthetic_stack=OK',
   );
 }

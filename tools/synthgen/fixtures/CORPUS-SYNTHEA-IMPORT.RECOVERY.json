@@ -1,0 +1,27 @@
+{
+  "synthetic": true,
+  "domain": "CORPUS-SYNTHEA-IMPORT",
+  "fixtureClass": "RECOVERY",
+  "cases": [
+    {
+      "name": "a value smuggled in where an attribute name belongs is refused",
+      "op": "import-quarantine-refuses-value-as-name",
+      "input": {
+        "observedAttributeNames": ["1990-04-02"]
+      },
+      "expect": {
+        "throwsMatching": "attribute NAMES only"
+      }
+    },
+    {
+      "name": "a legitimate name list is accepted, so the guard is not simply always-deny",
+      "op": "import-quarantine-refuses-value-as-name",
+      "input": {
+        "observedAttributeNames": ["birthDate", "code"]
+      },
+      "expect": {
+        "throwsMatching": null
+      }
+    }
+  ]
+}

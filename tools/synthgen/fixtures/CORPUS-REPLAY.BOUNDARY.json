@@ -1,0 +1,37 @@
+{
+  "synthetic": true,
+  "domain": "CORPUS-REPLAY",
+  "fixtureClass": "BOUNDARY",
+  "cases": [
+    {
+      "name": "effects that landed under the prior epoch stay fenced when replayed under the next one",
+      "op": "replay-across-epoch-boundary",
+      "input": {
+        "entityRefs": ["sg-p-0001", "sg-hh-0001"],
+        "deliveryStatus": "published",
+        "alreadyConsumed": true,
+        "manifestEpoch": "RE-000",
+        "replayEpoch": "RE-001"
+      },
+      "expect": {
+        "resendCount": 0,
+        "fencedCount": 2
+      }
+    },
+    {
+      "name": "a dead-lettered effect is terminal and is never re-sent",
+      "op": "replay-across-epoch-boundary",
+      "input": {
+        "entityRefs": ["sg-p-0001"],
+        "deliveryStatus": "dead",
+        "alreadyConsumed": false,
+        "manifestEpoch": "RE-000",
+        "replayEpoch": "RE-001"
+      },
+      "expect": {
+        "resendCount": 0,
+        "fencedCount": 1
+      }
+    }
+  ]
+}

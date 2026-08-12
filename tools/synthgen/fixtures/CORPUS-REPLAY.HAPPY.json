@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "domain": "CORPUS-REPLAY",
+  "fixtureClass": "HAPPY",
+  "cases": [
+    {
+      "name": "a replay of a corpus whose effects all landed emits no side effect at all",
+      "op": "replay-fences-landed-effects",
+      "input": {
+        "entityRefs": ["sg-p-0001", "sg-hh-0001"],
+        "deliveryStatus": "published",
+        "alreadyConsumed": true,
+        "manifestEpoch": "RE-001",
+        "replayEpoch": "RE-001"
+      },
+      "expect": {
+        "resendCount": 0,
+        "fencedCount": 2
+      }
+    }
+  ]
+}

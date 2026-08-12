@@ -258,6 +258,18 @@ export const capabilityDefinitionsV1: readonly CapabilityDefinition[] = [
       'reads and the reset (rollback) direction are never gated. Arming is refused outright ' +
       'outside a synthetic-only environment — below the registry, with no override path.',
   },
+  {
+    capabilityId: 'platform.synthetic-corpus',
+    ownerRole: 'architecture',
+    dimensions: [],
+    description:
+      'Synthetic-corpus generation and load (WP-029): synthgen v1 identities/households, the ' +
+      'Synthea import, the pinned corpus manifest, and the recovery-epoch replay fence. ' +
+      'Loading a corpus version WRITES tenant person data, so loadCorpusVersion floors at ' +
+      'simulated; reading a corpus and the rollback direction (dropping a corpus version) are ' +
+      'never gated. validateCorpusLoadRequest refuses anything that is not synthetic-only ' +
+      'below the registry, so no grant can buy past D3.',
+  },
 ];
 
 /** Exact mirror of docs/architecture/capability-edge-preconditions.csv (FROZEN). */
@@ -560,6 +572,16 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       rollbackRef: 'already-disabled',
       synthetic: true,
     },
+    {
+      capabilityId: 'platform.synthetic-corpus',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
   ],
   events: [
     chainEvent(
@@ -804,6 +826,19 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       'disabled',
       'scaffolded',
       'synthetic-gate:wp-027-rail-simulator-scaffold',
+    ),
+    // WP-029: the synthetic-corpus capability lands at its package ceiling —
+    // `scaffolded`. The loadCorpusVersion command (floored `simulated`)
+    // therefore DENIES a live corpus load against this seed, by design; reads
+    // and the rollback direction are never gated. Riverbend stays the
+    // opposite-state proof.
+    chainEvent(
+      'synthetic-cap-evt-0023',
+      'platform.synthetic-corpus',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-029-synthetic-corpus-scaffold',
     ),
   ],
 };

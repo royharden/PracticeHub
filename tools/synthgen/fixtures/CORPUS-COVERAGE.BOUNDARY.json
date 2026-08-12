@@ -1,0 +1,29 @@
+{
+  "synthetic": true,
+  "domain": "CORPUS-COVERAGE",
+  "fixtureClass": "BOUNDARY",
+  "cases": [
+    {
+      "name": "a row whose fixture floor was lowered is named; the contract permits raising only",
+      "op": "coverage-rejects-lowered-floor",
+      "input": {
+        "requiredFixtureClasses": ["HAPPY", "BOUNDARY", "FAILURE"]
+      },
+      "expect": {
+        "belowFloorCount": 1,
+        "mentions": "missing RECOVERY"
+      }
+    },
+    {
+      "name": "a raised floor is permitted",
+      "op": "coverage-rejects-lowered-floor",
+      "input": {
+        "requiredFixtureClasses": ["HAPPY", "BOUNDARY", "FAILURE", "RECOVERY"]
+      },
+      "expect": {
+        "belowFloorCount": 0,
+        "mentions": null
+      }
+    }
+  ]
+}

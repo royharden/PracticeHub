@@ -20,6 +20,9 @@ const publicSteps = [
   ['verify:sims'],
   ['verify:secrets'],
   ['verify:phi'],
+  // ADR-ADJ-015 R-2: reads tracked file BYTES only, so it is a PUBLIC step —
+  // a public clone runs the same rule over the files it actually has.
+  ['verify:control-bytes'],
   ['verify:cross-tenant'],
   ['verify:config'],
   ['format:check'],
@@ -31,6 +34,9 @@ const privateSteps = [
   // is a private step — a public clone cannot run it.
   ['verify:adapters'],
   ['verify:corpus'],
+  // WP-029: reads the private persona x story matrix and the private corpus
+  // artifact, so the synthgen gate is a PRIVATE step.
+  ['verify:synthgen'],
   ['verify:publication'],
   ['verify:temporal'],
 ];

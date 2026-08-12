@@ -15,6 +15,8 @@
     "verify:adapters": "pnpm run build:with-deps && node dist/adapters.js",
     "verify:sims": "pnpm run build:with-deps && node dist/sims.js",
     "verify:corpus": "pnpm run build:with-deps && node dist/corpus.js",
+    "verify:synthgen": "pnpm run build:with-deps && node dist/synthgen-corpus.js",
+    "verify:control-bytes": "pnpm run build:with-deps && node dist/control-bytes.js",
     "verify:phi": "pnpm run build:with-deps && node dist/phi-fixtures.js",
     "verify:secrets": "pnpm run build:with-deps && node dist/secrets.js",
     "verify:config": "pnpm run build:with-deps && node dist/config-security.js"
@@ -22,6 +24,8 @@
   "dependencies": {
     "@practicehub/platform-core": "workspace:*",
     "@practicehub/platform-integration": "workspace:*",
+    "@practicehub/synthea-runner": "workspace:*",
+    "@practicehub/synthgen": "workspace:*",
     "@practicehub/testkit": "workspace:*",
     "@practicehub/vendor-sim-kit": "workspace:*",
     "@practicehub/vendor-simulator": "workspace:*"

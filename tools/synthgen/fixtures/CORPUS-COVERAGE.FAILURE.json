@@ -1,0 +1,33 @@
+{
+  "synthetic": true,
+  "domain": "CORPUS-COVERAGE",
+  "fixtureClass": "FAILURE",
+  "cases": [
+    {
+      "name": "a persona nobody plays is named individually, not counted",
+      "op": "coverage-names-missing-persona",
+      "input": {
+        "rows": [
+          {
+            "personaSlug": "data-migration-engineer",
+            "journey": "clinic-acquisition-onboarding"
+          },
+          {
+            "personaSlug": "prospective-patient",
+            "journey": "clinic-acquisition-onboarding"
+          }
+        ],
+        "subjects": [
+          {
+            "personaSlug": "data-migration-engineer",
+            "journeys": ["clinic-acquisition-onboarding"]
+          }
+        ]
+      },
+      "expect": {
+        "missingPersonaSlugs": ["prospective-patient"],
+        "mentions": "prospective-patient"
+      }
+    }
+  ]
+}
