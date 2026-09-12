@@ -1,0 +1,1 @@
+{ "requirement": "REQ-SVC-011", "class": "BOUNDARY", "probe": "invalid-asof", "synthetic": true }

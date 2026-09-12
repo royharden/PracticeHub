@@ -1,0 +1,1 @@
+{ "requirement": "REQ-SVC-011", "class": "HAPPY", "probe": "ledger-idempotency", "synthetic": true }

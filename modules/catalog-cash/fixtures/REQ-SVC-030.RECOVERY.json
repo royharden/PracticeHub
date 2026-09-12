@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-SVC-030",
+  "class": "RECOVERY",
+  "probe": "fulfillment-refund",
+  "synthetic": true
+}

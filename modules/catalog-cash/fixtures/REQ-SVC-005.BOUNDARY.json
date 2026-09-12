@@ -1,0 +1,1 @@
+{ "requirement": "REQ-SVC-005", "class": "BOUNDARY", "probe": "expiry-boundary", "synthetic": true }

@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-SVC-002",
+  "class": "RECOVERY",
+  "probe": "ledger-idempotency",
+  "synthetic": true
+}

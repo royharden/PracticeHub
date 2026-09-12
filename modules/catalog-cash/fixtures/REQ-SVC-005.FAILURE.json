@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-SVC-005",
+  "class": "FAILURE",
+  "probe": "duplicate-components",
+  "synthetic": true
+}

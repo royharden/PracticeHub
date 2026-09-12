@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-SVC-002",
+  "class": "BOUNDARY",
+  "probe": "missing-lifecycle",
+  "synthetic": true
+}

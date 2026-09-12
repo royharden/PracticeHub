@@ -1,0 +1,1 @@
+{ "requirement": "REQ-SVC-030", "class": "BOUNDARY", "probe": "quantity-two", "synthetic": true }

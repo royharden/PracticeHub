@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-SVC-011",
+  "class": "RECOVERY",
+  "probe": "entitlement-reversal",
+  "synthetic": true
+}

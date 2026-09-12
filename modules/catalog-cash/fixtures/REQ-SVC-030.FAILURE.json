@@ -1,0 +1,1 @@
+{ "requirement": "REQ-SVC-030", "class": "FAILURE", "probe": "missing-owner", "synthetic": true }

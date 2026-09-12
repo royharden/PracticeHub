@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-SVC-011",
+  "class": "FAILURE",
+  "probe": "unbalanced-ledger",
+  "synthetic": true
+}

@@ -1,0 +1,1 @@
+{ "requirement": "REQ-SVC-007", "class": "BOUNDARY", "probe": "reversal-twice", "synthetic": true }
