@@ -1,0 +1,12 @@
+{
+  "requirement": "ANALYTICS-REBUILD",
+  "class": "FAILURE",
+  "synthetic": true,
+  "cases": [
+    {
+      "name": "unsafe aggregate is never released during rebuild",
+      "operation": "privacy-threshold",
+      "expected": "suppressed"
+    }
+  ]
+}

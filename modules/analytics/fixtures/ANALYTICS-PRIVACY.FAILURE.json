@@ -1,0 +1,12 @@
+{
+  "requirement": "ANALYTICS-PRIVACY",
+  "class": "FAILURE",
+  "synthetic": true,
+  "cases": [
+    {
+      "name": "genetic partition structurally excluded",
+      "operation": "event-genetic-excluded",
+      "expected": "excluded"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "requirement": "ANALYTICS-PRIVACY",
+  "class": "HAPPY",
+  "synthetic": true,
+  "cases": [
+    {
+      "name": "safe closed release family",
+      "operation": "privacy-safe-family",
+      "expected": "a,b,total"
+    }
+  ]
+}

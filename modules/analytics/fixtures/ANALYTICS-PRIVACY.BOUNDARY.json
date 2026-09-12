@@ -1,0 +1,8 @@
+{
+  "requirement": "ANALYTICS-PRIVACY",
+  "class": "BOUNDARY",
+  "synthetic": true,
+  "cases": [
+    { "name": "minimum cell threshold", "operation": "privacy-threshold", "expected": "suppressed" }
+  ]
+}

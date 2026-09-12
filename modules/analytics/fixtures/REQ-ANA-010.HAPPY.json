@@ -1,0 +1,8 @@
+{
+  "requirement": "REQ-ANA-010",
+  "class": "HAPPY",
+  "synthetic": true,
+  "cases": [
+    { "name": "authorized fresh query", "operation": "query-available", "expected": "available" }
+  ]
+}

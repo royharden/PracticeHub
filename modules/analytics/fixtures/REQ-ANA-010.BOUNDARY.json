@@ -1,0 +1,12 @@
+{
+  "requirement": "REQ-ANA-010",
+  "class": "BOUNDARY",
+  "synthetic": true,
+  "cases": [
+    {
+      "name": "freshness objective exact boundary",
+      "operation": "freshness-boundary",
+      "expected": "fresh"
+    }
+  ]
+}

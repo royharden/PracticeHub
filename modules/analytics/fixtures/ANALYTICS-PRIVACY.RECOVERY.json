@@ -1,0 +1,12 @@
+{
+  "requirement": "ANALYTICS-PRIVACY",
+  "class": "RECOVERY",
+  "synthetic": true,
+  "cases": [
+    {
+      "name": "history spans user view and export",
+      "operation": "privacy-cross-surface-history",
+      "expected": "available,available:view,export"
+    }
+  ]
+}

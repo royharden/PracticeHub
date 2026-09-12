@@ -1,0 +1,12 @@
+{
+  "requirement": "ANALYTICS-REBUILD",
+  "class": "HAPPY",
+  "synthetic": true,
+  "cases": [
+    {
+      "name": "deterministic source replay",
+      "operation": "rebuild-deterministic",
+      "expected": "equivalent"
+    }
+  ]
+}

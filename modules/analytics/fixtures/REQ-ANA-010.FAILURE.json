@@ -1,0 +1,27 @@
+{
+  "requirement": "REQ-ANA-010",
+  "class": "FAILURE",
+  "synthetic": true,
+  "cases": [
+    {
+      "name": "cross entity access",
+      "operation": "query-cross-entity",
+      "expected": "masked:cross-entity-access"
+    },
+    {
+      "name": "complementary queries in both orders",
+      "operation": "query-small-cell-both-orders",
+      "expected": "suppressed,suppressed,suppressed,suppressed"
+    },
+    {
+      "name": "unresolved identity join",
+      "operation": "query-unresolved-identity",
+      "expected": "masked:unresolved-identity-join"
+    },
+    {
+      "name": "missing source receipt",
+      "operation": "query-missing-receipt",
+      "expected": "stale:missing-source-receipt"
+    }
+  ]
+}

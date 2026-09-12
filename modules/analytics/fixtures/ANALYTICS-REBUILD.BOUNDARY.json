@@ -1,0 +1,12 @@
+{
+  "requirement": "ANALYTICS-REBUILD",
+  "class": "BOUNDARY",
+  "synthetic": true,
+  "cases": [
+    {
+      "name": "late event changes immutable projection",
+      "operation": "rebuild-late-data",
+      "expected": "superseded"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "requirement": "REQ-ANA-010",
+  "class": "RECOVERY",
+  "synthetic": true,
+  "cases": [
+    {
+      "name": "late source rebuild supersedes prior version",
+      "operation": "rebuild-late-data",
+      "expected": "superseded"
+    }
+  ]
+}

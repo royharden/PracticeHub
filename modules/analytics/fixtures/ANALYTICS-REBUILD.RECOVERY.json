@@ -1,0 +1,12 @@
+{
+  "requirement": "ANALYTICS-REBUILD",
+  "class": "RECOVERY",
+  "synthetic": true,
+  "cases": [
+    {
+      "name": "replay restores expected hash",
+      "operation": "rebuild-deterministic",
+      "expected": "equivalent"
+    }
+  ]
+}
