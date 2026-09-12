@@ -1,0 +1,13 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PORT-004",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "minimal allowed prospect intake creates an owned task receipt",
+      "op": "submit",
+      "expectOutcome": "submitted",
+      "expectStatus": "submitted"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS portal_intake.intake_attachment;
+DROP TABLE IF EXISTS portal_intake.intake_answer;
+DROP TABLE IF EXISTS portal_intake.intake_attempt;
+DROP TABLE IF EXISTS portal_intake.intake_submission;
+DROP TABLE IF EXISTS portal_intake.intake_event;
+DROP TABLE IF EXISTS portal_intake.intake_definition;
+DROP FUNCTION IF EXISTS portal_intake.require_collection_consent();
+DROP FUNCTION IF EXISTS portal_intake.require_exact_subject_link();
+DROP FUNCTION IF EXISTS portal_intake.require_ref_only_attempt_receipts();
+DROP SCHEMA IF EXISTS portal_intake;
+REVOKE module_portal_intake FROM practicehub_app;

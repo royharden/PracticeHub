@@ -1,0 +1,66 @@
+import type { IntakeDefinition } from './intake-types.js';
+
+export const syntheticPortalIntakeDefinition: IntakeDefinition = {
+  definitionId: 'prospective-intake',
+  version: '2026-09-12',
+  effectiveAt: '2026-09-12T00:00:00Z',
+  privacyNoticeRef: 'privacy-notice:synthetic-v1',
+  communicationChoiceRequired: true,
+  fields: [
+    {
+      key: 'contact-email',
+      required: true,
+      purpose: 'follow-up',
+      sensitivity: 'contact',
+      respondentRole: 'prospect',
+      visibilitySegment: 'intake',
+      retentionRule: 'prospect-intake-30d',
+    },
+    {
+      key: 'urgency-screen',
+      required: true,
+      purpose: 'safe-routing',
+      sensitivity: 'health',
+      respondentRole: 'prospect',
+      visibilitySegment: 'clinical',
+      retentionRule: 'prospect-intake-30d',
+    },
+    {
+      key: 'location',
+      required: true,
+      purpose: 'jurisdiction-routing',
+      sensitivity: 'routing',
+      respondentRole: 'prospect',
+      visibilitySegment: 'intake',
+      retentionRule: 'prospect-intake-30d',
+    },
+    {
+      key: 'service-interest',
+      required: false,
+      purpose: 'service-routing',
+      sensitivity: 'routing',
+      respondentRole: 'prospect',
+      visibilitySegment: 'intake',
+      retentionRule: 'prospect-intake-30d',
+    },
+    {
+      key: 'accommodation',
+      required: false,
+      purpose: 'accessibility',
+      sensitivity: 'health',
+      respondentRole: 'prospect',
+      visibilitySegment: 'clinical',
+      retentionRule: 'prospect-intake-30d',
+    },
+  ],
+  healthFields: [
+    {
+      key: 'health-goal',
+      purpose: 'prospective-care-routing',
+      sensitivity: 'health',
+      collectionConsentPurpose: 'quiz-collection',
+      retentionRule: 'prospect-intake-30d',
+    },
+  ],
+  synthetic: true,
+};

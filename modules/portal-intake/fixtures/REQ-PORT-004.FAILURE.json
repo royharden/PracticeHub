@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PORT-004",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "unlisted medical history is refused before task creation",
+      "op": "reject-field",
+      "expectError": "unlisted pre-registration field"
+    }
+  ]
+}

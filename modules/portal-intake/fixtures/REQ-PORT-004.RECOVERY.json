@@ -1,0 +1,13 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PORT-004",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "a valid retry returns a submitted task receipt",
+      "op": "submit",
+      "expectOutcome": "submitted",
+      "expectStatus": "submitted"
+    }
+  ]
+}

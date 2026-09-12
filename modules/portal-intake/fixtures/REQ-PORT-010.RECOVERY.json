@@ -1,0 +1,13 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PORT-010",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "a fresh explicit consent after refusal permits submission",
+      "op": "submit",
+      "expectOutcome": "submitted",
+      "expectStatus": "submitted"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PORT-010",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "embedded intake applies the same explicit consent guard",
+      "op": "reject-embed",
+      "expectError": "cannot bypass"
+    }
+  ]
+}

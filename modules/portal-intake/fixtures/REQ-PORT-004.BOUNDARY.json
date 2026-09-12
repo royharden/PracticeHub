@@ -1,0 +1,18 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PORT-004",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "emergency screen routes to urgent clinical review",
+      "op": "urgent",
+      "expectOutcome": "submitted",
+      "expectStatus": "urgent-review"
+    },
+    {
+      "name": "optional health detail is erased at the retention boundary",
+      "op": "abandon",
+      "expectNoHealthValue": "synthetic-abandoned-health"
+    }
+  ]
+}
