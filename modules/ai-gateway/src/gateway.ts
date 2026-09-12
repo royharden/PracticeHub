@@ -91,6 +91,7 @@ export class AiGateway {
     let providerCalls = 0;
     let promptObject: StoredBody | null = null;
     let providerResult: ModelProviderResult | null = null;
+    let providerOutputObject: StoredBody | null = null;
     let observedToolDecisions: readonly ToolAuthorizationDecision[] = [];
     let egressDecision: EgressDecision | undefined;
 
@@ -196,7 +197,7 @@ export class AiGateway {
         refusalHash: refusal.bodyHash,
         providerCalls,
       };
-      await commit(decision, refusal, reason, providerResult);
+      await commit(decision, providerOutputObject ?? refusal, reason, providerResult);
       return decision;
     };
 
@@ -286,6 +287,7 @@ export class AiGateway {
         body: result.outputBody,
         synthetic: true,
       });
+      providerOutputObject = output;
 
       if (result.actualModelVersion !== request.binding.pinnedModelVersion) {
         await contain('model-version-drift');

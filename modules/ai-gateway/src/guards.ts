@@ -233,6 +233,13 @@ function containsSecret(body: string, canaries: readonly string[]): boolean {
   );
 }
 
+function containsOtherSubject(request: AiGatewayRequest, body: string): boolean {
+  const normalizedBody = body.normalize('NFKC');
+  return request.knownSubjectRefs.some(
+    (ref) => ref !== request.subjectRef && ref.length > 0 && normalizedBody.includes(ref),
+  );
+}
+
 export function isolateContent(
   request: AiGatewayRequest,
   objects: readonly StoredBody[],
@@ -272,6 +279,12 @@ export function isolateContent(
     if (containsSecret(object.body, request.secretCanaries)) {
       throw new GatewayRefusal('input-secret', 'input secret detected before provider invocation');
     }
+    if (containsOtherSubject(request, object.body)) {
+      throw new GatewayRefusal(
+        'cross-subject-content',
+        'untrusted content names another known subject',
+      );
+    }
     if (injectionPatterns.some((pattern) => pattern.test(object.body.normalize('NFKC')))) {
       throw new GatewayRefusal(
         'prompt-injection',
@@ -292,8 +305,7 @@ export function assertOutputSafe(request: AiGatewayRequest, body: string): void 
   if (containsSecret(body, request.secretCanaries)) {
     throw new GatewayRefusal('output-secret', 'provider output contains a secret canary');
   }
-  const otherSubjects = request.knownSubjectRefs.filter((ref) => ref !== request.subjectRef);
-  if (otherSubjects.some((ref) => ref.length > 0 && body.includes(ref))) {
+  if (containsOtherSubject(request, body)) {
     throw new GatewayRefusal('output-cross-subject', 'provider output names another subject');
   }
 }

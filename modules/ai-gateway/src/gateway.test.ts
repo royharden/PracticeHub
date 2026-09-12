@@ -69,6 +69,32 @@ describe('AiGateway closed execution model', () => {
     expect(harness.providerCalls()).toBe(0);
   });
 
+  it('refuses cross-subject content inside an otherwise scoped object before provider invocation', async () => {
+    const harness = gatewayHarness();
+    const declared = harness.request.content[0];
+    if (declared === undefined) throw new Error('fixture source missing');
+    const body = 'Clinical facts belonging to subject:northwind:002';
+    harness.objects.seed(
+      scopedBody(harness.request, {
+        bodyRef: declared.bodyRef,
+        originRef: declared.originRef,
+        body,
+      }),
+    );
+
+    const decision = await harness.gateway.invoke({
+      ...harness.request,
+      content: [{ ...declared, bodyHash: sha256(body) }],
+    });
+
+    expect(decision).toMatchObject({
+      kind: 'blocked',
+      reason: 'cross-subject-content',
+      providerCalls: 0,
+    });
+    expect(harness.providerCalls()).toBe(0);
+  });
+
   it('contains exact cohort on model drift and leaves a sibling cohort callable', async () => {
     const drift = gatewayHarness({
       providerResult: { ...cleanProviderResult, actualModelVersion: 'model-api-v2' },
@@ -205,18 +231,25 @@ describe('AiGateway closed execution model', () => {
   });
 
   it('retains receipt evidence when output safety blocks after provider return', async () => {
+    const unsafeOutput = 'mentions subject:northwind:002';
     const harness = gatewayHarness({
       providerResult: {
         ...cleanProviderResult,
-        outputBody: 'mentions subject:northwind:002',
+        outputBody: unsafeOutput,
       },
     });
-    expect(await harness.gateway.invoke(harness.request)).toMatchObject({
+    const decision = await harness.gateway.invoke(harness.request);
+    expect(decision).toMatchObject({
       kind: 'blocked',
       reason: 'output-cross-subject',
       providerCalls: 1,
     });
-    expect(harness.evidence.commits[0]?.evidence.providerReceiptRef).toBe('receipt:rail-022:001');
+    if (decision.kind !== 'blocked') throw new Error('expected blocked decision');
+    expect(harness.evidence.commits[0]?.evidence).toMatchObject({
+      providerReceiptRef: 'receipt:rail-022:001',
+      outputHash: sha256(unsafeOutput),
+    });
+    expect(harness.evidence.commits[0]?.evidence.outputHash).not.toBe(decision.refusalHash);
   });
 
   it('returns no authoritative decision when same-transaction evidence fails', async () => {

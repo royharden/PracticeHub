@@ -20,6 +20,18 @@ describe('context isolation independent of object-store behavior', () => {
       'outside request scope',
     );
   });
+
+  it('refuses a known other subject named inside an otherwise correctly scoped body', () => {
+    const request = requestFixture();
+    const body = 'Clinical facts belonging to subject:northwind:002';
+    const declared = request.content[0];
+    if (declared === undefined) throw new Error('fixture source missing');
+    const ref = { ...declared, bodyHash: sha256(body) };
+
+    expect(() => isolateContent({ ...request, content: [ref] }, [{ ...ref, body }])).toThrow(
+      'another known subject',
+    );
+  });
 });
 
 describe('pinned gateway calendar', () => {
