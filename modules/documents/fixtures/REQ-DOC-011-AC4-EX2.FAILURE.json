@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-011-AC4-EX2",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a partner note cannot replace the per-fax confidence policy",
+      "op": "sender-pattern",
+      "senderOutcomes": ["unidentifiable", "unidentifiable"],
+      "outreachThreshold": 2,
+      "expectedOutreach": true
+    }
+  ]
+}

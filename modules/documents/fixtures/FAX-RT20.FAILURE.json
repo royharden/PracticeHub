@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "requirementId": "FAX-RT20",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "uncertain urgency on unreadable content fails toward urgent human review",
+      "op": "route",
+      "scenario": "unreadable",
+      "urgency": "uncertain",
+      "expectedKinds": ["manual-review"],
+      "expectedReasons": ["unreadable"],
+      "expectedUrgent": true
+    }
+  ]
+}

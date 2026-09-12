@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-009",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "one strong match remains pending human confirmation even at confidence one",
+      "op": "route",
+      "scenario": "single",
+      "pageCount": 2,
+      "expectedKinds": ["awaiting-human-confirmation"]
+    }
+  ]
+}

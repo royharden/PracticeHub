@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-001",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "replayed grouping still requires one attributed disposition per group",
+      "op": "confirm",
+      "scenario": "multi",
+      "pageCount": 4,
+      "expectedFilings": 2
+    }
+  ]
+}

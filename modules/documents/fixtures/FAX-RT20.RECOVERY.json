@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "FAX-RT20",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "a missed sweep replays due work in clinical-priority order",
+      "op": "urgent-sweep",
+      "dueAt": "2026-03-10T08:15:00Z",
+      "asOf": "2026-03-10T09:00:00Z",
+      "expectedSweep": ["nd-positive", "nd-uncertain"]
+    }
+  ]
+}

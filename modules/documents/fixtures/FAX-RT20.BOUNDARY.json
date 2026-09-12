@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "FAX-RT20",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "the sweep includes an item exactly at its due instant",
+      "op": "urgent-sweep",
+      "dueAt": "2026-03-10T08:15:00Z",
+      "asOf": "2026-03-10T08:15:00Z",
+      "expectedSweep": ["nd-positive", "nd-uncertain"]
+    }
+  ]
+}

@@ -3,6 +3,7 @@ export * from './document.js';
 export * from './records.js';
 export * from './esign-port.js';
 export * from './intake-port.js';
+export * from './fax-routing.js';
 export * from './rls-specs.js';
 export * from './seed-data.js';
 export * from './records-seed.js';

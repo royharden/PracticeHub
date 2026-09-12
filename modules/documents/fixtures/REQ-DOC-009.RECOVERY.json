@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-009",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "an unreadable urgent fax is preserved for human review and urgent work",
+      "op": "route",
+      "scenario": "unreadable",
+      "urgency": "uncertain",
+      "expectedKinds": ["manual-review"],
+      "expectedReasons": ["unreadable"],
+      "expectedUrgent": true
+    }
+  ]
+}

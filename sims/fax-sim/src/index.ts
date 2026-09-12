@@ -52,6 +52,7 @@ export function createFaxSimStub(scenario: FaxSimScenario, receivedAt: string): 
     poll(): readonly InboundFaxDelivery[] {
       return [
         {
+          tenantId: 'northwind-synthetic',
           faxId: spec.faxId,
           senderRef: spec.senderRef,
           pageCount: spec.pageCount,
@@ -64,3 +65,6 @@ export function createFaxSimStub(scenario: FaxSimScenario, receivedAt: string): 
     },
   };
 }
+
+export * from './intelligence-double.js';
+export * from './vendor-sim-adapter.js';

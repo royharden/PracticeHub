@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-001",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a page assigned to two patients is rejected",
+      "op": "page-cover",
+      "pageCount": 2,
+      "pageGroups": [[1], [1, 2]],
+      "expectedError": "page 1 is assigned twice"
+    }
+  ]
+}

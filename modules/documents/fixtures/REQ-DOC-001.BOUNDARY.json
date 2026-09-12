@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-001",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "the smallest two-group fax assigns each page once",
+      "op": "page-cover",
+      "scenario": "multi",
+      "pageCount": 2,
+      "pageGroups": [[1], [2]]
+    }
+  ]
+}

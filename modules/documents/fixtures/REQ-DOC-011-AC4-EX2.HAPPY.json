@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-011-AC4-EX2",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "recurring unmatched outcomes flag practice-manager outreach",
+      "op": "sender-pattern",
+      "senderOutcomes": ["unmatched", "matched", "unidentifiable"],
+      "outreachThreshold": 2,
+      "expectedOutreach": true
+    }
+  ]
+}

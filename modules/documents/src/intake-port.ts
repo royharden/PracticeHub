@@ -8,6 +8,7 @@
  */
 
 export interface InboundFaxDelivery {
+  readonly tenantId: string;
   readonly faxId: string;
   readonly senderRef: string;
   readonly pageCount: number;

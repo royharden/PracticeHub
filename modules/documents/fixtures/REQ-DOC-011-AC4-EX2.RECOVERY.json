@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-011-AC4-EX2",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "replayed sender history derives the same outreach decision",
+      "op": "sender-pattern",
+      "senderOutcomes": ["unmatched", "unidentifiable", "matched"],
+      "outreachThreshold": 2,
+      "expectedOutreach": true
+    }
+  ]
+}

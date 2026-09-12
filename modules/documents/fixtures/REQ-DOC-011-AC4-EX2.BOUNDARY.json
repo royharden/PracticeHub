@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-011-AC4-EX2",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "one unmatched fax below the threshold does not flag the sender",
+      "op": "sender-pattern",
+      "senderOutcomes": ["unmatched", "matched"],
+      "outreachThreshold": 2,
+      "expectedOutreach": false
+    }
+  ]
+}

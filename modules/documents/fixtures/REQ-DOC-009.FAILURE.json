@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-009",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a sub-threshold single candidate cannot be filed",
+      "op": "route",
+      "scenario": "sub-threshold",
+      "expectedKinds": ["manual-review"],
+      "expectedReasons": ["sub-threshold"]
+    }
+  ]
+}

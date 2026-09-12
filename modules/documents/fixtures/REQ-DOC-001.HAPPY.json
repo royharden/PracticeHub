@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-001",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "a four-page two-patient fax yields two human-confirmation proposals",
+      "op": "route",
+      "scenario": "multi",
+      "pageCount": 4,
+      "expectedKinds": ["awaiting-human-confirmation", "awaiting-human-confirmation"]
+    }
+  ]
+}

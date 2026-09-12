@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-DOC-009",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "equal plausible candidates route to human review without a forced guess",
+      "op": "route",
+      "scenario": "ambiguous",
+      "expectedKinds": ["manual-review"],
+      "expectedReasons": ["ambiguous"]
+    }
+  ]
+}

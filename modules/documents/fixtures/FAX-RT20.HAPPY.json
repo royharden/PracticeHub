@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "requirementId": "FAX-RT20",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "an urgent signal opens urgent review before identity disposition",
+      "op": "route",
+      "scenario": "single",
+      "urgency": "positive",
+      "expectedKinds": ["awaiting-human-confirmation"],
+      "expectedUrgent": true
+    }
+  ]
+}
