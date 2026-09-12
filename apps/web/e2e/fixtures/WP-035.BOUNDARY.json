@@ -1,0 +1,49 @@
+{
+  "synthetic": true,
+  "fixtureClass": "BOUNDARY",
+  "simulatedClock": "2026-01-01T00:00:00Z",
+  "contracts": {
+    "wp030": {
+      "reference": {
+        "subjectId": "sg-p-0008",
+        "personaSlug": "front-desk",
+        "journey": "cross-team-conversation-to-accepted-contextual-handoff"
+      },
+      "locale": "es",
+      "largePrint": true,
+      "operationKey": "wp030-boundary-001",
+      "actionNote": "Aceptar la entrega al responsable",
+      "apiOutcome": "success",
+      "failureMode": "none",
+      "expectedEffectCount": 1
+    },
+    "wp031": {
+      "reference": {
+        "subjectId": "sg-p-0037",
+        "personaSlug": "cash-pay-customer",
+        "journey": "prospect-to-member"
+      },
+      "locale": "es",
+      "largePrint": true,
+      "operationKey": "wp031-boundary-001",
+      "actionNote": "Confirmar pago y beneficio",
+      "apiOutcome": "success",
+      "failureMode": "none",
+      "expectedEffectCount": 1
+    },
+    "wp032": {
+      "reference": {
+        "subjectId": "sg-p-0024",
+        "personaSlug": "physician-app",
+        "journey": "detect-discrepancy-clinician-reconcile-acknowledge"
+      },
+      "locale": "es",
+      "largePrint": true,
+      "operationKey": "wp032-boundary-001",
+      "actionNote": "Confirmar la versión clínica conciliada",
+      "apiOutcome": "success",
+      "failureMode": "none",
+      "expectedEffectCount": 1
+    }
+  }
+}

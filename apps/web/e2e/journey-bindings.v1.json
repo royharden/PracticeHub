@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "matrixContract": "persona-story-matrix/v1",
+  "corpusVersion": "SynthCorpus-v1",
+  "journeyTests": [
+    {
+      "rowKey": "REQ-COMM-003|front-desk|cross-team-conversation-to-accepted-contextual-handoff",
+      "testId": "journey:wp030:accountable-message-handoff",
+      "contractId": "wp030-accountable-message-page/v1"
+    },
+    {
+      "rowKey": "REQ-SVC-001|cash-pay-customer|prospect-to-member",
+      "testId": "journey:wp031:paid-service",
+      "contractId": "wp031-paid-service-page/v1"
+    },
+    {
+      "rowKey": "REQ-CLIN-002|physician-app|detect-discrepancy-clinician-reconcile-acknowledge",
+      "testId": "journey:wp032:clinical-coexistence",
+      "contractId": "wp032-clinical-coexistence-page/v1"
+    }
+  ],
+  "categoryDependencies": [
+    {
+      "category": "identity",
+      "wpId": "WP-013",
+      "reason": "Identity journeys require the person, role, endpoint, and source-ID model."
+    },
+    {
+      "category": "platform-integration",
+      "wpId": "WP-036",
+      "reason": "Integration journeys require the versioned authority matrix."
+    },
+    {
+      "category": "practice-admin",
+      "wpId": "WP-077",
+      "reason": "Administration journeys require the activation console UI."
+    },
+    {
+      "category": "scheduling",
+      "wpId": "WP-040",
+      "reason": "Scheduling journeys require scheduling core."
+    },
+    {
+      "category": "portal-intake",
+      "wpId": "WP-043",
+      "reason": "Portal journeys require the accessibility, language, and proxy surface."
+    },
+    {
+      "category": "comms",
+      "wpId": "WP-044",
+      "reason": "Non-reference communication journeys require the full communications surface.",
+      "excludeRowKeys": [
+        "REQ-COMM-003|front-desk|cross-team-conversation-to-accepted-contextual-handoff"
+      ]
+    },
+    {
+      "category": "voice",
+      "wpId": "WP-046",
+      "reason": "Voice journeys require the call and voicemail workflow surface."
+    },
+    {
+      "category": "telehealth",
+      "wpId": "WP-048",
+      "reason": "Telehealth journeys require the visit and licensure surface."
+    },
+    {
+      "category": "cash-services",
+      "wpId": "WP-050",
+      "reason": "Non-reference cash-service journeys require catalog and component coverage.",
+      "excludeRowKeys": ["REQ-SVC-001|cash-pay-customer|prospect-to-member"]
+    },
+    {
+      "category": "membership",
+      "wpId": "WP-052",
+      "reason": "Membership journeys require membership account lifecycle UI."
+    },
+    {
+      "category": "rcm",
+      "wpId": "WP-080",
+      "reason": "RCM journeys require the shadow store and lifecycle packages."
+    },
+    {
+      "category": "clinical",
+      "wpId": "WP-060",
+      "reason": "Non-reference clinical journeys require the full clinical contract surface.",
+      "excludeRowKeys": [
+        "REQ-CLIN-002|physician-app|detect-discrepancy-clinician-reconcile-acknowledge"
+      ]
+    },
+    {
+      "category": "labs-diagnostics",
+      "wpId": "WP-064",
+      "reason": "Lab journeys require order/result and closure surfaces."
+    },
+    {
+      "category": "erx",
+      "wpId": "WP-066",
+      "reason": "eRx journeys require refill and renewal queue surfaces."
+    },
+    {
+      "category": "migration",
+      "wpId": "WP-068",
+      "reason": "Migration journeys require EHI ingest and delta tooling."
+    },
+    {
+      "category": "crm-sales",
+      "wpId": "WP-070",
+      "reason": "CRM journeys require lead, pipeline, and member views."
+    },
+    {
+      "category": "reviews",
+      "wpId": "WP-073",
+      "reason": "Review journeys require invite and response surfaces."
+    },
+    {
+      "category": "referrals",
+      "wpId": "WP-074",
+      "reason": "Referral journeys require closed-loop workflow surfaces."
+    },
+    {
+      "category": "inventory-retail",
+      "wpId": "WP-075",
+      "reason": "Inventory journeys require lot, recall, and dispensing surfaces."
+    },
+    {
+      "category": "analytics",
+      "wpId": "WP-076",
+      "reason": "Analytics journeys require masked projection surfaces."
+    },
+    {
+      "category": "ai-assist",
+      "wpId": "WP-102",
+      "reason": "AI-assist journeys require governed drafting and provenance UI."
+    },
+    {
+      "category": "tasking-workflow",
+      "wpId": "WP-022",
+      "reason": "Task journeys require owned work items, queues, timers, and escalation."
+    },
+    {
+      "category": "documents-fax",
+      "wpId": "WP-049",
+      "reason": "Document and fax journeys require routing and lineage surfaces."
+    }
+  ],
+  "parityGates": [
+    {
+      "contractId": "wp030-accountable-message-page/v1",
+      "wpId": "WP-030",
+      "status": "blocked",
+      "reason": "Real web page/API adapter is not present at the assignment base."
+    },
+    {
+      "contractId": "wp031-paid-service-page/v1",
+      "wpId": "WP-031",
+      "status": "blocked",
+      "reason": "Real web page/API adapter is not present at the assignment base."
+    },
+    {
+      "contractId": "wp032-clinical-coexistence-page/v1",
+      "wpId": "WP-032",
+      "status": "blocked",
+      "reason": "WP-032 UI/API is not present at the assignment base."
+    },
+    {
+      "contractId": "portal-intake-accessibility/v1",
+      "wpId": "WP-043",
+      "status": "blocked",
+      "reason": "Portal-intake production paths are excluded from WP-035 ownership."
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "synthetic": true,
+  "fixtureClass": "HAPPY",
+  "simulatedClock": "2026-01-01T00:00:00Z",
+  "contracts": {
+    "wp030": {
+      "reference": {
+        "subjectId": "sg-p-0008",
+        "personaSlug": "front-desk",
+        "journey": "cross-team-conversation-to-accepted-contextual-handoff"
+      },
+      "locale": "en",
+      "largePrint": false,
+      "operationKey": "wp030-happy-001",
+      "actionNote": "Accept accountable owner handoff",
+      "apiOutcome": "success",
+      "failureMode": "none",
+      "expectedEffectCount": 1
+    },
+    "wp031": {
+      "reference": {
+        "subjectId": "sg-p-0037",
+        "personaSlug": "cash-pay-customer",
+        "journey": "prospect-to-member"
+      },
+      "locale": "en",
+      "largePrint": false,
+      "operationKey": "wp031-happy-001",
+      "actionNote": "Confirm paid order and entitlement",
+      "apiOutcome": "success",
+      "failureMode": "none",
+      "expectedEffectCount": 1
+    },
+    "wp032": {
+      "reference": {
+        "subjectId": "sg-p-0024",
+        "personaSlug": "physician-app",
+        "journey": "detect-discrepancy-clinician-reconcile-acknowledge"
+      },
+      "locale": "en",
+      "largePrint": false,
+      "operationKey": "wp032-happy-001",
+      "actionNote": "Acknowledge reconciled clinical version",
+      "apiOutcome": "success",
+      "failureMode": "none",
+      "expectedEffectCount": 1
+    }
+  }
+}
