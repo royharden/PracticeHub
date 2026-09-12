@@ -1,0 +1,10 @@
+{
+  "requirement": "REQ-COMM-020",
+  "synthetic": true,
+  "cases": [
+    { "class": "HAPPY", "probe": "distinct-primary-and-fallback" },
+    { "class": "FAILURE", "probe": "fallback-is-not-primary-retry" },
+    { "class": "BOUNDARY", "probe": "holding-does-not-meet-timer" },
+    { "class": "RECOVERY", "probe": "notification-keys-are-stable" }
+  ]
+}

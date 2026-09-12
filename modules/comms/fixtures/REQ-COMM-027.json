@@ -1,0 +1,10 @@
+{
+  "requirement": "REQ-COMM-027",
+  "synthetic": true,
+  "cases": [
+    { "class": "HAPPY", "probe": "holding-send-starts-resolution" },
+    { "class": "FAILURE", "probe": "resolved-thread-refuses-send" },
+    { "class": "BOUNDARY", "probe": "closure-requires-evidence" },
+    { "class": "RECOVERY", "probe": "unknown-delivery-awaits-receipt" }
+  ]
+}

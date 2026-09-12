@@ -1,0 +1,10 @@
+{
+  "requirement": "REQ-COMM-018",
+  "synthetic": true,
+  "cases": [
+    { "class": "HAPPY", "probe": "owner-and-authorized-context" },
+    { "class": "FAILURE", "probe": "identity-mismatch-refused" },
+    { "class": "BOUNDARY", "probe": "holding-pauses-next-response" },
+    { "class": "RECOVERY", "probe": "duplicate-inbound-is-idempotent" }
+  ]
+}

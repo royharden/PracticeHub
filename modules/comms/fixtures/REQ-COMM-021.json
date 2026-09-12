@@ -1,0 +1,10 @@
+{
+  "requirement": "REQ-COMM-021",
+  "synthetic": true,
+  "cases": [
+    { "class": "HAPPY", "probe": "claim-carries-context" },
+    { "class": "FAILURE", "probe": "unauthorized-view-refused" },
+    { "class": "BOUNDARY", "probe": "second-claim-refused" },
+    { "class": "RECOVERY", "probe": "authorized-view-loads-real-context" }
+  ]
+}
