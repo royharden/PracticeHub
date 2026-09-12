@@ -21,6 +21,7 @@ import { describe, expect, it } from 'vitest';
 import {
   evaluateRailHeartbeat,
   injectionPrimitivesV1,
+  normalizeRailAuthorityBindings,
   InMemorySimStateStore,
   SimProcessKill,
   VendorSimEngine,
@@ -72,13 +73,14 @@ function driveStep(
   rail: RailSim,
   primitive: InjectionPrimitive,
   key: string,
+  operation: string,
 ): void {
   engine.controller.armScenario({
     railId: rail.railId,
     primitiveId: primitive.primitiveId,
     dataPolicy: 'synthetic-only',
   });
-  const request = requestFor(rail, key);
+  const request = requestFor(rail, key, operation);
 
   if (primitive.primitiveId === 'X-02') {
     // The crash step never answers; what matters is what it leaves behind.
@@ -109,16 +111,22 @@ describe('per-rail injection presets', () => {
   it('every rail declares at least one preset bound to a distinct authority ordinal', () => {
     for (const rail of railSimsV1) {
       expect(rail.presets.length, rail.railId).toBeGreaterThan(0);
-      const ordinals = rail.presets.map((preset) => preset.authorityScenarioIndex);
+      const bindings = normalizeRailAuthorityBindings(rail);
+      const ordinals = bindings.presets.map(
+        ({ preset, authorityId }) => `${authorityId}:${preset.authorityScenarioIndex}`,
+      );
       expect(new Set(ordinals).size, rail.railId).toBe(ordinals.length);
-      for (const ordinal of ordinals) {
-        expect(Number.isInteger(ordinal) && ordinal >= 0, rail.railId).toBe(true);
+      for (const { preset } of bindings.presets) {
+        expect(
+          Number.isInteger(preset.authorityScenarioIndex) && preset.authorityScenarioIndex >= 0,
+          rail.railId,
+        ).toBe(true);
       }
     }
   });
 
   for (const rail of railSimsV1) {
-    for (const preset of rail.presets) {
+    for (const { preset, operation, authorityId } of normalizeRailAuthorityBindings(rail).presets) {
       it(`${rail.railId} (${rail.name}) preset ${preset.presetId}`, () => {
         const engine = new VendorSimEngine({ rails: [rail], store: new InMemorySimStateStore() });
 
@@ -133,7 +141,13 @@ describe('per-rail injection presets', () => {
           }
           // Each step is its own caller intent, so a story of two failures is
           // two effects rather than one effect the engine silently re-sends.
-          driveStep(engine, rail, primitive, `${rail.railId}-${preset.presetId}-${String(index)}`);
+          driveStep(
+            engine,
+            rail,
+            primitive,
+            `${rail.railId}-${preset.presetId}-${String(index)}`,
+            operation,
+          );
         });
 
         const effects = engine.snapshot().effects;
@@ -142,6 +156,10 @@ describe('per-rail injection presets', () => {
         for (const effect of effects) {
           expect(effect.synthetic).toBe(true);
           expect(effect.railId).toBe(rail.railId);
+          expect(effect.operation).toBe(operation);
+          expect(normalizeRailAuthorityBindings(rail).operations.get(effect.operation)).toBe(
+            authorityId,
+          );
         }
 
         // Re-delivering every key of the story adds no external effect: the
@@ -149,7 +167,7 @@ describe('per-rail injection presets', () => {
         engine.controller.disarmAll();
         for (const effect of effects) {
           const replay = engine.dispatch({
-            ...requestFor(rail, 'replay'),
+            ...requestFor(rail, 'replay', effect.operation),
             idempotencyKey: effect.idempotencyKey,
             requestedAt: '2026-01-01T01:00:00Z',
           });

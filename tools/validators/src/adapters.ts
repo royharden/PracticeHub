@@ -31,6 +31,10 @@ import { parseCsv } from '@practicehub/testkit';
 import { railSimsV1 } from '@practicehub/vendor-simulator';
 
 import { collectFiles, failIfAny, repoRoot } from './common.js';
+import {
+  checkRailAuthorityCoverage,
+  type AuthorityRailCoverageRow,
+} from './rail-authority-coverage.js';
 
 const errors: string[] = [];
 
@@ -54,6 +58,7 @@ const cell = (row: readonly string[], name: string): string => {
 const authorityIds = new Set<string>();
 /** authority id -> how many simulator scenarios its join row names (WP-027). */
 const authorityScenarioCounts = new Map<string, number>();
+const authorityCoverageRows = new Map<string, AuthorityRailCoverageRow>();
 let externalRails = 0;
 for (const [index, row] of joinRows.slice(1).entries()) {
   if (row.every((value) => value.trim() === '')) {
@@ -91,6 +96,13 @@ for (const [index, row] of joinRows.slice(1).entries()) {
       .split('|')
       .filter((scenario) => scenario.trim() !== '').length,
   );
+  authorityCoverageRows.set(authorityId, {
+    railIds: railIds
+      .split('|')
+      .map((id) => id.trim())
+      .filter(Boolean),
+    scenarioCount: authorityScenarioCounts.get(authorityId) ?? 0,
+  });
   // Every row is a complete contract binding.
   for (const column of [
     'effect_key_contract',
@@ -150,33 +162,9 @@ if (adapterContractRequiredFields.length === 0) {
 // strings. Scenarios of an implemented authority whose other rails are not built
 // yet, and authorities with no rail at all, are REPORTED as deferred — never
 // silently passed (the adapter_contracts_deferred discipline).
-const coveredScenarios = new Map<string, Set<number>>();
-for (const rail of railSimsV1) {
-  const scenarioCount = authorityScenarioCounts.get(rail.authorityId);
-  if (scenarioCount === undefined) {
-    errors.push(
-      `${rail.railId}: authorityId ${rail.authorityId} is absent from the authority-rail join`,
-    );
-    continue;
-  }
-  const covered = coveredScenarios.get(rail.authorityId) ?? new Set<number>();
-  for (const preset of rail.presets) {
-    if (preset.authorityScenarioIndex >= scenarioCount) {
-      errors.push(
-        `${rail.railId}/${preset.presetId}: authority scenario ordinal ${preset.authorityScenarioIndex} ` +
-          `exceeds the ${scenarioCount} scenario(s) ${rail.authorityId} names`,
-      );
-      continue;
-    }
-    if (covered.has(preset.authorityScenarioIndex)) {
-      errors.push(
-        `${rail.authorityId} scenario ordinal ${preset.authorityScenarioIndex} is claimed by two presets`,
-      );
-    }
-    covered.add(preset.authorityScenarioIndex);
-  }
-  coveredScenarios.set(rail.authorityId, covered);
-}
+const coverage = checkRailAuthorityCoverage(railSimsV1, authorityCoverageRows);
+errors.push(...coverage.errors);
+const coveredScenarios = coverage.coveredScenarios;
 
 const deferredScenarios: string[] = [];
 const deferredAuthorities: string[] = [];

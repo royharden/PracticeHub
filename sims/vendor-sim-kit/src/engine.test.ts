@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { VendorSimEngine } from './engine.js';
 import { RailSimError, SimProcessKill, type RailRequest, type RailSim } from './rail.js';
 import { FileSimStateStore, InMemorySimStateStore } from './store.js';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -260,5 +260,82 @@ describe('scenario controller — deterministic arming', () => {
       heartbeats: [],
       synthetic: true,
     });
+  });
+});
+
+describe('shared-rail authority replay fence (ADR-ADJ-017)', () => {
+  const shared: RailSim = {
+    ...testRail,
+    operations: ['send', 'clinical'],
+    operationAuthorities: { send: 'AUTH-000', clinical: 'AUTH-007' },
+  };
+
+  it.each(['authorityId', 'authorityIds', 'operationAuthorities'])(
+    'refuses caller selector %s without consuming the armed scenario',
+    (selector) => {
+      const target = new VendorSimEngine({ rails: [shared] });
+      arm(target, 'X-16');
+      const armed = target.controller.listArmed();
+      expect(() => target.dispatch({ ...request(), [selector]: 'AUTH-007' })).toThrow(
+        /authority selector/,
+      );
+      expect(target.snapshot().effects).toEqual([]);
+      expect(target.controller.listArmed()).toEqual(armed);
+    },
+  );
+
+  it.each([
+    ['landed', null],
+    ['unknown', 'X-05'],
+    ['partial', 'X-11'],
+    ['not-landed', 'X-15'],
+  ] as const)(
+    'refuses cross-operation keys after a file restart in %s state',
+    (state, primitive) => {
+      const directory = mkdtempSync(join(tmpdir(), 'sim-authority-fence-'));
+      try {
+        const path = join(directory, 'state.json');
+        let target = new VendorSimEngine({ rails: [testRail], store: new FileSimStateStore(path) });
+        if (primitive !== null) arm(target, primitive);
+        const original = target.dispatch(request());
+        expect(original.effectState).toBe(state);
+        const before = readFileSync(path);
+        target = new VendorSimEngine({ rails: [shared], store: new FileSimStateStore(path) });
+        arm(target, 'X-16');
+        const armed = target.controller.listArmed();
+        const snapshot = target.snapshot();
+        expect(() => target.dispatch(request({ operation: 'clinical' }))).toThrow(
+          /different operation or effect key/,
+        );
+        expect(target.snapshot()).toEqual(snapshot);
+        expect(readFileSync(path)).toEqual(before);
+        expect(target.controller.listArmed()).toEqual(armed);
+        target.controller.disarmAll();
+        const replay = target.dispatch(request());
+        expect(replay.resendsExternalEffect).toBe(false);
+        expect(replay.effectKey).toBe(original.effectKey);
+        if (state === 'landed') expect(replay.receiptRef).toBe(original.receiptRef);
+        if (state === 'unknown' || state === 'partial') expect(replay.status).toBe('uncertain');
+        expect(target.snapshot().effects).toHaveLength(1);
+      } finally {
+        rmSync(directory, { recursive: true, force: true });
+      }
+    },
+  );
+
+  it('rejects an effect-key change even for the same operation before updating a landed receipt', () => {
+    const store = new InMemorySimStateStore();
+    const original = new VendorSimEngine({ rails: [shared], store });
+    original.dispatch(request());
+    const before = store.snapshot();
+    const target = new VendorSimEngine({
+      rails: [{ ...shared, effectKeyFor: () => 'synthetic:different' }],
+      store,
+    });
+    arm(target, 'X-16');
+    const armed = target.controller.listArmed();
+    expect(() => target.dispatch(request())).toThrow(/different operation or effect key/);
+    expect(store.snapshot()).toEqual(before);
+    expect(target.controller.listArmed()).toEqual(armed);
   });
 });

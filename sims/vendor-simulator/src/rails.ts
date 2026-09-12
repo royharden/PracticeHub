@@ -26,7 +26,18 @@ export const athenaSim: RailSim = {
   authorityId: 'AUTH-002',
   name: 'athena-sim',
   pinnedVendorVersion: 'pm-api-v1',
-  operations: ['read-appointment', 'write-appointment', 'read-patient-summary'],
+  operations: [
+    'read-appointment',
+    'write-appointment',
+    'read-patient-summary',
+    'read-clinical-summary',
+  ],
+  operationAuthorities: {
+    'read-appointment': 'AUTH-002',
+    'write-appointment': 'AUTH-002',
+    'read-patient-summary': 'AUTH-002',
+    'read-clinical-summary': 'AUTH-007',
+  },
   presets: [
     {
       presetId: 'coexistence-version-conflict',
@@ -34,6 +45,15 @@ export const athenaSim: RailSim = {
       authorityScenarioIndex: 0,
       summary:
         'The incumbent moved the resource under a cutover: a stale write conflicts, and the answer arrives from an unpinned version that must reconcile rather than overwrite.',
+    },
+    {
+      presetId: 'clinical-coexistence-version-conflict',
+      operation: 'read-clinical-summary',
+      authorityId: 'AUTH-007',
+      primitiveIds: ['X-15', 'X-18'],
+      authorityScenarioIndex: 1,
+      summary:
+        'Clinical source version conflict and drift require provenance reconciliation; no write permission is granted.',
     },
   ],
   heartbeat: { expectedEffectsPerWindow: 60, volumeTolerance: 15, emitsIdleHeartbeat: true },

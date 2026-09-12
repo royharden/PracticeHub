@@ -22,6 +22,11 @@ import type {
 } from '@practicehub/platform-integration';
 
 import {
+  normalizeRailAuthorityBindings,
+  refuseRailAuthoritySelectors,
+} from './authority-binding.js';
+
+import {
   assertRailHeartbeatModel,
   sweepRailHeartbeats,
   type RailHeartbeatEvaluation,
@@ -217,6 +222,7 @@ export class VendorSimEngine {
     // A rail whose declared band could contain zero would make silence quiet:
     // refused HERE, so no engine can ever be built around one.
     for (const rail of options.rails) {
+      normalizeRailAuthorityBindings(rail);
       assertRailHeartbeatModel(rail.railId, rail.heartbeat);
     }
     this.store = options.store ?? new InMemorySimStateStore();
@@ -293,9 +299,10 @@ export class VendorSimEngine {
   }
 
   public dispatch(request: RailRequest): RailResponse {
+    refuseRailAuthoritySelectors(request);
     requireSyntheticInput(request);
     const rail = this.rail(request.railId);
-    if (!rail.operations.includes(request.operation)) {
+    if (!normalizeRailAuthorityBindings(rail).operations.has(request.operation)) {
       throw new RailSimError(
         `rail ${rail.railId} does not declare operation ${JSON.stringify(request.operation)}`,
       );
@@ -311,6 +318,12 @@ export class VendorSimEngine {
 
     const effectKey = rail.effectKeyFor(request.operation, request);
     const existing = this.store.readEffect(rail.railId, request.idempotencyKey);
+    if (
+      existing &&
+      (existing.operation !== request.operation || existing.effectKey !== effectKey)
+    ) {
+      throw new RailSimError('idempotency key belongs to a different operation or effect key');
+    }
     const attempt = (existing?.attempts ?? 0) + 1;
 
     // (1)/(2) — the ledger decides before any injection can.

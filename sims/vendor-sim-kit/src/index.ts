@@ -4,3 +4,4 @@ export * from './primitives.js';
 export * from './rail.js';
 export * from './scenario.js';
 export * from './store.js';
+export * from './authority-binding.js';

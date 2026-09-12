@@ -107,6 +107,7 @@ export async function drainOnce(exec: Queryable, request: DrainRequest): Promise
       capabilityAllowed,
       seen: alreadyProcessed,
       retryPolicy: request.retryPolicy,
+      nowIso: request.nowIso,
       ...(request.consumer.sideEffect !== undefined
         ? { sideEffect: request.consumer.sideEffect }
         : {}),

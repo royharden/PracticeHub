@@ -35,6 +35,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import {
   claimPendingDeliveries,
   deliverClaimedEvent,
+  markDeliveryFailed,
   runOutboxCommit,
   type Queryable,
 } from './store.js';
@@ -66,6 +67,7 @@ const provisioningFiles = [
   'modules/platform-core/migrations/0001-tenancy.sql',
   'modules/audit-evidence/migrations/0007-audit.sql',
   'modules/events/migrations/0010-events.sql',
+  'modules/events/migrations/0028-event-delivery-parks.sql',
   'infra/postgres/init/002-seed.sql',
   'infra/postgres/seed/003-tenancy-seed.sql',
   'infra/postgres/seed/012-events-seed.sql',
@@ -197,6 +199,101 @@ async function witnessCount(eventId: string): Promise<number> {
     [eventId],
   );
   return Number((result.rows[0] as { count: number }).count);
+}
+
+async function eventTransaction<T>(body: () => Promise<T>): Promise<T> {
+  await app.query('BEGIN');
+  try {
+    await bind(northwind);
+    const result = await body();
+    await app.query('COMMIT');
+    return result;
+  } catch (error) {
+    await app.query('ROLLBACK');
+    throw error;
+  }
+}
+
+async function deliveryState(eventId: string) {
+  const result = await boundQuery<{
+    status: string;
+    attempts: number;
+    park_count: number;
+    due: string;
+    inbox_count: number;
+  }>(
+    northwind,
+    `SELECT status, attempts, park_count,
+            to_char(next_attempt_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS due,
+            (SELECT count(*)::int FROM events.inbox WHERE event_id = '${eventId}') AS inbox_count
+       FROM events.outbox_delivery WHERE event_id = '${eventId}'`,
+  );
+  return req(result.rows[0]);
+}
+
+async function claimTestEvent(eventId: string, nowIso: string) {
+  const claimed = await claimPendingDeliveries(app, { nowIso, limit: 50 });
+  return req(claimed.find((entry) => entry.envelope.eventId === eventId));
+}
+
+async function parkTestEvent(eventId: string, nowIso: string) {
+  return eventTransaction(async () => {
+    const claimed = await claimTestEvent(eventId, nowIso);
+    return deliverClaimedEvent(app, {
+      claimed,
+      consumer: 'park-repair-consumer',
+      capabilityAllowed: false,
+      seen: new Set(),
+      retryPolicy: { maxAttempts: 3 },
+      nowIso,
+      sideEffect: witnessInsert,
+    });
+  });
+}
+
+async function failTestPublish(eventId: string, nowIso: string, maxAttempts: number) {
+  await expect(
+    eventTransaction(async () => {
+      const claimed = await claimTestEvent(eventId, nowIso);
+      await deliverClaimedEvent(app, {
+        claimed,
+        consumer: 'park-repair-consumer',
+        capabilityAllowed: true,
+        seen: new Set(),
+        retryPolicy: { maxAttempts },
+        nowIso,
+        sideEffect: async (exec, event) => {
+          await witnessInsert(exec, event);
+          throw new Error('synthetic-publish-failure');
+        },
+      });
+    }),
+  ).rejects.toThrow('synthetic-publish-failure');
+  // A real transaction rollback removes BOTH the inbox marker and the effect.
+  expect(await witnessCount(eventId)).toBe(0);
+  expect((await deliveryState(eventId)).inbox_count).toBe(0);
+  return eventTransaction(async () => {
+    // Reacquire exclusive row ownership and current state after the rollback.
+    const claimed = await claimTestEvent(eventId, nowIso);
+    return markDeliveryFailed(app, {
+      eventId,
+      delivery: claimed.delivery,
+      retryPolicy: { maxAttempts },
+      errorRef: 'synthetic:publish-failure',
+    });
+  });
+}
+
+async function withTestEvent(body: (eventId: string) => Promise<void>) {
+  const eventId = nextTestId();
+  try {
+    await eventTransaction(() => runOutboxCommit(app, { envelope: testEnvelope(eventId) }));
+    await body(eventId);
+  } finally {
+    await app.query('ROLLBACK');
+    await cleanupOutbox(eventId);
+    await app.query('DELETE FROM ev_witness WHERE event_id = $1', [eventId]);
+  }
 }
 
 beforeAll(async () => {
@@ -356,6 +453,29 @@ describe('events DB suite (WP-021)', () => {
     ).toBe('23505');
   });
 
+  it('EV-07b payload retention and producer uniqueness do not claim hash comparison', async () => {
+    await withTestEvent(async (eventId) => {
+      const original = testEnvelope(eventId);
+      for (const payload of [original.payload, { probe: 'different-payload' }]) {
+        await expect(
+          eventTransaction(() =>
+            runOutboxCommit(app, {
+              envelope: testEnvelope(nextTestId(), {
+                idempotencyKey: original.idempotencyKey,
+                payload,
+              }),
+            }),
+          ),
+        ).rejects.toMatchObject({ code: '23505' });
+        const persisted = await boundQuery<{ payload: unknown }>(
+          northwind,
+          `SELECT payload FROM events.outbox WHERE idempotency_key = '${original.idempotencyKey}'`,
+        );
+        expect(persisted.rows).toEqual([{ payload: original.payload }]);
+      }
+    });
+  });
+
   it('EV-08 SAME-COMMIT: the outbox enqueue and its audit emit persist together or not at all', async () => {
     const eventId = nextTestId();
     const envelope = testEnvelope(eventId);
@@ -497,14 +617,21 @@ describe('events DB suite (WP-021)', () => {
     await app.query('COMMIT');
     expect(parked.action).toBe('park-denied');
     expect(await witnessCount(parkedId)).toBe(0);
-    const parkedStatus = await boundQuery<{ status: string; count: string }>(
+    const parkedStatus = await boundQuery<{
+      status: string;
+      count: string;
+      attempts: number;
+      park_count: number;
+    }>(
       northwind,
-      `SELECT d.status,
+      `SELECT d.status, d.attempts, d.park_count,
               (SELECT count(*)::text FROM events.inbox WHERE event_id = '${parkedId}') AS count
          FROM events.outbox_delivery d WHERE d.event_id = '${parkedId}'`,
     );
     expect(parkedStatus.rows[0]?.status).toBe('pending');
     expect(parkedStatus.rows[0]?.count).toBe('0');
+    expect(parkedStatus.rows[0]?.attempts).toBe(0);
+    expect(parkedStatus.rows[0]?.park_count).toBe(1);
 
     await cleanupOutbox(eventId);
     await cleanupOutbox(parkedId);
@@ -512,63 +639,357 @@ describe('events DB suite (WP-021)', () => {
 
   it('EV-11 FWD-CAP-QUEUE: drainOnce re-checks the capability at drain — a below-floor grant parks', async () => {
     const eventId = nextTestId();
-    await app.query('BEGIN');
-    await bind(northwind);
-    await runOutboxCommit(app, { envelope: testEnvelope(eventId) });
-    await app.query('COMMIT');
-
-    // Grant sits at scaffolded — below the simulated floor — so the drain check
-    // denies and the event parks (no side effect), even though it is due.
-    await app.query('BEGIN');
-    await bind(northwind);
-    const parkedReport = await drainOnce(app, {
-      registry: capabilityRegistryV1,
-      grants: grantEventSpine('scaffolded'),
-      consumer: {
-        consumer: 'drain-consumer',
-        capabilityId: 'platform.event-spine',
-        minimumState: 'simulated',
-        sideEffect: witnessInsert,
-      },
-      retryPolicy: { maxAttempts: 5 },
-      limit: 50,
-      nowIso: futureNow,
-    });
-    await app.query('COMMIT');
-    expect(parkedReport.parked).toBeGreaterThanOrEqual(1);
-    expect(await witnessCount(eventId)).toBe(0);
-
-    // Raise the grant to simulated — the same event now publishes exactly once.
-    await app.query('BEGIN');
-    await bind(northwind);
-    const publishedReport = await drainOnce(app, {
-      registry: capabilityRegistryV1,
-      grants: grantEventSpine('simulated'),
-      consumer: {
-        consumer: 'drain-consumer',
-        capabilityId: 'platform.event-spine',
-        minimumState: 'simulated',
-        sideEffect: witnessInsert,
-      },
-      retryPolicy: { maxAttempts: 5 },
-      limit: 50,
-      nowIso: futureNow,
-    });
-    await app.query('COMMIT');
-    expect(publishedReport.published).toBeGreaterThanOrEqual(1);
-    expect(await witnessCount(eventId)).toBe(1);
-
-    // drainOnce also drained the seeded pending event (it was due too); restore
-    // it and drop the drain-consumer inbox rows so the seeded posture is intact.
-    const seededPending = req(syntheticEventsSeedV1.records[1]).envelope.eventId;
-    await owner.query(
-      `UPDATE events.outbox_delivery
-          SET status = 'pending', published_at = NULL, attempts = 0, last_error = NULL
-        WHERE event_id = $1`,
-      [seededPending],
+    const seedSnapshots = await owner.query<{ snapshot: Record<string, unknown> }>(
+      `SELECT to_jsonb(d) AS snapshot FROM events.outbox_delivery d WHERE event_id = ANY($1::text[])`,
+      [syntheticEventsSeedV1.records.map((record) => record.envelope.eventId)],
     );
-    await owner.query(`DELETE FROM events.inbox WHERE consumer = 'drain-consumer'`);
-    await cleanupOutbox(eventId);
+    try {
+      await app.query('BEGIN');
+      await bind(northwind);
+      await runOutboxCommit(app, { envelope: testEnvelope(eventId) });
+      await app.query('COMMIT');
+
+      // Grant sits at scaffolded — below the simulated floor — so the drain check
+      // denies and the event parks (no side effect), even though it is due.
+      await app.query('BEGIN');
+      await bind(northwind);
+      const parkedReport = await drainOnce(app, {
+        registry: capabilityRegistryV1,
+        grants: grantEventSpine('scaffolded'),
+        consumer: {
+          consumer: 'drain-consumer',
+          capabilityId: 'platform.event-spine',
+          minimumState: 'simulated',
+          sideEffect: witnessInsert,
+        },
+        retryPolicy: { maxAttempts: 5 },
+        limit: 50,
+        nowIso: futureNow,
+      });
+      await app.query('COMMIT');
+      expect(parkedReport.parked).toBeGreaterThanOrEqual(1);
+      expect(parkedReport.outcomes.find((entry) => entry.eventId === eventId)?.action).toBe(
+        'park-denied',
+      );
+      expect(await witnessCount(eventId)).toBe(0);
+      const parkedState = await deliveryState(eventId);
+      expect(parkedState.attempts).toBe(0);
+      expect(parkedState.park_count).toBe(1);
+      expect(Date.parse(parkedState.due) - Date.parse(futureNow)).toBe(1000);
+
+      const earlyReport = await eventTransaction(() =>
+        drainOnce(app, {
+          registry: capabilityRegistryV1,
+          grants: grantEventSpine('simulated'),
+          consumer: {
+            consumer: 'drain-consumer',
+            capabilityId: 'platform.event-spine',
+            sideEffect: witnessInsert,
+          },
+          retryPolicy: { maxAttempts: 5 },
+          limit: 50,
+          nowIso: futureNow,
+        }),
+      );
+      expect(earlyReport.outcomes.some((entry) => entry.eventId === eventId)).toBe(false);
+      expect(await witnessCount(eventId)).toBe(0);
+
+      // Raise the grant to simulated — the same event now publishes exactly once.
+      await app.query('BEGIN');
+      await bind(northwind);
+      const publishedReport = await drainOnce(app, {
+        registry: capabilityRegistryV1,
+        grants: grantEventSpine('simulated'),
+        consumer: {
+          consumer: 'drain-consumer',
+          capabilityId: 'platform.event-spine',
+          minimumState: 'simulated',
+          sideEffect: witnessInsert,
+        },
+        retryPolicy: { maxAttempts: 5 },
+        limit: 50,
+        nowIso: parkedState.due,
+      });
+      await app.query('COMMIT');
+      expect(publishedReport.published).toBeGreaterThanOrEqual(1);
+      expect(publishedReport.outcomes.find((entry) => entry.eventId === eventId)?.action).toBe(
+        'publish',
+      );
+      expect(await witnessCount(eventId)).toBe(1);
+    } finally {
+      await app.query('ROLLBACK');
+      // Restore exact seed projection values, including due time and park history.
+      for (const { snapshot } of seedSnapshots.rows) {
+        await owner.query(
+          `UPDATE events.outbox_delivery d
+              SET status = r.status, attempts = r.attempts, park_count = r.park_count,
+                  next_attempt_at = r.next_attempt_at, published_at = r.published_at,
+                  last_error = r.last_error
+             FROM jsonb_populate_record(NULL::events.outbox_delivery, $1::jsonb) r
+            WHERE d.tenant_id = r.tenant_id AND d.event_id = r.event_id`,
+          [JSON.stringify(snapshot)],
+        );
+      }
+      await owner.query(`DELETE FROM events.inbox WHERE consumer = 'drain-consumer'`);
+      await cleanupOutbox(eventId);
+    }
+  });
+
+  it.each([1, 3])(
+    'EV-16 NR-043 eight parks preserve all %i genuine failure attempts',
+    async (maxAttempts) => {
+      await withTestEvent(async (eventId) => {
+        let nowIso = futureNow;
+        for (let park = 0; park < 8; park += 1) {
+          expect(await parkTestEvent(eventId, nowIso)).toEqual({
+            action: 'park-denied',
+            effected: false,
+          });
+          const state = await deliveryState(eventId);
+          expect(state).toMatchObject({
+            status: 'pending',
+            attempts: 0,
+            park_count: park + 1,
+            inbox_count: 0,
+          });
+          expect(await witnessCount(eventId)).toBe(0);
+          expect(Date.parse(state.due) - Date.parse(nowIso)).toBe(2 ** park * 1000);
+          const beforeDue = await eventTransaction(() =>
+            claimPendingDeliveries(app, {
+              nowIso: new Date(Date.parse(state.due) - 1).toISOString(),
+              limit: 50,
+            }),
+          );
+          expect(beforeDue.some((entry) => entry.envelope.eventId === eventId)).toBe(false);
+          const atDue = await eventTransaction(() =>
+            claimPendingDeliveries(app, { nowIso: state.due, limit: 50 }),
+          );
+          expect(atDue.some((entry) => entry.envelope.eventId === eventId)).toBe(true);
+          nowIso = state.due;
+        }
+        for (let failure = 1; failure <= maxAttempts; failure += 1) {
+          expect(await failTestPublish(eventId, nowIso, maxAttempts)).toBe(
+            failure === maxAttempts ? 'dead-letter' : 'retry-later',
+          );
+          expect(await deliveryState(eventId)).toMatchObject({
+            status: failure === maxAttempts ? 'dead' : 'failed',
+            attempts: failure,
+            park_count: 8,
+            inbox_count: 0,
+          });
+        }
+        const terminal = await eventTransaction(() =>
+          deliverClaimedEvent(app, {
+            claimed: {
+              envelope: testEnvelope(eventId),
+              delivery: { status: 'dead', attempts: maxAttempts },
+            },
+            consumer: 'park-repair-consumer',
+            capabilityAllowed: false,
+            seen: new Set(),
+            retryPolicy: { maxAttempts },
+            nowIso,
+            sideEffect: witnessInsert,
+          }),
+        );
+        expect(terminal).toEqual({ action: 'noop', effected: false });
+        expect(await witnessCount(eventId)).toBe(0);
+        expect((await deliveryState(eventId)).park_count).toBe(8);
+      });
+    },
+  );
+
+  it('EV-17 a failed delivery can park then recover exactly once without erasing its failure', async () => {
+    await withTestEvent(async (eventId) => {
+      expect(await failTestPublish(eventId, futureNow, 3)).toBe('retry-later');
+      let nowIso = futureNow;
+      for (let park = 0; park < 2; park += 1) {
+        await parkTestEvent(eventId, nowIso);
+        const state = await deliveryState(eventId);
+        expect(state).toMatchObject({ status: 'failed', attempts: 1, park_count: park + 1 });
+        nowIso = state.due;
+      }
+      const successfulClaim = await eventTransaction(async () => {
+        const claimed = await claimTestEvent(eventId, nowIso);
+        expect(
+          await deliverClaimedEvent(app, {
+            claimed,
+            consumer: 'park-repair-consumer',
+            capabilityAllowed: true,
+            seen: new Set(),
+            retryPolicy: { maxAttempts: 3 },
+            nowIso,
+            sideEffect: witnessInsert,
+          }),
+        ).toEqual({ action: 'publish', effected: true });
+        return claimed;
+      });
+      expect(await deliveryState(eventId)).toMatchObject({
+        status: 'published',
+        attempts: 2,
+        park_count: 2,
+        inbox_count: 1,
+      });
+      // A stale redelivery without an inbox pre-read still loses the real INSERT gate.
+      expect(
+        await eventTransaction(() =>
+          deliverClaimedEvent(app, {
+            claimed: successfulClaim,
+            consumer: 'park-repair-consumer',
+            capabilityAllowed: true,
+            seen: new Set(),
+            retryPolicy: { maxAttempts: 3 },
+            nowIso,
+            sideEffect: witnessInsert,
+          }),
+        ),
+      ).toEqual({ action: 'publish', effected: false });
+      expect(await witnessCount(eventId)).toBe(1);
+      expect(await deliveryState(eventId)).toMatchObject({
+        status: 'published',
+        attempts: 2,
+        park_count: 2,
+        inbox_count: 1,
+      });
+    });
+  });
+
+  it('EV-18 park backoff caps deterministically and the counter saturates without overflow', async () => {
+    await withTestEvent(async (eventId) => {
+      for (const [prior, expectedDelay, expectedCount] of [
+        [0, 1, 1],
+        [8, 256, 9],
+        [9, 300, 10],
+        [2147483647, 300, 2147483647],
+      ] as const) {
+        await owner.query(
+          `UPDATE events.outbox_delivery SET park_count = $2, next_attempt_at = $3 WHERE event_id = $1`,
+          [eventId, prior, futureNow],
+        );
+        await parkTestEvent(eventId, futureNow);
+        const state = await deliveryState(eventId);
+        expect(state.park_count).toBe(expectedCount);
+        expect(state.attempts).toBe(0);
+        expect(Date.parse(state.due) - Date.parse(futureNow)).toBe(expectedDelay * 1000);
+      }
+      expect(
+        await boundQueryError(
+          northwind,
+          `UPDATE events.outbox_delivery SET park_count = -1 WHERE event_id = '${eventId}'`,
+        ),
+      ).toBe('23514');
+      expect((await deliveryState(eventId)).park_count).toBe(2147483647);
+    });
+  });
+
+  it('EV-19 parking rolls back completely and direct callers retain the database clock', async () => {
+    await withTestEvent(async (eventId) => {
+      const before = await deliveryState(eventId);
+      await app.query('BEGIN');
+      await bind(northwind);
+      const claimed = await claimTestEvent(eventId, futureNow);
+      await deliverClaimedEvent(app, {
+        claimed,
+        consumer: 'park-repair-consumer',
+        capabilityAllowed: false,
+        seen: new Set(),
+        retryPolicy: { maxAttempts: 3 },
+        sideEffect: witnessInsert,
+      });
+      const check = await app.query<{ exact_delay: boolean; park_count: number; attempts: number }>(
+        `SELECT next_attempt_at = now() + interval '1 second' AS exact_delay, park_count, attempts
+           FROM events.outbox_delivery WHERE event_id = $1`,
+        [eventId],
+      );
+      expect(check.rows[0]).toEqual({ exact_delay: true, park_count: 1, attempts: 0 });
+      await app.query('ROLLBACK');
+      expect(await deliveryState(eventId)).toEqual(before);
+      expect(await witnessCount(eventId)).toBe(0);
+    });
+  });
+
+  it.each(['pending', 'failed'])(
+    'EV-20 migration refuses ambiguous legacy %s attempts without backfill',
+    async (status) => {
+      await withTestEvent(async (eventId) => {
+        const migration = readFileSync(
+          `${repoRoot}modules/events/migrations/0028-event-delivery-parks.sql`,
+          'utf8',
+        );
+        await owner.query('BEGIN');
+        try {
+          // Transactional DDL reconstructs the old shape; ROLLBACK restores every byte of state.
+          await owner.query('ALTER TABLE events.outbox_delivery DROP COLUMN park_count');
+          await owner.query(
+            'UPDATE events.outbox_delivery SET status = $2, attempts = 2 WHERE event_id = $1',
+            [eventId, status],
+          );
+          await owner.query('SAVEPOINT legacy_guard');
+          await expect(owner.query(migration)).rejects.toThrow(
+            'reviewed legacy attempt classification',
+          );
+          await owner.query('ROLLBACK TO SAVEPOINT legacy_guard');
+          const columns = await owner.query(`SELECT 1 FROM information_schema.columns
+          WHERE table_schema = 'events' AND table_name = 'outbox_delivery' AND column_name = 'park_count'`);
+          expect(columns.rows).toHaveLength(0);
+          const legacy = await owner.query(
+            'SELECT status, attempts FROM events.outbox_delivery WHERE event_id = $1',
+            [eventId],
+          );
+          expect(legacy.rows[0]).toEqual({ status, attempts: 2 });
+        } finally {
+          await owner.query('ROLLBACK');
+        }
+        expect(await deliveryState(eventId)).toMatchObject({
+          status: 'pending',
+          attempts: 0,
+          park_count: 0,
+        });
+      });
+    },
+  );
+
+  it('EV-21 migration applies to the old clean shape and reapplication preserves new history', async () => {
+    await withTestEvent(async (eventId) => {
+      const migration = readFileSync(
+        `${repoRoot}modules/events/migrations/0028-event-delivery-parks.sql`,
+        'utf8',
+      );
+      const rollback = readFileSync(
+        `${repoRoot}modules/events/migrations/0028-event-delivery-parks.rollback.sql`,
+        'utf8',
+      );
+      await owner.query('BEGIN');
+      try {
+        await owner.query('ALTER TABLE events.outbox_delivery DROP COLUMN park_count');
+        await owner.query(migration);
+        const fresh = await owner.query(
+          'SELECT park_count FROM events.outbox_delivery WHERE event_id = $1',
+          [eventId],
+        );
+        expect(fresh.rows[0]).toEqual({ park_count: 0 });
+        await owner.query(
+          `UPDATE events.outbox_delivery SET status = 'failed', attempts = 1, park_count = 4 WHERE event_id = $1`,
+          [eventId],
+        );
+        await owner.query(migration);
+        const reapplied = await owner.query(
+          'SELECT status, attempts, park_count FROM events.outbox_delivery WHERE event_id = $1',
+          [eventId],
+        );
+        expect(reapplied.rows[0]).toEqual({ status: 'failed', attempts: 1, park_count: 4 });
+        await owner.query('SAVEPOINT preserve_parks');
+        await expect(owner.query(rollback)).rejects.toThrow('preserves nonzero park history');
+        await owner.query('ROLLBACK TO SAVEPOINT preserve_parks');
+        const preserved = await owner.query(
+          'SELECT park_count FROM events.outbox_delivery WHERE event_id = $1',
+          [eventId],
+        );
+        expect(preserved.rows[0]).toEqual({ park_count: 4 });
+      } finally {
+        await owner.query('ROLLBACK');
+      }
+    });
   });
 
   it('EV-12 every seeded spine row carries the synthetic watermark', async () => {

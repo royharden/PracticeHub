@@ -11,6 +11,7 @@
 
 import {
   injectionPrimitiveCatalogStatus,
+  refuseRailAuthoritySelectors,
   injectionPrimitivesV1,
   SimProcessKill,
   type RailRequest,
@@ -52,6 +53,7 @@ function segments(path: string): readonly string[] {
 }
 
 function railRequestFrom(railId: string, operation: string, body: unknown): RailRequest {
+  refuseRailAuthoritySelectors(body);
   const payload = (body ?? {}) as Record<string, unknown>;
   return {
     railId,
@@ -93,6 +95,9 @@ export function handleSimRequest(
       rails: engine.rails().map((rail) => ({
         railId: rail.railId,
         authorityId: rail.authorityId,
+        ...(rail.operationAuthorities === undefined
+          ? {}
+          : { operationAuthorities: rail.operationAuthorities }),
         name: rail.name,
         pinnedVendorVersion: rail.pinnedVendorVersion,
         operations: rail.operations,

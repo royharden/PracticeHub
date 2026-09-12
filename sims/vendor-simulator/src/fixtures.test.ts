@@ -20,6 +20,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import {
   FileSimStateStore,
+  normalizeRailAuthorityBindings,
   SimProcessKill,
   VendorSimEngine,
   type RailRequest,
@@ -35,6 +36,7 @@ const acceptedOps = [
   'arm',
   'dispatch',
   'dispatch-expect-kill',
+  'dispatch-expect-conflict',
   'drain-receipts',
   'snapshot',
   'restart',
@@ -144,6 +146,12 @@ function runPack(rail: RailSim, pack: FixturePack): void {
         const response = engine.dispatch(requestFrom(rail, fixtureCase));
         for (const [field, value] of Object.entries(expected)) {
           switch (field) {
+            case 'authorityId':
+              expect(
+                normalizeRailAuthorityBindings(rail).operations.get(response.operation),
+                fixtureCase.name,
+              ).toBe(value);
+              break;
             case 'receiptRef':
               expect(response.receiptRef === null ? 'absent' : 'present', fixtureCase.name).toBe(
                 value,
@@ -168,6 +176,18 @@ function runPack(rail: RailSim, pack: FixturePack): void {
         }
         // Structural in every case, whatever the fixture asserts.
         expect(response.resendsExternalEffect).toBe(false);
+        break;
+      }
+      case 'dispatch-expect-conflict': {
+        const before = readFileSync(path);
+        const snapshot = engine.snapshot();
+        const armed = engine.controller.listArmed();
+        expect(() => engine.dispatch(requestFrom(rail, fixtureCase)), fixtureCase.name).toThrow(
+          /different operation or effect key/,
+        );
+        expect(engine.snapshot()).toEqual(snapshot);
+        expect(readFileSync(path)).toEqual(before);
+        expect(engine.controller.listArmed()).toEqual(armed);
         break;
       }
       case 'dispatch-expect-kill': {

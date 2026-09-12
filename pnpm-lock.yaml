@@ -32,11 +32,73 @@ importers:
         specifier: 4.1.10
         version: 4.1.10(@types/node@24.13.3)(vite@8.1.5(@types/node@24.13.3))
 
+  adapters/cpaas-twilio:
+    devDependencies:
+      '@practicehub/vendor-sim-kit':
+        specifier: workspace:*
+        version: link:../../sims/vendor-sim-kit
+      '@practicehub/vendor-simulator':
+        specifier: workspace:*
+        version: link:../../sims/vendor-simulator
+
   adapters/medplum: {}
 
   apps/server: {}
 
   apps/web: {}
+
+  modules/ai-gateway:
+    dependencies:
+      '@practicehub/audit-evidence':
+        specifier: workspace:*
+        version: link:../audit-evidence
+      '@practicehub/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@practicehub/events':
+        specifier: workspace:*
+        version: link:../events
+      '@practicehub/platform-core':
+        specifier: workspace:*
+        version: link:../platform-core
+      '@practicehub/platform-integration':
+        specifier: workspace:*
+        version: link:../platform-integration
+      '@practicehub/vendor-sim-kit':
+        specifier: workspace:*
+        version: link:../../sims/vendor-sim-kit
+    devDependencies:
+      '@practicehub/vendor-simulator':
+        specifier: workspace:*
+        version: link:../../sims/vendor-simulator
+      '@types/pg':
+        specifier: 8.16.0
+        version: 8.16.0
+      pg:
+        specifier: 8.16.3
+        version: 8.16.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@24.13.3)(vite@8.1.5(@types/node@24.13.3))
+
+  modules/analytics:
+    dependencies:
+      '@practicehub/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@practicehub/events':
+        specifier: workspace:*
+        version: link:../events
+      '@practicehub/platform-core':
+        specifier: workspace:*
+        version: link:../platform-core
+    devDependencies:
+      '@types/pg':
+        specifier: 8.16.0
+        version: 8.16.0
+      pg:
+        specifier: 8.16.3
+        version: 8.16.3
 
   modules/audit-evidence:
     dependencies:
@@ -50,6 +112,72 @@ importers:
       '@practicehub/testkit':
         specifier: workspace:*
         version: link:../../packages/testkit
+      '@types/pg':
+        specifier: 8.16.0
+        version: 8.16.0
+      pg:
+        specifier: 8.16.3
+        version: 8.16.3
+
+  modules/breach-case:
+    dependencies:
+      '@practicehub/platform-core':
+        specifier: workspace:*
+        version: link:../platform-core
+    devDependencies:
+      '@practicehub/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+      '@types/pg':
+        specifier: 8.16.0
+        version: 8.16.0
+      pg:
+        specifier: 8.16.3
+        version: 8.16.3
+
+  modules/catalog-cash:
+    dependencies:
+      '@practicehub/events':
+        specifier: workspace:*
+        version: link:../events
+      '@practicehub/membership-entitlements':
+        specifier: workspace:*
+        version: link:../membership-entitlements
+      '@practicehub/payments-ledger':
+        specifier: workspace:*
+        version: link:../payments-ledger
+      '@practicehub/platform':
+        specifier: workspace:*
+        version: link:../../packages/platform
+      '@practicehub/platform-core':
+        specifier: workspace:*
+        version: link:../platform-core
+    devDependencies:
+      '@practicehub/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+      '@practicehub/vendor-sim-kit':
+        specifier: workspace:*
+        version: link:../../sims/vendor-sim-kit
+      '@practicehub/vendor-simulator':
+        specifier: workspace:*
+        version: link:../../sims/vendor-simulator
+      '@types/pg':
+        specifier: 8.16.0
+        version: 8.16.0
+      pg:
+        specifier: 8.16.3
+        version: 8.16.3
+
+  modules/comms:
+    dependencies:
+      '@practicehub/consent':
+        specifier: workspace:*
+        version: link:../consent
+      '@practicehub/events':
+        specifier: workspace:*
+        version: link:../events
+    devDependencies:
       '@types/pg':
         specifier: 8.16.0
         version: 8.16.0
@@ -154,6 +282,38 @@ importers:
         specifier: 8.16.3
         version: 8.16.3
 
+  modules/membership-entitlements:
+    dependencies:
+      '@practicehub/platform-core':
+        specifier: workspace:*
+        version: link:../platform-core
+    devDependencies:
+      '@practicehub/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+      '@types/pg':
+        specifier: 8.16.0
+        version: 8.16.0
+      pg:
+        specifier: 8.16.3
+        version: 8.16.3
+
+  modules/payments-ledger:
+    dependencies:
+      '@practicehub/platform-core':
+        specifier: workspace:*
+        version: link:../platform-core
+    devDependencies:
+      '@practicehub/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+      '@types/pg':
+        specifier: 8.16.0
+        version: 8.16.0
+      pg:
+        specifier: 8.16.3
+        version: 8.16.3
+
   modules/platform-core:
     dependencies:
       '@practicehub/contracts':
@@ -182,6 +342,31 @@ importers:
       '@practicehub/audit-evidence':
         specifier: workspace:*
         version: link:../audit-evidence
+      '@practicehub/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+      '@types/pg':
+        specifier: 8.16.0
+        version: 8.16.0
+      pg:
+        specifier: 8.16.3
+        version: 8.16.3
+
+  modules/portal-intake:
+    dependencies:
+      '@practicehub/documents':
+        specifier: workspace:*
+        version: link:../documents
+      '@practicehub/events':
+        specifier: workspace:*
+        version: link:../events
+      '@practicehub/identity':
+        specifier: workspace:*
+        version: link:../identity
+      '@practicehub/platform-core':
+        specifier: workspace:*
+        version: link:../platform-core
+    devDependencies:
       '@practicehub/testkit':
         specifier: workspace:*
         version: link:../../packages/testkit

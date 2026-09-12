@@ -85,4 +85,12 @@ describe('outbox row mapping', () => {
     const forged = { ...bad, aggregate_id: 'Not A Ref' };
     expect(() => envelopeFromClaim(forged)).toThrow();
   });
+
+  it('retains nested JSON payload values without replacing them with a hash', () => {
+    const payload = { nested: { enabled: true }, values: [null, 2, 'synthetic'] };
+    const original = envelope({ payload });
+    const params = outboxInsertParams(original);
+    expect(JSON.parse(String(params[outboxColumns.indexOf('payload')]))).toEqual(payload);
+    expect(envelopeFromClaim(claimFrom(original)).payload).toEqual(payload);
+  });
 });

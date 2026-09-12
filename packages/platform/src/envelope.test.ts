@@ -105,7 +105,17 @@ describe('event envelope build + validate', () => {
     ).toThrow(EventEnvelopeError);
   });
 
-  it('canonical serialization is stable regardless of construction order', () => {
+  it('includes the supplied payload as JSON rather than a digest', () => {
+    const payload = { nested: { value: 1 }, list: [null, 'synthetic'] };
+    const encoded = canonicalEnvelope(buildEventEnvelope(validInput({ payload })));
+    const fields = JSON.parse(encoded) as unknown[];
+    expect(fields.at(-1)).toEqual(payload);
+    expect(
+      canonicalEnvelope(buildEventEnvelope(validInput({ payload: { changed: true } }))),
+    ).not.toBe(encoded);
+  });
+
+  it('canonical serialization is stable regardless of outer envelope construction order', () => {
     const a = buildEventEnvelope(validInput({ correlationId: 'saga:1' }));
     const b = buildEventEnvelope({
       synthetic: true,

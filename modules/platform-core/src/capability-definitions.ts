@@ -270,6 +270,34 @@ export const capabilityDefinitionsV1: readonly CapabilityDefinition[] = [
       'never gated. validateCorpusLoadRequest refuses anything that is not synthetic-only ' +
       'below the registry, so no grant can buy past D3.',
   },
+  {
+    capabilityId: 'cash.paid-service-loop',
+    ownerRole: 'rcm-lead',
+    dimensions: [],
+    description:
+      'Synthetic paid-service order/payment/ledger/entitlement/refund choreography (WP-031). ' +
+      'Commands floor at simulated; protective unknown-effect reconciliation stays available ' +
+      'after lowering. This loop capability is distinct from membership.entitlement-ledger.',
+  },
+  {
+    capabilityId: 'ai.gateway',
+    ownerRole: 'security',
+    dimensions: ['feature', 'cohort'],
+    requiredDimensions: ['feature', 'cohort'],
+    precedence: ['feature', 'cohort'],
+    description:
+      'Synthetic development inference for an exact feature/cohort (WP-100). Inference floors ' +
+      'at simulated; lowering must not block protective containment or human fallback. ' +
+      'This seed reaches simulated only; production release evidence remains separately governed.',
+  },
+  {
+    capabilityId: 'portal.intake',
+    ownerRole: 'portal-operations',
+    dimensions: [],
+    description:
+      'Synthetic portal intake command scope. Enqueue requires simulated; protective ' +
+      'decline, abandon, quarantine and emergency paths remain ungated.',
+  },
 ];
 
 /** Exact mirror of docs/architecture/capability-edge-preconditions.csv (FROZEN). */
@@ -357,6 +385,7 @@ export interface CapabilitySeed {
 
 const northwind = 'northwind-synthetic';
 const riverbend = 'riverbend-synthetic';
+const aiGatewayScope = { feature: 'draft-visit-summary', cohort: 'cohort-alpha' } as const;
 const initiator = 'synthetic-platform-bootstrap';
 const approver = { approverRef: 'synthetic-architecture-owner', role: 'architecture' } as const;
 const railScope837 = {
@@ -574,6 +603,36 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
     },
     {
       capabilityId: 'platform.synthetic-corpus',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
+    {
+      capabilityId: 'ai.gateway',
+      tenantId: riverbend,
+      scope: aiGatewayScope,
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
+    {
+      capabilityId: 'cash.paid-service-loop',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
+    {
+      capabilityId: 'portal.intake',
       tenantId: riverbend,
       scope: {},
       state: 'disabled',
@@ -839,6 +898,54 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       'disabled',
       'scaffolded',
       'synthetic-gate:wp-029-synthetic-corpus-scaffold',
+    ),
+    chainEvent(
+      'synthetic-cap-evt-0024',
+      'ai.gateway',
+      aiGatewayScope,
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-100-ai-gateway-scaffold',
+    ),
+    chainEvent(
+      'synthetic-cap-evt-0025',
+      'ai.gateway',
+      aiGatewayScope,
+      'scaffolded',
+      'simulated',
+      'synthetic-gate:wp-100-ai-gateway-simulated',
+    ),
+    chainEvent(
+      'synthetic-cap-evt-0026',
+      'cash.paid-service-loop',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-031-paid-service-loop-scaffold',
+    ),
+    chainEvent(
+      'synthetic-cap-evt-0027',
+      'cash.paid-service-loop',
+      {},
+      'scaffolded',
+      'simulated',
+      'synthetic-gate:wp-031-paid-service-loop-simulated',
+    ),
+    chainEvent(
+      'synthetic-cap-evt-0028',
+      'portal.intake',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:portal-intake-scaffold',
+    ),
+    chainEvent(
+      'synthetic-cap-evt-0029',
+      'portal.intake',
+      {},
+      'scaffolded',
+      'simulated',
+      'synthetic-gate:portal-intake-simulated',
     ),
   ],
 };

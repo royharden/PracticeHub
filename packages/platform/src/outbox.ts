@@ -54,6 +54,7 @@ export function isLegalDeliveryTransition(from: DeliveryStatus, to: DeliveryStat
 
 export interface OutboxDelivery {
   readonly status: DeliveryStatus;
+  /** Genuine publish attempts; denied checks and skipped duplicates add none. */
   readonly attempts: number;
 }
 
@@ -94,7 +95,7 @@ export function planDrainAction(inputs: DrainInputs): DrainAction {
 }
 
 export interface RetryPolicy {
-  /** Attempts (inclusive) after which a failed delivery is dead-lettered. */
+  /** Genuine failed attempts (inclusive) before dead-lettering; parks add none. */
   readonly maxAttempts: number;
 }
 
@@ -103,7 +104,8 @@ export type FailureAction = 'retry-later' | 'dead-letter';
 /**
  * After a failed publish, retry until `maxAttempts` is reached, then
  * dead-letter (a `dead` delivery opens a WorkItem downstream — never a silent
- * drop). `attempts` is the count INCLUDING the attempt that just failed.
+ * drop). `attempts` includes the publish attempt that just failed, never a
+ * capability-denied check. A successful publish becomes terminal separately.
  */
 export function planFailureAction(delivery: OutboxDelivery, policy: RetryPolicy): FailureAction {
   if (policy.maxAttempts < 1) {

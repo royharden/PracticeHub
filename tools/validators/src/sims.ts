@@ -24,6 +24,7 @@ import { resolve } from 'node:path';
 
 import {
   assertRailHeartbeatModel,
+  normalizeRailAuthorityBindings,
   evaluateRailHeartbeat,
   injectionOutcomeClasses,
   injectionPrimitiveFamilies,
@@ -32,7 +33,7 @@ import {
   InMemorySimStateStore,
   VendorSimEngine,
 } from '@practicehub/vendor-sim-kit';
-import { authorityIdPattern, railIdPattern } from '@practicehub/platform-integration';
+import { railIdPattern } from '@practicehub/platform-integration';
 import { railSimsV1 } from '@practicehub/vendor-simulator';
 
 import { failIfAny, repoRoot } from './common.js';
@@ -91,16 +92,19 @@ for (const rail of railSimsV1) {
     errors.push(`rail ${rail.railId} is declared twice`);
   }
   seenRailIds.add(rail.railId);
-  if (!authorityIdPattern.test(rail.authorityId)) {
-    errors.push(`${rail.railId}: authorityId ${JSON.stringify(rail.authorityId)} is not AUTH-###`);
-  }
   if (rail.operations.length === 0) {
     errors.push(`${rail.railId}: declares no operations`);
   }
   if (rail.presets.length === 0) {
     errors.push(`${rail.railId}: declares no scenario presets`);
   }
-  const ordinals = new Set<number>();
+  try {
+    normalizeRailAuthorityBindings(rail);
+  } catch (error) {
+    errors.push(error instanceof Error ? error.message : String(error));
+    railsWithRefusedBands.add(rail.railId);
+    continue;
+  }
   for (const preset of rail.presets) {
     if (preset.primitiveIds.length === 0) {
       errors.push(`${rail.railId}/${preset.presetId}: names no primitives`);
@@ -112,12 +116,6 @@ for (const rail of railSimsV1) {
         );
       }
     }
-    if (ordinals.has(preset.authorityScenarioIndex)) {
-      errors.push(
-        `${rail.railId}: two presets claim authority scenario ordinal ${preset.authorityScenarioIndex}`,
-      );
-    }
-    ordinals.add(preset.authorityScenarioIndex);
   }
   // (1c) WP-028: every rail carries an expected-volume band under which total
   // silence is loud. `assertRailHeartbeatModel` is the same check the engine

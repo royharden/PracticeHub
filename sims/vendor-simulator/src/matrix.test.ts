@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 /**
  * The WP-027 gate, executable: "X-01..X-18 primitives drive each sim".
  *
@@ -15,6 +16,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   injectionPrimitivesV1,
+  normalizeRailAuthorityBindings,
   InMemorySimStateStore,
   SimProcessKill,
   VendorSimEngine,
@@ -264,7 +266,9 @@ describe('rail declarations', () => {
         expect(preset.authorityScenarioIndex).toBeGreaterThanOrEqual(0);
       }
       // Preset ordinals within a rail are distinct — one preset per named scenario.
-      const indexes = rail.presets.map((preset) => preset.authorityScenarioIndex);
+      const indexes = normalizeRailAuthorityBindings(rail).presets.map(
+        ({ preset, authorityId }) => `${authorityId}:${preset.authorityScenarioIndex}`,
+      );
       expect(new Set(indexes).size).toBe(indexes.length);
     }
   });
@@ -277,4 +281,43 @@ describe('rail declarations', () => {
       }
     }
   });
+});
+
+it('preserves every legacy rail/operation authority and preset resolution tuple', () => {
+  const legacy = railSimsV1.map((rail) => {
+    const bindings = normalizeRailAuthorityBindings(rail);
+    const operations = rail.operations.filter(
+      (operation) => !(rail.railId === 'RAIL-002' && operation === 'read-clinical-summary'),
+    );
+    for (const operation of operations)
+      expect(bindings.operations.get(operation)).toBe(rail.authorityId);
+    return [
+      rail.railId,
+      rail.authorityId,
+      operations,
+      bindings.presets
+        .filter(
+          ({ preset }) =>
+            !(
+              rail.railId === 'RAIL-002' &&
+              preset.presetId === 'clinical-coexistence-version-conflict'
+            ),
+        )
+        .map(({ preset, operation, authorityId }) => {
+          expect(authorityId).toBe(rail.authorityId);
+          return [preset.presetId, preset.authorityScenarioIndex, operation];
+        }),
+    ];
+  });
+  // Frozen pre-repair fleet tuples, independently captured before rebuilding the simulator.
+  expect(createHash('sha256').update(JSON.stringify(legacy)).digest('hex')).toBe(
+    '4f026068b88b54e6cf303c09249d511c6123d3b017d4a8f1eb3a2f398d75bfb3',
+  );
+  const clinical = railSimsV1.find((rail) => rail.railId === 'RAIL-002');
+  expect(clinical?.operationAuthorities?.['read-clinical-summary']).toBe('AUTH-007');
+  expect(
+    clinical?.presets
+      .filter((preset) => preset.authorityId === 'AUTH-007')
+      .map((preset) => [preset.operation, preset.authorityScenarioIndex]),
+  ).toEqual([['read-clinical-summary', 1]]);
 });

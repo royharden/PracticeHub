@@ -278,6 +278,8 @@ export interface DeliverInput {
   /** Consumer keys already recorded (from a pre-read); the DB INSERT is the gate. */
   readonly seen: ReadonlySet<string>;
   readonly retryPolicy: RetryPolicy;
+  /** Claim clock; drainOnce supplies it. Direct callers may use database time. */
+  readonly nowIso?: string;
   /** The consumer's transactional side effect (runs only when the inbox INSERT wins). */
   readonly sideEffect?: (exec: Queryable, event: EventEnvelope<unknown>) => Promise<void>;
 }
@@ -292,8 +294,8 @@ export interface DeliverOutcome {
  * Advance one claimed event through its drain action, on the caller's
  * transaction. `publish` runs the side effect ONLY if the inbox INSERT wins the
  * dedup (`ON CONFLICT DO NOTHING`) — a redelivery that raced still lands the
- * effect exactly once. `park-denied` records the denial and leaves the delivery
- * pending (a kill-switch/rollback drains safely).
+ * effect exactly once. `park-denied` records a separate park count and defers
+ * the unchanged pending/failed delivery without consuming a publish attempt.
  */
 export async function deliverClaimedEvent(
   exec: Queryable,
@@ -312,10 +314,13 @@ export async function deliverClaimedEvent(
     case 'park-denied':
       await exec.query(
         `UPDATE events.outbox_delivery
-            SET attempts = attempts + 1, last_error = 'capability-denied-at-drain',
-                next_attempt_at = now()
+            SET park_count = LEAST(park_count, 2147483646) + 1,
+                last_error = 'capability-denied-at-drain',
+                next_attempt_at = COALESCE($2::timestamptz, now())
+                  + LEAST(300::numeric, POWER(2::numeric, LEAST(park_count, 9)))
+                    * interval '1 second'
           WHERE event_id = $1`,
-        [eventId],
+        [eventId, input.nowIso ?? null],
       );
       return { action, effected: false };
     case 'skip-duplicate':

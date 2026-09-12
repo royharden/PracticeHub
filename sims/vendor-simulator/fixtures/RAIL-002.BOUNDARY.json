@@ -2,7 +2,7 @@
   "synthetic": true,
   "railId": "RAIL-002",
   "class": "BOUNDARY",
-  "description": "athena-sim: the exact edge — a stale-version write conflicts; the retry, holding the current version, lands.",
+  "description": "athena-sim: the exact edge \u2014 a stale-version write conflicts; the retry, holding the current version, lands.",
   "cases": [
     {
       "op": "arm",
@@ -60,6 +60,100 @@
     {
       "op": "snapshot",
       "name": "still exactly one ledger record for the key",
+      "expect": {
+        "effects": 1
+      }
+    },
+    {
+      "op": "reset",
+      "name": "isolate the additional clinical story"
+    },
+    {
+      "op": "arm",
+      "name": "clinical binding: arm X-15 for exactly one request",
+      "primitiveId": "X-15",
+      "options": {
+        "count": 1
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "clinical binding: the armed X-15 shapes the first request",
+      "request": {
+        "operation": "read-clinical-summary",
+        "idempotencyKey": "synthetic-rail-002-boundary-clinical",
+        "payloadRef": "synthetic-payload-rail-002-boundary",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      },
+      "expect": {
+        "status": "conflict",
+        "effectState": "not-landed",
+        "attempts": 1,
+        "authorityId": "AUTH-007"
+      }
+    },
+    {
+      "op": "dispatch-expect-conflict",
+      "name": "same key cannot cross back into the legacy operation",
+      "request": {
+        "operation": "write-appointment",
+        "idempotencyKey": "synthetic-rail-002-boundary-clinical",
+        "payloadRef": "synthetic-payload-rail-002-boundary",
+        "requestedAt": "2026-01-01T00:00:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      }
+    },
+    {
+      "op": "drain-receipts",
+      "name": "clinical binding: a request that never landed issues no receipt",
+      "expect": {
+        "kinds": []
+      }
+    },
+    {
+      "op": "dispatch",
+      "name": "clinical binding: the scenario is exhausted, so the retry of the not-landed effect lands",
+      "request": {
+        "operation": "read-clinical-summary",
+        "idempotencyKey": "synthetic-rail-002-boundary-clinical",
+        "payloadRef": "synthetic-payload-rail-002-boundary",
+        "requestedAt": "2026-01-01T00:01:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      },
+      "expect": {
+        "status": "accepted",
+        "effectState": "landed",
+        "attempts": 2,
+        "authorityId": "AUTH-007"
+      }
+    },
+    {
+      "op": "dispatch-expect-conflict",
+      "name": "same key cannot cross back into the legacy operation",
+      "request": {
+        "operation": "write-appointment",
+        "idempotencyKey": "synthetic-rail-002-boundary-clinical",
+        "payloadRef": "synthetic-payload-rail-002-boundary",
+        "requestedAt": "2026-01-01T00:01:00Z",
+        "payload": {
+          "synthetic": true,
+          "ref": "synthetic-body-boundary"
+        }
+      }
+    },
+    {
+      "op": "snapshot",
+      "name": "clinical binding: still exactly one ledger record for the key",
       "expect": {
         "effects": 1
       }

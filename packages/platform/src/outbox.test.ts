@@ -72,7 +72,16 @@ describe('planFailureAction', () => {
     expect(planFailureAction({ status: 'failed', attempts: 1 }, { maxAttempts: 3 })).toBe(
       'retry-later',
     );
+    expect(planFailureAction({ status: 'failed', attempts: 2 }, { maxAttempts: 3 })).toBe(
+      'retry-later',
+    );
     expect(planFailureAction({ status: 'failed', attempts: 3 }, { maxAttempts: 3 })).toBe(
+      'dead-letter',
+    );
+  });
+
+  it('dead-letters the first genuine failure when maxAttempts is one', () => {
+    expect(planFailureAction({ status: 'failed', attempts: 1 }, { maxAttempts: 1 })).toBe(
       'dead-letter',
     );
   });

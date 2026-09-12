@@ -10,6 +10,9 @@ import type { InjectionOutcomeClass } from './primitives.js';
 import type { SimEffectState } from './store.js';
 
 export interface RailScenarioPreset {
+  /** Additive explicit binding: both fields present, or both absent for legacy presets. */
+  readonly operation?: string;
+  readonly authorityId?: string;
   readonly presetId: string;
   readonly primitiveIds: readonly string[];
   /**
@@ -38,8 +41,10 @@ export interface RailRequest {
 export interface RailSim {
   /** `RAIL-###` — the neutral rail id. */
   readonly railId: string;
-  /** `AUTH-###` — the authority-rail JOIN key. */
+  /** `AUTH-###` — immutable legacy default; an operation has exactly one authority. */
   readonly authorityId: string;
+  /** If present, an exact total map over operations. Never a caller override. */
+  readonly operationAuthorities?: Readonly<Record<string, string>>;
   readonly name: string;
   readonly pinnedVendorVersion: string;
   readonly operations: readonly string[];

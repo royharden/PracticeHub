@@ -5,7 +5,8 @@
  *
  * Pure over caller-supplied values: `buildEventEnvelope` validates every field
  * and returns the frozen envelope, and `canonicalEnvelope` is the stable
- * serialization the outbox hashes and replay-equivalence compares. Ids are
+ * serialization callers can compare for replay equivalence; no digest is
+ * computed or persisted here. Ids are
  * ULIDs; timestamps are UTC instants; refs are grammar-checked so prose (and
  * with it raw PHI) has no field to land in outside the classified `payload`.
  */
@@ -190,10 +191,9 @@ export function buildEventEnvelope<TPayload>(
 }
 
 /**
- * Stable serialization of the envelope's identity + routing fields (payload is
- * hashed by value at the end). Two envelopes with the same fields serialize
- * identically regardless of key order — the surface the outbox hashes and
- * replay-equivalence compares.
+ * Envelope fields are serialized in a fixed order. Payload is included as
+ * supplied using JSON.stringify; payload object key order is not normalized.
+ * This function does not compute or persist a cryptographic hash.
  */
 export function canonicalEnvelope<TPayload>(envelope: EventEnvelope<TPayload>): string {
   return JSON.stringify([

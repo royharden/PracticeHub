@@ -46,3 +46,6 @@ infra/runtime/
 /tools/scripts/verify-publication.mjs
 /packages/testkit/fixtures/corpus-manifest.synthetic.json
 /synthetic-corpus/
+# AgentNamer callsign registry (per-project agent log)
+.agent-registry/
+/agentops/

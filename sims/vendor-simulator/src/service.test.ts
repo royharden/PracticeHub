@@ -204,3 +204,53 @@ describe('scenario-control surface', () => {
     expect(call(service(), 'POST', '/rails/RAIL-008').status).toBe(404);
   });
 });
+
+describe('operation authority HTTP boundary', () => {
+  it.each(['authorityId', 'authorityIds', 'operationAuthorities'])(
+    'rejects caller selector %s before mutation',
+    (selector) => {
+      const engine = service();
+      call(engine, 'POST', '/scenarios/RAIL-002/X-15');
+      const armed = engine.controller.listArmed();
+      const result = call(engine, 'POST', '/rails/RAIL-002/read-appointment', {
+        ...dispatchBody,
+        [selector]: 'AUTH-007',
+      });
+      expect(result.status).toBe(400);
+      expect(result.body.error).toMatch(/authority selector/);
+      expect(engine.snapshot().effects).toEqual([]);
+      expect(engine.controller.listArmed()).toEqual(armed);
+    },
+  );
+
+  it('serves the additive binding and refuses cross-operation receipt reuse', () => {
+    const engine = service();
+    const catalog = call(engine, 'GET', '/rails').body.rails as Record<string, unknown>[];
+    expect(catalog.find((rail) => rail.railId === 'RAIL-002')).toMatchObject({
+      authorityId: 'AUTH-002',
+      operationAuthorities: {
+        'read-appointment': 'AUTH-002',
+        'write-appointment': 'AUTH-002',
+        'read-patient-summary': 'AUTH-002',
+        'read-clinical-summary': 'AUTH-007',
+      },
+    });
+    const original = call(engine, 'POST', '/rails/RAIL-002/read-appointment', dispatchBody);
+    const before = engine.snapshot();
+    expect(call(engine, 'POST', '/rails/RAIL-002/read-clinical-summary', dispatchBody).status).toBe(
+      400,
+    );
+    expect(engine.snapshot()).toEqual(before);
+    const replay = call(engine, 'POST', '/rails/RAIL-002/read-appointment', dispatchBody);
+    expect(replay.body.response).toMatchObject({
+      status: 'deduplicated',
+      receiptRef: (original.body.response as Record<string, unknown>).receiptRef,
+    });
+    expect(
+      call(engine, 'POST', '/rails/RAIL-002/read-clinical-summary', {
+        ...dispatchBody,
+        idempotencyKey: 'synthetic-clinical',
+      }).status,
+    ).toBe(200);
+  });
+});
