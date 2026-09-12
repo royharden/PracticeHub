@@ -1,0 +1,8 @@
+{
+  "synthetic": true,
+  "class": "FAILURE",
+  "requirements": ["REQ-SCH-019", "REQ-SCH-020"],
+  "scenario": "capability is revoked at drain after enqueue allowed",
+  "expected": { "holdDelta": 0, "providerCallDelta": 0 },
+  "bugClass": "enqueue-only authorization"
+}

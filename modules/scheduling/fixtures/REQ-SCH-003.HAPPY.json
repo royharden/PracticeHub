@@ -1,0 +1,8 @@
+{
+  "synthetic": true,
+  "class": "HAPPY",
+  "requirements": ["REQ-SCH-002", "REQ-SCH-003"],
+  "scenario": "active authority holds and commits an open slot",
+  "expected": { "appointmentDelta": 1, "reservationDelta": 3, "receiptDelta": 2 },
+  "bugClass": "non-atomic happy-path booking"
+}

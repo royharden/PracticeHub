@@ -1,0 +1,8 @@
+{
+  "synthetic": true,
+  "class": "RECOVERY",
+  "requirements": ["REQ-SCH-021", "REQ-SCH-022", "REQ-SCH-042"],
+  "scenario": "ambiguous synthetic outcome is reconciled and stale receipt is quarantined",
+  "expected": { "reconciliationDelta": 1, "quarantineDelta": 1 },
+  "bugClass": "ambiguous success assumption or stale overwrite"
+}

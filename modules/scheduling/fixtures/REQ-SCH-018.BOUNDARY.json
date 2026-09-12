@@ -1,0 +1,8 @@
+{
+  "synthetic": true,
+  "class": "BOUNDARY",
+  "requirements": ["REQ-SCH-006", "REQ-SCH-018", "REQ-SCH-028"],
+  "scenario": "a live hold crosses a policy version change at a half-open interval boundary",
+  "expected": { "bookingAllowed": true, "warningDelta": 1 },
+  "bugClass": "retroactive policy invalidation or closed-interval collision"
+}
