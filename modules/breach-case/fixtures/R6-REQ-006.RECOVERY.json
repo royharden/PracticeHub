@@ -1,0 +1,9 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-006",
+  "class": "RECOVERY",
+  "description": "Widened audit-derived scope appends a version and reopens the determination.",
+  "cases": [
+    { "name": "new scope forces reassessment without erasure", "op": "scope-version-reopens" }
+  ]
+}

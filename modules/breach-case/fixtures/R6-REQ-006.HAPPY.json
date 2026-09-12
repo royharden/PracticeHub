@@ -1,0 +1,7 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-006",
+  "class": "HAPPY",
+  "description": "A complete four-factor assessment supports an attributed, approved reportable determination.",
+  "cases": [{ "name": "complete known factors determine reportable", "op": "known-four-factor" }]
+}

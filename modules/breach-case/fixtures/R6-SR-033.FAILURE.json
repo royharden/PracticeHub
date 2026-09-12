@@ -1,0 +1,7 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-033",
+  "class": "FAILURE",
+  "description": "The accessor or initiator cannot approve their own genetic targeted review.",
+  "cases": [{ "name": "reviewer independence is mandatory", "op": "independent-reviewer-required" }]
+}

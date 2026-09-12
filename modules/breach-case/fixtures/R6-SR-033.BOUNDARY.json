@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-033",
+  "class": "BOUNDARY",
+  "description": "Only the exact elevated-genetic classification and GIPA tag enter the targeted path.",
+  "cases": [
+    {
+      "name": "standard break-glass stays outside targeted review",
+      "op": "standard-genetic-refused"
+    }
+  ]
+}

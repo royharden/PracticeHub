@@ -1,0 +1,9 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-006",
+  "class": "FAILURE",
+  "description": "An unknown four-factor value fails closed and cannot support determination.",
+  "cases": [
+    { "name": "unknown nature blocks low-probability determination", "op": "unknown-factor-blocks" }
+  ]
+}

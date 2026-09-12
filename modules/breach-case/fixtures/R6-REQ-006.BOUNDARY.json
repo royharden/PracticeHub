@@ -1,0 +1,7 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-REQ-006",
+  "class": "BOUNDARY",
+  "description": "Incident and discovery instants remain distinct so provider clocks anchor on discovery.",
+  "cases": [{ "name": "discovery differs from incident", "op": "discovery-distinct" }]
+}

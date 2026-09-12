@@ -1,0 +1,7 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-033",
+  "class": "HAPPY",
+  "description": "An elevated-genetic GIPA source opens a critical targeted review at the supplied deadline.",
+  "cases": [{ "name": "genetic elevation opens targeted review", "op": "genetic-targeted-review" }]
+}

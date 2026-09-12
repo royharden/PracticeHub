@@ -1,0 +1,9 @@
+{
+  "synthetic": true,
+  "requirementId": "R6-SR-033",
+  "class": "RECOVERY",
+  "description": "Duplicate source delivery cannot create a second genetic targeted review.",
+  "cases": [
+    { "name": "duplicate elevation source is idempotent", "op": "duplicate-genetic-idempotent" }
+  ]
+}
