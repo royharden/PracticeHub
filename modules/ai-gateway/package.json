@@ -1,0 +1,30 @@
+{
+  "name": "@practicehub/ai-gateway",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint src --max-warnings=0",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:db": "vitest run --config vitest.db.config.ts",
+    "verify": "pnpm run typecheck && pnpm run lint && pnpm run test"
+  },
+  "dependencies": {
+    "@practicehub/audit-evidence": "workspace:*",
+    "@practicehub/contracts": "workspace:*",
+    "@practicehub/events": "workspace:*",
+    "@practicehub/platform-core": "workspace:*",
+    "@practicehub/platform-integration": "workspace:*",
+    "@practicehub/vendor-sim-kit": "workspace:*"
+  },
+  "devDependencies": {
+    "@practicehub/vendor-simulator": "workspace:*",
+    "@types/pg": "8.16.0",
+    "pg": "8.16.3",
+    "vitest": "4.1.10"
+  }
+}

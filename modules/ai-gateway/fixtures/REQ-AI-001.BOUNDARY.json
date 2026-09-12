@@ -1,0 +1,21 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-AI-001",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "uncovered provider egress fails closed before provider",
+      "op": "egress-denied",
+      "expectKind": "blocked",
+      "expectReason": "provider-egress-denied",
+      "expectProviderCalls": 0
+    },
+    {
+      "name": "model version drift marks output stale and contains exact cohort",
+      "op": "model-drift",
+      "expectKind": "stale",
+      "expectReason": "model-version-drift",
+      "expectProviderCalls": 1
+    }
+  ]
+}

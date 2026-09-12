@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-AI-001",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "uncertain outcome is stale and contained without resend",
+      "op": "uncertain",
+      "expectKind": "stale",
+      "expectReason": "provider-failed",
+      "expectProviderCalls": 1
+    },
+    {
+      "name": "contained replay routes to fallback with zero provider calls",
+      "op": "contained-replay",
+      "expectKind": "contained",
+      "expectProviderCalls": 0
+    }
+  ]
+}

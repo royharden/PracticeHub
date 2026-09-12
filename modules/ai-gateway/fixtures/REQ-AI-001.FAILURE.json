@@ -1,0 +1,28 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-AI-001",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "secret input is refused before provider",
+      "op": "input-secret",
+      "expectKind": "blocked",
+      "expectReason": "input-secret",
+      "expectProviderCalls": 0
+    },
+    {
+      "name": "prompt injection is data not authority",
+      "op": "prompt-injection",
+      "expectKind": "blocked",
+      "expectReason": "prompt-injection",
+      "expectProviderCalls": 0
+    },
+    {
+      "name": "consequential tool proposal is denied without execution",
+      "op": "consequential-tool",
+      "expectKind": "blocked",
+      "expectReason": "tool-denied",
+      "expectProviderCalls": 1
+    }
+  ]
+}

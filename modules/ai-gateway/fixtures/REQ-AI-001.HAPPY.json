@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-AI-001",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "covered pinned model returns a retained review candidate",
+      "op": "complete",
+      "expectKind": "completed",
+      "expectProviderCalls": 1
+    },
+    {
+      "name": "authorized read proposal remains inert",
+      "op": "inert-tool",
+      "expectKind": "completed",
+      "expectProviderCalls": 1
+    }
+  ]
+}
