@@ -97,16 +97,9 @@ function moduleMigrationFiles(): string[] {
       }
     }
   }
-  // WP-040 / R-10: repository-level migrations (infra/postgres/migrations) join the same global
-  // filename order as module migrations; rollback files are excluded exactly as above.
-  const infraMigrationsDir = join(repoRoot, 'infra', 'postgres', 'migrations');
-  if (existsSync(infraMigrationsDir)) {
-    for (const file of readdirSync(infraMigrationsDir).sort()) {
-      if (file.endsWith('.sql') && !file.endsWith('.rollback.sql')) {
-        files.push(join(infraMigrationsDir, file));
-      }
-    }
-  }
+  // NR-075: infra/postgres/migrations (WP-040 0032) is deliberately not discovered. This list is
+  // re-applied on every local:up and local:seed, and 0032 is not re-runnable yet
+  // (FWD-LOCALTOOLS-040-SCHED-WIRING).
   return files.sort((left, right) => {
     const byName = basename(left).localeCompare(basename(right));
     return byName !== 0 ? byName : left.localeCompare(right);
@@ -225,8 +218,6 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/027-analytics-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/029-breach-case-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/029-breach-case-seed.sql');
-  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/031-scheduling-seed.sql'), 'utf8'));
-  console.log('seeded infra/postgres/seed/031-scheduling-seed.sql');
 }
 
 const vendorSimBase = 'http://127.0.0.1:58090';
@@ -1420,7 +1411,8 @@ async function testLocal(): Promise<void> {
     stdio: 'inherit',
   });
 
-  // R-10: DB suites of integrated packages, against the live stack.
+  // R-10: DB suites of integrated packages, against the live stack. The scheduling suite
+  // (WP-040) joins once 0032 is re-runnable (NR-075).
   run('pnpm', ['--filter', '@practicehub/ai-gateway', 'run', 'test:db'], {
     stdio: 'inherit',
   });
@@ -1443,9 +1435,6 @@ async function testLocal(): Promise<void> {
     stdio: 'inherit',
   });
   run('pnpm', ['--filter', '@practicehub/portal-intake', 'run', 'test:db'], {
-    stdio: 'inherit',
-  });
-  run('pnpm', ['--filter', '@practicehub/scheduling', 'run', 'test:db'], {
     stdio: 'inherit',
   });
 
