@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-012",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "an above-threshold run releases only below the threshold",
+      "op": "threshold",
+      "failed": 9,
+      "total": 200,
+      "previouslyBlocked": true,
+      "expectedState": "clear"
+    }
+  ]
+}

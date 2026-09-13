@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-013",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "an unknown denominator fails closed",
+      "op": "threshold-error",
+      "failed": 0,
+      "total": null,
+      "previouslyBlocked": false,
+      "expectedError": "zero or unknown"
+    }
+  ]
+}

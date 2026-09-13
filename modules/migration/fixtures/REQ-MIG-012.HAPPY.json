@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-012",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "a prior template is copied only for review",
+      "op": "template-clone",
+      "expectedStatus": "review-required"
+    }
+  ]
+}

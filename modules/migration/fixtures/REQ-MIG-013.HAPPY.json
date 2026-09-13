@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-013",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "a below-threshold initial run clears its percentage gate",
+      "op": "threshold",
+      "failed": 9,
+      "total": 200,
+      "previouslyBlocked": false,
+      "expectedState": "clear"
+    }
+  ]
+}

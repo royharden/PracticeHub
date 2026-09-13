@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-013",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "a blocked run remains held at exact equality",
+      "op": "threshold",
+      "failed": 10,
+      "total": 200,
+      "previouslyBlocked": true,
+      "expectedState": "held-until-below"
+    }
+  ]
+}

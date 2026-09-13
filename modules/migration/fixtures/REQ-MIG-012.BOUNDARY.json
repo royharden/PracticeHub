@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-012",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "initial equality is not blocked by percentage alone",
+      "op": "threshold",
+      "failed": 10,
+      "total": 200,
+      "previouslyBlocked": false,
+      "expectedState": "clear"
+    }
+  ]
+}

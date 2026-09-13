@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-013",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "post-batch user activity becomes a manual reconciliation hold",
+      "op": "rollback-hold",
+      "expectedAction": "manual-reconciliation-hold"
+    }
+  ]
+}

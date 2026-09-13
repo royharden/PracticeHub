@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-012",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "a mapping approved for another source is refused",
+      "op": "source-mapping-refusal",
+      "expectedError": "another source"
+    }
+  ]
+}
