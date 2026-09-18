@@ -1,0 +1,10 @@
+{
+  "requirementId": "WP-116/HUBSPOT-EXIT",
+  "fixtureClass": "FAILURE",
+  "synthetic": true,
+  "windowHours": 30,
+  "expectComplete": false,
+  "records": [
+    { "kind": "objects", "recordId": "o1", "email": "", "phone": "5550001111", "synthetic": true }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "requirementId": "WP-116/HUBSPOT-EXIT",
+  "fixtureClass": "HAPPY",
+  "synthetic": true,
+  "windowHours": 30,
+  "expectComplete": true,
+  "records": [
+    { "kind": "objects", "recordId": "o1", "email": "o1@example.test", "phone": "5550001111", "synthetic": true },
+    { "kind": "owners", "recordId": "w1", "email": "w1@example.test", "phone": "5550001112", "synthetic": true },
+    { "kind": "sequences", "recordId": "s1", "email": "s1@example.test", "phone": "5550001113", "synthetic": true },
+    { "kind": "notes", "recordId": "n1", "email": "n1@example.test", "phone": "5550001114", "synthetic": true }
+  ]
+}
