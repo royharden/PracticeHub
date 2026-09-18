@@ -1,0 +1,2 @@
+-- WP-061 Athena cache tables. UNAPPLIED. Integrator applies.
+-- Reserved filename 0040-athena-cache.sql per D24-WP-061-paths.md.

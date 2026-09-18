@@ -1,0 +1,6 @@
+{
+  "requirementId": "WP-061",
+  "fixtureClass": "RECOVERY",
+  "synthetic": true,
+  "cases": [{ "name": "delta-replay", "sequences": [2, 1, 1] }]
+}

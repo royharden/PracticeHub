@@ -1,0 +1,6 @@
+{
+  "requirementId": "WP-061",
+  "fixtureClass": "FAILURE",
+  "synthetic": true,
+  "cases": [{ "name": "api-down-fail-visible", "apiDown": true }]
+}

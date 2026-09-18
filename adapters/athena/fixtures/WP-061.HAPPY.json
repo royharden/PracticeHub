@@ -1,0 +1,6 @@
+{
+  "requirementId": "WP-061",
+  "fixtureClass": "HAPPY",
+  "synthetic": true,
+  "cases": [{ "name": "granted-consent-release", "consent": "granted" }]
+}

@@ -1,0 +1,6 @@
+{
+  "requirementId": "WP-061",
+  "fixtureClass": "BOUNDARY",
+  "synthetic": true,
+  "cases": [{ "name": "stale-cache-fail-visible", "stale": true }]
+}

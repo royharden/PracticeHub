@@ -1,0 +1,7 @@
+{
+  "name": "northwind-delta-v1",
+  "tenantId": "northwind-synthetic",
+  "subjectRef": "wp061-subject-1",
+  "payloadHash": "synthetic-delta-hash-v1",
+  "synthetic": true
+}
