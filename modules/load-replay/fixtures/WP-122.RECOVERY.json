@@ -1,0 +1,8 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT",
+  "class": "RECOVERY",
+  "cases": [
+    { "name": "outage backlog flush drops duplicates without loss", "op": "duplicate-flush" }
+  ]
+}

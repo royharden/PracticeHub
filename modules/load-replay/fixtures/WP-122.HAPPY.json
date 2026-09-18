@@ -1,0 +1,6 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT",
+  "class": "HAPPY",
+  "cases": [{ "name": "2x load replay and stress table green", "op": "harness-green" }]
+}

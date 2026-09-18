@@ -1,0 +1,6 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT",
+  "class": "BOUNDARY",
+  "cases": [{ "name": "zero baseline refused", "op": "zero-baseline" }]
+}

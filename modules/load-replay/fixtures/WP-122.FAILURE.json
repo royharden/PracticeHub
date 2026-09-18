@@ -1,0 +1,6 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-PLAT",
+  "class": "FAILURE",
+  "cases": [{ "name": "skipped run blocked", "op": "skip" }]
+}
