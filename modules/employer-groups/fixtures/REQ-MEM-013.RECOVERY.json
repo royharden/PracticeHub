@@ -1,0 +1,9 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MEM-013",
+  "class": "RECOVERY",
+  "cases": [
+    { "name": "termination QLE ends eligibility going forward", "op": "qle-term" },
+    { "name": "medicare-eligible add is MSP queued before grant", "op": "msp-queue" }
+  ]
+}

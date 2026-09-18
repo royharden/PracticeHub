@@ -1,0 +1,9 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MEM-013",
+  "class": "FAILURE",
+  "cases": [
+    { "name": "upload does not auto-apply", "op": "no-silent-apply" },
+    { "name": "clinical employer query is refused", "op": "gipa-clinical" }
+  ]
+}

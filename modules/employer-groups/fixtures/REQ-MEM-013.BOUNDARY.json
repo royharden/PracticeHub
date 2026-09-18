@@ -1,0 +1,9 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MEM-013",
+  "class": "BOUNDARY",
+  "cases": [
+    { "name": "invalid rows hold while valid rows proceed", "op": "partial-hold" },
+    { "name": "headcount variance flags without silent accept", "op": "headcount-variance" }
+  ]
+}

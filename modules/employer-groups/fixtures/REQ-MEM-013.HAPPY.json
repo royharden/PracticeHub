@@ -1,0 +1,9 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MEM-013",
+  "class": "HAPPY",
+  "cases": [
+    { "name": "validated roster diffs then applies only after confirm", "op": "preview-confirm" },
+    { "name": "invoice is headcount times tier times rate only", "op": "invoice-shape" }
+  ]
+}
