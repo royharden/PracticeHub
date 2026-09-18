@@ -1,0 +1,23 @@
+{
+  "requirementId": "WP-033",
+  "fixtureClass": "FAILURE",
+  "synthetic": true,
+  "cases": [
+    { "name": "missing consent blocks before CPaaS", "operation": "comms-consent-denial" },
+    {
+      "name": "communications unknown is owned",
+      "operation": "run-execution",
+      "executionId": "4A-comms-v1:X-02:after-effect-before-receipt"
+    },
+    {
+      "name": "paid-service unknown is held",
+      "operation": "run-execution",
+      "executionId": "4B-paid-service-v1:X-02:after-effect-before-receipt"
+    },
+    {
+      "name": "clinical unknown cannot overwrite truth",
+      "operation": "run-execution",
+      "executionId": "4C-clinical-v1-double:X-02:after-effect-before-receipt"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "requirementId": "WP-033",
+  "fixtureClass": "BOUNDARY",
+  "synthetic": true,
+  "cases": [
+    {
+      "name": "communications receipts arrive out of order",
+      "operation": "run-execution",
+      "executionId": "4A-comms-v1:X-07"
+    },
+    {
+      "name": "paid-service receipts arrive out of order",
+      "operation": "run-execution",
+      "executionId": "4B-paid-service-v1:X-07"
+    },
+    {
+      "name": "clinical receipts arrive out of order",
+      "operation": "run-execution",
+      "executionId": "4C-clinical-v1-double:X-07"
+    },
+    { "name": "clinical source-version drift is held", "operation": "clinical-version-drift" },
+    { "name": "tenant and subject correlation fences bite", "operation": "correlation-fence" }
+  ]
+}

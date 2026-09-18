@@ -1,0 +1,22 @@
+{
+  "requirementId": "WP-033",
+  "fixtureClass": "HAPPY",
+  "synthetic": true,
+  "cases": [
+    {
+      "name": "communications first-attempt lands one effect",
+      "operation": "run-happy",
+      "loopId": "4A-comms-v1"
+    },
+    {
+      "name": "paid-service first-attempt lands one balanced outcome",
+      "operation": "run-happy",
+      "loopId": "4B-paid-service-v1"
+    },
+    {
+      "name": "clinical first-attempt retains provenance",
+      "operation": "run-happy",
+      "loopId": "4C-clinical-v1-double"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "requirementId": "WP-033",
+  "fixtureClass": "RECOVERY",
+  "synthetic": true,
+  "cases": [
+    {
+      "name": "communications recovers before effect",
+      "operation": "run-execution",
+      "executionId": "4A-comms-v1:X-02:before-effect"
+    },
+    {
+      "name": "paid-service holds a pre-effect partial submission",
+      "operation": "run-execution",
+      "executionId": "4B-paid-service-v1:X-02:before-effect"
+    },
+    {
+      "name": "clinical safely retries before effect",
+      "operation": "run-execution",
+      "executionId": "4C-clinical-v1-double:X-02:before-effect"
+    },
+    {
+      "name": "communications recovers a post-receipt crash",
+      "operation": "run-execution",
+      "executionId": "4A-comms-v1:X-02:after-receipt"
+    },
+    {
+      "name": "paid-service recovers a post-receipt crash",
+      "operation": "run-execution",
+      "executionId": "4B-paid-service-v1:X-02:after-receipt"
+    },
+    {
+      "name": "clinical recovers a post-receipt crash",
+      "operation": "run-execution",
+      "executionId": "4C-clinical-v1-double:X-02:after-receipt"
+    },
+    {
+      "name": "communications replay remains one effect",
+      "operation": "run-execution",
+      "executionId": "4A-comms-v1:X-03"
+    },
+    {
+      "name": "paid-service replay remains one balanced outcome",
+      "operation": "run-execution",
+      "executionId": "4B-paid-service-v1:X-03"
+    },
+    {
+      "name": "clinical replay retains provenance",
+      "operation": "run-execution",
+      "executionId": "4C-clinical-v1-double:X-03"
+    },
+    {
+      "name": "communications duplicate receipts are idempotent",
+      "operation": "run-execution",
+      "executionId": "4A-comms-v1:X-04"
+    },
+    {
+      "name": "paid-service duplicate receipts are idempotent",
+      "operation": "run-execution",
+      "executionId": "4B-paid-service-v1:X-04"
+    },
+    {
+      "name": "clinical duplicate receipts are idempotent",
+      "operation": "run-execution",
+      "executionId": "4C-clinical-v1-double:X-04"
+    }
+  ]
+}
