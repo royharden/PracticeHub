@@ -1,0 +1,6 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-018",
+  "class": "HAPPY",
+  "cases": [{ "name": "delta-to-zero freeze tail complete", "op": "happy-cutover" }]
+}

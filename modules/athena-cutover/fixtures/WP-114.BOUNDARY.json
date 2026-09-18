@@ -1,0 +1,6 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-018",
+  "class": "BOUNDARY",
+  "cases": [{ "name": "freeze requires zero delta", "op": "freeze-with-delta" }]
+}

@@ -1,0 +1,10 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-018",
+  "class": "RECOVERY",
+  "cases": [
+    { "name": "failed-cutover rollback", "op": "rollback" },
+    { "name": "post-freeze restore and re-key", "op": "restore" },
+    { "name": "quarantine drill", "op": "quarantine" }
+  ]
+}

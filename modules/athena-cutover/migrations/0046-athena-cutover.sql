@@ -1,0 +1,3 @@
+-- UNAPPLIED WP-114 wave registry. Simulated cutover only. Do not apply.
+-- CREATE SCHEMA athena_cutover;
+-- CREATE TABLE athena_cutover.wave (...);

@@ -1,0 +1,6 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-018",
+  "class": "FAILURE",
+  "cases": [{ "name": "live Athena write refused", "op": "live-write" }]
+}
