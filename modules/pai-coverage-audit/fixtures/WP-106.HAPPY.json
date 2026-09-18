@@ -1,0 +1,27 @@
+{
+  "requirementId": "WP-106/PAI-COVERAGE",
+  "fixtureClass": "HAPPY",
+  "synthetic": true,
+  "requirements": [
+    { "id": "REQ-AI-010", "provider_ai_flag": true, "pai_refs": ["PAI-01"] },
+    { "id": "REQ-AI-004", "provider_ai_flag": true, "pai_refs": ["PAI-02"] },
+    { "id": "REQ-AI-019", "provider_ai_flag": true, "pai_refs": ["PAI-03"] },
+    { "id": "REQ-AI-012", "provider_ai_flag": true, "pai_refs": ["PAI-04"] },
+    { "id": "REQ-AI-008", "provider_ai_flag": true, "pai_refs": ["PAI-05"] },
+    { "id": "REQ-AI-022", "provider_ai_flag": true, "pai_refs": ["PAI-06"] },
+    { "id": "REQ-VOICE-001", "provider_ai_flag": true, "pai_refs": ["PAI-07"] },
+    { "id": "REQ-SCH-001", "provider_ai_flag": true, "pai_refs": ["PAI-08"] },
+    { "id": "REQ-REF-002", "provider_ai_flag": true, "pai_refs": ["PAI-09"] },
+    { "id": "REQ-MEM-022", "provider_ai_flag": true, "pai_refs": ["PAI-10"] },
+    { "id": "REQ-AI-029", "provider_ai_flag": true, "pai_refs": ["PAI-11"] },
+    { "id": "REQ-AI-033", "provider_ai_flag": true, "pai_refs": ["PAI-12"] },
+    { "id": "REQ-AI-031", "provider_ai_flag": true, "pai_refs": ["PAI-13"] },
+    { "id": "REQ-AI-041", "provider_ai_flag": true, "pai_refs": ["PAI-14"] },
+    { "id": "REQ-AI-001", "provider_ai_flag": true, "pai_refs": ["PAI-15"] },
+    { "id": "REQ-AI-038", "provider_ai_flag": true, "pai_refs": ["PAI-16"] },
+    { "id": "REQ-AI-014", "provider_ai_flag": true, "pai_refs": ["PAI-17"] },
+    { "id": "REQ-AI-027", "provider_ai_flag": true, "pai_refs": ["PAI-18"] },
+    { "id": "REQ-AI-007", "provider_ai_flag": true, "pai_refs": ["PAI-19"] },
+    { "id": "REQ-TASK-002", "provider_ai_flag": true, "pai_refs": ["PAI-20"] }
+  ]
+}
