@@ -1,0 +1,20 @@
+{
+  "requirementId": "WP-125/CLOUD-SWAP",
+  "fixtureClass": "RECOVERY",
+  "synthetic": true,
+  "expectPass": true,
+  "from": {
+    "name": "staging",
+    "region": "us-east-1",
+    "secretRefs": { "db": "secret://db" },
+    "inlineSecrets": {},
+    "synthetic": true
+  },
+  "to": {
+    "name": "cloud-shaped",
+    "region": "us-west-2",
+    "secretRefs": { "db": "secret://db" },
+    "inlineSecrets": {},
+    "synthetic": true
+  }
+}
