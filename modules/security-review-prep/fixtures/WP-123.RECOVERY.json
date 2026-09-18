@@ -1,0 +1,6 @@
+{
+  "id": "WP-123.RECOVERY",
+  "class": "RECOVERY",
+  "action": "refuse-until-finding-wired-to-wp-id",
+  "synthetic": true
+}

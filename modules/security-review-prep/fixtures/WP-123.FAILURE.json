@@ -1,0 +1,6 @@
+{
+  "id": "WP-123.FAILURE",
+  "class": "FAILURE",
+  "badPackage": "security-later",
+  "synthetic": true
+}

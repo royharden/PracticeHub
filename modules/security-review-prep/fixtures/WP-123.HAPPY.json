@@ -1,0 +1,7 @@
+{
+  "id": "WP-123.HAPPY",
+  "class": "HAPPY",
+  "consumed": "WP-010",
+  "wired": ["WP-100", "WP-121"],
+  "synthetic": true
+}

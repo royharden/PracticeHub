@@ -1,0 +1,7 @@
+{
+  "id": "WP-123.BOUNDARY",
+  "class": "BOUNDARY",
+  "inScope": "PT-AUTH",
+  "outOfScope": "PT-CARD",
+  "synthetic": true
+}
