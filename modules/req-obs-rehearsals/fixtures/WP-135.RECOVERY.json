@@ -1,0 +1,6 @@
+{
+  "id": "WP-135.RECOVERY",
+  "class": "RECOVERY",
+  "action": "refuse-req-obs-product-mint",
+  "synthetic": true
+}
