@@ -1,0 +1,18 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-AI-060",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "threshold csat drop kills one touchpoint and hands off in-flight",
+      "op": "csat-drop-kill",
+      "expectPath": "human-only",
+      "expectOtherPath": "ai"
+    },
+    {
+      "name": "governed re-enable after dual sign-off and golden-set floors",
+      "op": "governed-reenable",
+      "expectPath": "ai"
+    }
+  ]
+}

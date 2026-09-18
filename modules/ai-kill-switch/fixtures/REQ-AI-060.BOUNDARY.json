@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-AI-060",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "single anecdotal complaint below min sample does not kill",
+      "op": "anecdote-below-sample",
+      "expectPath": "ai"
+    },
+    {
+      "name": "exact baseline minus threshold is not a drop; one more point drop kills",
+      "op": "threshold-edge",
+      "expectPath": "human-only"
+    }
+  ]
+}

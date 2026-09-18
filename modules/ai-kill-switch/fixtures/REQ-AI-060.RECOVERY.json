@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-AI-060",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "sentinel pause is immediate regardless of csat",
+      "op": "sentinel",
+      "expectPath": "human-only"
+    },
+    {
+      "name": "deceptive-disclosure complaint forces review kill",
+      "op": "deceptive-disclosure",
+      "expectPath": "human-only"
+    },
+    {
+      "name": "killed in-flight member is handed to human never a dead end",
+      "op": "inflight-handoff",
+      "expectDeadEnd": false
+    }
+  ]
+}

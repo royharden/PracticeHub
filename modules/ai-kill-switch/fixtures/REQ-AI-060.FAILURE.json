@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-AI-060",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "silent toggle re-enable is prohibited",
+      "op": "silent-toggle",
+      "expectCode": "silent-reenable-forbidden"
+    },
+    {
+      "name": "re-enable without golden-set floors is refused",
+      "op": "reenable-without-floors",
+      "expectCode": "eval-floors"
+    },
+    {
+      "name": "missing instrumentation fails closed to human",
+      "op": "missing-instrumentation",
+      "expectPath": "human-only"
+    }
+  ]
+}
