@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-MEM-041",
+  "class": "RECOVERY",
+  "probe": "cancelled-vintage-price-frozen",
+  "synthetic": true
+}

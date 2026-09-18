@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-MEM-041",
+  "class": "HAPPY",
+  "probe": "winback-new-vintage-new-price",
+  "synthetic": true
+}

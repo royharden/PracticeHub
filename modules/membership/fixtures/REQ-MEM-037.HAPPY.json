@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-MEM-037",
+  "class": "HAPPY",
+  "probe": "pause-then-resume-same-vintage",
+  "synthetic": true
+}

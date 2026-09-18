@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-MEM-041",
+  "class": "FAILURE",
+  "probe": "winback-requires-cancelled",
+  "synthetic": true
+}

@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-MEM-037",
+  "class": "BOUNDARY",
+  "probe": "pause-does-not-reverse-entitlements",
+  "synthetic": true
+}

@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-MEM-041",
+  "class": "BOUNDARY",
+  "probe": "cross-tenant-account-id-isolation",
+  "synthetic": true
+}

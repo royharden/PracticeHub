@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-MEM-037",
+  "class": "FAILURE",
+  "probe": "pause-requires-active",
+  "synthetic": true
+}

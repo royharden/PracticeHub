@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-MEM-037",
+  "class": "RECOVERY",
+  "probe": "resume-restores-active-without-new-vintage",
+  "synthetic": true
+}
