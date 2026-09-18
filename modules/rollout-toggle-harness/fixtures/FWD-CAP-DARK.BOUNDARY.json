@@ -1,0 +1,14 @@
+{
+  "requirementId": "WP-034/FWD-CAP-DARK",
+  "fixtureClass": "BOUNDARY",
+  "synthetic": true,
+  "cases": [
+    { "name": "absent grant M3", "operation": "matrix", "workPackage": "WP-030", "row": "M3" },
+    { "name": "scaffolded M4", "operation": "matrix", "workPackage": "WP-031", "row": "M4" },
+    { "name": "read-only M5", "operation": "matrix", "workPackage": "WP-032", "row": "M5" },
+    { "name": "retiring M6", "operation": "matrix", "workPackage": "WP-030", "row": "M6" },
+    { "name": "active neighbor M10", "operation": "matrix", "workPackage": "WP-031", "row": "M10" },
+    { "name": "shadow sealed M11", "operation": "matrix", "workPackage": "WP-032", "row": "M11" },
+    { "name": "malformed state M12", "operation": "malformed-state" }
+  ]
+}

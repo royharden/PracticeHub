@@ -1,0 +1,10 @@
+{
+  "requirementId": "WP-034/FWD-CAP-DARK",
+  "fixtureClass": "FAILURE",
+  "synthetic": true,
+  "cases": [
+    { "name": "changed payload same request key", "operation": "matrix", "workPackage": "WP-032", "row": "M13" },
+    { "name": "shared recorder key probe", "operation": "shared-recorder-key" },
+    { "name": "false real parity label", "operation": "false-real-parity" }
+  ]
+}
