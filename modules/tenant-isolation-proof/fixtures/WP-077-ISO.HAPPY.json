@@ -1,0 +1,6 @@
+{
+  "requirement": "WP-077-ISO",
+  "class": "HAPPY",
+  "probe": "tenant-scoped-list-and-brand",
+  "synthetic": true
+}

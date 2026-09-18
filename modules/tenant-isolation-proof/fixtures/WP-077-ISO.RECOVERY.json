@@ -1,0 +1,6 @@
+{
+  "requirement": "WP-077-ISO",
+  "class": "RECOVERY",
+  "probe": "unknown-tenant-no-fallback-brand",
+  "synthetic": true
+}

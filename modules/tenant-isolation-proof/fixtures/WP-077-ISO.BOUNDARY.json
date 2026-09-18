@@ -1,0 +1,6 @@
+{
+  "requirement": "WP-077-ISO",
+  "class": "BOUNDARY",
+  "probe": "shared-record-id-does-not-bleed",
+  "synthetic": true
+}

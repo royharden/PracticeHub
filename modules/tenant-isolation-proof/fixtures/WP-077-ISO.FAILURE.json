@@ -1,0 +1,6 @@
+{
+  "requirement": "WP-077-ISO",
+  "class": "FAILURE",
+  "probe": "cross-tenant-get-throws",
+  "synthetic": true
+}
