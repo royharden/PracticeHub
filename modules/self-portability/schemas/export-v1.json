@@ -1,0 +1,70 @@
+{
+  "$id": "practicehub-export-v1",
+  "title": "PracticeHub standing export v1",
+  "description": "Documented open JSON export for WP-121 simulated domains (REQ-PLAT-027 AC1).",
+  "type": "object",
+  "required": [
+    "mediaType",
+    "schemaId",
+    "tenantId",
+    "legalEntityId",
+    "exportedAt",
+    "synthetic",
+    "counts",
+    "records"
+  ],
+  "properties": {
+    "mediaType": { "const": "application/json" },
+    "schemaId": { "const": "practicehub-export-v1" },
+    "tenantId": { "type": "string", "minLength": 1 },
+    "legalEntityId": { "type": ["string", "null"] },
+    "exportedAt": { "type": "string" },
+    "synthetic": { "const": true },
+    "counts": {
+      "type": "object",
+      "required": [
+        "person",
+        "encounter",
+        "note",
+        "document",
+        "entitlement",
+        "consent",
+        "comms_thread",
+        "audit_event"
+      ],
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["domain", "recordId", "tenantId", "legalEntityId", "partitionTags", "body"],
+        "properties": {
+          "domain": {
+            "enum": [
+              "person",
+              "encounter",
+              "note",
+              "document",
+              "entitlement",
+              "consent",
+              "comms_thread",
+              "audit_event"
+            ]
+          },
+          "recordId": { "type": "string" },
+          "tenantId": { "type": "string" },
+          "legalEntityId": { "type": "string" },
+          "partitionTags": {
+            "type": "array",
+            "items": { "enum": ["gipa-genetic", "part-2", "none"] }
+          },
+          "body": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}
