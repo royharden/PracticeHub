@@ -6,3 +6,5 @@ export * from './testing/recording-capability-port.js';
 export * from './testing/recording-authority-port.js';
 export * from './testing/recording-receipt-port.js';
 export * from './testing/wp032-athena-scheduling-double-v1.js';
+export * from './inc2/engine.js';
+export * from './inc2/app-role-write-path.js';

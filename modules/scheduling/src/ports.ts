@@ -2,6 +2,9 @@ import type {
   AuthorityContext,
   BookingReceipt,
   CapabilityPhase,
+  CatalogSlot,
+  ConstraintBundleSnapshot,
+  ConstraintProviderRecord,
   SchedulingOperation,
   SchedulingScope,
   SlotOffer,
@@ -67,4 +70,17 @@ export interface SchedulingProviderPort {
 
 export interface SchedulingClock {
   now(): string;
+}
+
+export interface ConstraintProviderPort {
+  currentBundle(tenantId: string, bundleId: string): ConstraintBundleSnapshot | null;
+  providerRecord(
+    tenantId: string,
+    providerId: string,
+    bundleId: string,
+  ): ConstraintProviderRecord | null;
+}
+
+export interface ResourceCatalogPort {
+  list(tenantId: string, locationId?: string): readonly CatalogSlot[];
 }

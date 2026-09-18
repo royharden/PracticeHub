@@ -1,0 +1,13 @@
+{
+  "synthetic": true,
+  "class": "HAPPY",
+  "requirements": ["REQ-SCH-001", "REQ-SCH-028", "REQ-SCH-031"],
+  "scenario": "increment-2 constraint-satisfying catalog slot is offered on a freed waitlist opening",
+  "expected": {
+    "appointmentDelta": 1,
+    "reservationDelta": 3,
+    "receiptDelta": 2,
+    "inc2CatalogHits": 1
+  },
+  "bugClass": "waitlist opening booked without catalog or constraint checks"
+}

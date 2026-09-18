@@ -136,3 +136,79 @@ export class SchedulingError extends Error {
     this.name = 'SchedulingError';
   }
 }
+
+export type ConstraintKind = 'hard' | 'soft';
+
+export interface SchedulingConstraint {
+  constraintId: string;
+  kind: ConstraintKind;
+  dimension: string;
+  requiredValue: string;
+}
+
+export interface ConstraintBundleSnapshot {
+  bundleId: string;
+  version: number;
+  constraints: readonly SchedulingConstraint[];
+}
+
+export interface ConstraintProviderRecord {
+  providerId: string;
+  bundleId: string;
+  version: number;
+  values: Readonly<Record<string, string>>;
+  stale: boolean;
+}
+
+export type ConstraintEvaluation =
+  | { outcome: 'satisfied'; bundleVersion: number }
+  | {
+      outcome: 'withdrawn';
+      reason: 'constraint-version-changed';
+      offerVersion: number;
+      currentVersion: number;
+    }
+  | { outcome: 'human-scheduler'; reason: 'missing-or-stale-provider-data' }
+  | { outcome: 'unsatisfied'; failedHard: readonly string[]; softTradeoffs: readonly string[] };
+
+export interface CatalogSlot extends SlotOffer {
+  locationId: string;
+  setupMinutes: number;
+  cleanupMinutes: number;
+  outOfService: boolean;
+  interpreterRequired?: boolean;
+}
+
+export interface LinkedResourceNeed {
+  resourceId: string;
+  resourceType:
+    'staff' | 'room' | 'equipment' | 'interpreter' | 'partner' | 'transport' | 'preparation';
+  required: boolean;
+  available: boolean;
+}
+
+export interface ResourceUnavailableTask {
+  taskId: string;
+  owner: string;
+  sla: string;
+  resourceId: string;
+  state: 'open';
+}
+
+export interface WaitlistPriorityPause {
+  waitlistEntryId: string;
+  reason: string;
+  owner: string;
+  originalPriority: number;
+  reevaluationDeadline: string;
+  state: 'paused';
+}
+
+export interface ManagerSchedulingException {
+  exceptionId: string;
+  rationale: string;
+  scope: string;
+  duration: TimeInterval;
+  impactedResourceIds: readonly string[];
+  approvedBy: string;
+}

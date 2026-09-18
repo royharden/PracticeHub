@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "class": "BOUNDARY",
+  "requirements": ["REQ-SCH-007", "REQ-SCH-038"],
+  "scenario": "cross-location travel buffer blocks a near-adjacent in-person slot but not a virtual leg",
+  "expected": {
+    "bookingAllowed": true,
+    "warningDelta": 1,
+    "inc2VirtualBufferExempt": true
+  },
+  "bugClass": "travel buffer applied to virtual visits or ignored across locations"
+}

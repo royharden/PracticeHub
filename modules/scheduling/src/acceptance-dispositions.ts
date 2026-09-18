@@ -228,3 +228,67 @@ export const WP040_CLAUSE_DISPOSITIONS: readonly ClauseDisposition[] = [
     'real equipment calibration source and WP-032 parity',
   ),
 ];
+
+export const WP040_INC2_CLAUSE_DISPOSITIONS: readonly ClauseDisposition[] = [
+  ...clauses(
+    'REQ-SCH-001',
+    ['AC1', 'AC2', 'AC3', 'EX1'],
+    'encoded',
+    'inc2 constraint-provider engine',
+  ),
+  ...clauses('REQ-SCH-002', ['AC3'], 'encoded', 'inc2 equivalent-options query'),
+  ...clauses(
+    'REQ-SCH-006',
+    ['AC1', 'AC2', 'AC3', 'AC4', 'AC5'],
+    'encoded',
+    'inc2 multi-resource all-or-none orchestration',
+  ),
+  ...clauses(
+    'REQ-SCH-007',
+    ['AC2', 'AC3', 'AC4', 'AC5', 'AC6'],
+    'encoded',
+    'inc2 cross-location transport/privilege/exception workflow',
+  ),
+  ...clauses(
+    'REQ-SCH-015',
+    ['AC1', 'AC2', 'AC3', 'AC4', 'AC5', 'EX1', 'EX2', 'EX3', 'EX4'],
+    'encoded',
+    'inc2 interpreter/accessibility resource',
+  ),
+  ...clauses(
+    'REQ-SCH-019',
+    ['AC1', 'AC2', 'EX2'],
+    'encoded',
+    'inc2 waitlist priority pause and restore',
+  ),
+  ...clauses(
+    'REQ-SCH-021',
+    ['AC1', 'AC2', 'AC3', 'EX1'],
+    'encoded',
+    'inc2 same-day backfill ranking',
+  ),
+  ...clauses(
+    'REQ-SCH-022',
+    ['AC1', 'AC2', 'EX1'],
+    'encoded',
+    'inc2 late waitlist acceptance guard',
+  ),
+  ...clauses(
+    'REQ-SCH-028',
+    ['AC1', 'AC2', 'AC4', 'AC5', 'AC6', 'AC7', 'EX2', 'EX3', 'EX4'],
+    'encoded',
+    'inc2 resource catalog, buffers, and alternate location',
+  ),
+  ...clauses(
+    'REQ-SCH-031',
+    ['AC1', 'AC2', 'AC3', 'AC4', 'AC5', 'AC6', 'AC7', 'AC8', 'EX2', 'EX3', 'EX4'],
+    'encoded',
+    'inc2 waitlist/recall/no-show worklist',
+  ),
+  ...clauses(
+    'REQ-SCH-038',
+    ['AC1', 'AC2', 'AC3', 'EX1', 'EX2'],
+    'encoded',
+    'inc2 cross-location patient overlap and sweep',
+  ),
+];

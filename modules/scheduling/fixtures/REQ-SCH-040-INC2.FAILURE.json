@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "class": "FAILURE",
+  "requirements": ["REQ-SCH-006", "REQ-SCH-021", "REQ-SCH-022"],
+  "scenario": "missing required resource, unreadiness, or late waitlist click cannot mutate the schedule",
+  "expected": {
+    "holdDelta": 0,
+    "providerCallDelta": 0,
+    "inc2Mutated": false
+  },
+  "bugClass": "partial resource commit or late-click displacement"
+}

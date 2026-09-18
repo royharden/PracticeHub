@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "class": "RECOVERY",
+  "requirements": ["REQ-SCH-015", "REQ-SCH-019"],
+  "scenario": "interpreter no-show raises a replacement task and waitlist priority is restored after a prerequisite pause",
+  "expected": {
+    "reconciliationDelta": 1,
+    "quarantineDelta": 1,
+    "inc2PriorityPreserved": true
+  },
+  "bugClass": "priority lost across pause or accommodation confirmed on request only"
+}

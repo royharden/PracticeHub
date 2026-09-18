@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   WP040_ACCEPTANCE_DISPOSITIONS,
   WP040_CLAUSE_DISPOSITIONS,
+  WP040_INC2_CLAUSE_DISPOSITIONS,
 } from './acceptance-dispositions.js';
 
 describe('WP-040 acceptance disposition ledger', () => {
@@ -37,5 +38,17 @@ describe('WP-040 acceptance disposition ledger', () => {
     expect(WP040_CLAUSE_DISPOSITIONS).toHaveLength(expectedCount);
     expect(new Set(WP040_CLAUSE_DISPOSITIONS.map(({ clause }) => clause)).size).toBe(expectedCount);
     expect(WP040_CLAUSE_DISPOSITIONS.every(({ evidence }) => evidence.length > 0)).toBe(true);
+  });
+
+  it('records increment-2 encodings without rewriting increment-1 rows', () => {
+    expect(
+      WP040_INC2_CLAUSE_DISPOSITIONS.every(({ disposition }) => disposition === 'encoded'),
+    ).toBe(true);
+    expect(WP040_INC2_CLAUSE_DISPOSITIONS.some(({ clause }) => clause === 'REQ-SCH-001.AC1')).toBe(
+      true,
+    );
+    expect(WP040_INC2_CLAUSE_DISPOSITIONS.some(({ clause }) => clause === 'REQ-SCH-015.AC6')).toBe(
+      false,
+    );
   });
 });
