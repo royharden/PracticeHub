@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-AI-019",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "auto-send is refused",
+      "op": "auto-send"
+    },
+    {
+      "name": "red required eval metric blocks send",
+      "op": "red-eval"
+    }
+  ]
+}

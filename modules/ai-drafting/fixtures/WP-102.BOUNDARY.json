@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-AI-009",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "flag off refuses drafting",
+      "op": "flag-off"
+    },
+    {
+      "name": "provenance cannot render without sources",
+      "op": "empty-provenance"
+    }
+  ]
+}

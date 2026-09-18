@@ -1,0 +1,11 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-037",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "wrong-patient draft quarantines and restores to the bound subject",
+      "op": "wrong-patient"
+    }
+  ]
+}

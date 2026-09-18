@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-AI-019",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "approved inbox draft sends with rendered provenance",
+      "op": "approve-send",
+      "kind": "message"
+    },
+    {
+      "name": "approved previsit summary stays HITL then sends",
+      "op": "approve-send",
+      "kind": "summary"
+    },
+    {
+      "name": "edit re-queues without sending",
+      "op": "edit-requeue",
+      "kind": "message"
+    }
+  ]
+}
