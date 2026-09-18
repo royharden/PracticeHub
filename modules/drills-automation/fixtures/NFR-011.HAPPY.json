@@ -1,0 +1,6 @@
+{
+  "synthetic": true,
+  "requirementId": "NFR-011",
+  "class": "HAPPY",
+  "cases": [{ "name": "all four drill kinds run and pass", "op": "four-kinds-pass" }]
+}

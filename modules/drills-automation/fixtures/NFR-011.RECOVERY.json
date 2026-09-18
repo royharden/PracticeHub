@@ -1,0 +1,6 @@
+{
+  "synthetic": true,
+  "requirementId": "NFR-011",
+  "class": "RECOVERY",
+  "cases": [{ "name": "restore drill after failover uses replay inject", "op": "restore-replay" }]
+}

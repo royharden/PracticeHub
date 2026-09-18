@@ -1,0 +1,6 @@
+{
+  "synthetic": true,
+  "requirementId": "NFR-011",
+  "class": "FAILURE",
+  "cases": [{ "name": "a failed drill blocks release", "op": "failed-blocks" }]
+}

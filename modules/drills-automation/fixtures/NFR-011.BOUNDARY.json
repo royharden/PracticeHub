@@ -1,0 +1,8 @@
+{
+  "synthetic": true,
+  "requirementId": "NFR-011",
+  "class": "BOUNDARY",
+  "cases": [
+    { "name": "a skipped scheduled run is a release-blocking finding", "op": "skipped-run" }
+  ]
+}
