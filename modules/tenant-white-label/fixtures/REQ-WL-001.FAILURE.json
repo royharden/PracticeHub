@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-WL-001",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "tenant-1 cannot read tenant-2 white-label",
+      "op": "cross-tenant-read",
+      "expectError": "cross-tenant white-label read is forbidden"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-WL-001",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "after a blocked cross-tenant read, tenant-2 still reads its own profile",
+      "op": "recover-own-read",
+      "expectWordmark": "wordmark:tenant-2"
+    }
+  ]
+}

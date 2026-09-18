@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-WL-001",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "missing profile is not a cross-tenant leak",
+      "op": "missing-profile",
+      "expectError": "white-label profile not found"
+    }
+  ]
+}

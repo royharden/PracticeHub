@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-WL-001",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "tenant-2 reads its own brand hours templates printers fax",
+      "op": "own-tenant-read",
+      "expectWordmark": "wordmark:tenant-2"
+    }
+  ]
+}
