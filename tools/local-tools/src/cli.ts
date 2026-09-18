@@ -216,6 +216,10 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/025-portal-intake-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/027-analytics-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/027-analytics-seed.sql');
+  // WP-110: 0027 uses CREATE SCHEMA/TABLE IF NOT EXISTS and CREATE ROLE if missing,
+  // so migrate() re-apply is safe (unlike WP-040 0032). Seed 028 is ON CONFLICT DO NOTHING.
+  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/028-migration-seed.sql'), 'utf8'));
+  console.log('seeded infra/postgres/seed/028-migration-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/029-breach-case-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/029-breach-case-seed.sql');
 }
@@ -1435,6 +1439,9 @@ async function testLocal(): Promise<void> {
     stdio: 'inherit',
   });
   run('pnpm', ['--filter', '@practicehub/portal-intake', 'run', 'test:db'], {
+    stdio: 'inherit',
+  });
+  run('pnpm', ['--filter', '@practicehub/migration', 'run', 'test:db'], {
     stdio: 'inherit',
   });
 
