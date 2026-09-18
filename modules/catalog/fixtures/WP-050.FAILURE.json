@@ -1,0 +1,8 @@
+{
+  "id": "WP-050.FAILURE",
+  "class": "FAILURE",
+  "untaggedPayerRef": "payer-unknown",
+  "unclassifiedSkuRef": "sku:nwind-o2-bbbb",
+  "incompleteBilled": ["awv-core"],
+  "synthetic": true
+}

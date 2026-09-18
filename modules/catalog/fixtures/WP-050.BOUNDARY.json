@@ -1,0 +1,8 @@
+{
+  "id": "WP-050.BOUNDARY",
+  "class": "BOUNDARY",
+  "skuAccept": "sku:nwind-o1-aaaa",
+  "skuRejectShort": "sku:short",
+  "skuRejectHealth": "sku:glp-1-offer-x",
+  "synthetic": true
+}

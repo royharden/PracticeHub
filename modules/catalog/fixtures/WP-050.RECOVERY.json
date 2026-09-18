@@ -1,0 +1,7 @@
+{
+  "id": "WP-050.RECOVERY",
+  "class": "RECOVERY",
+  "action": "refuse-sell-until-signed-classified-composition",
+  "resumeWhen": "signed-table-plus-flags-plus-complete-map",
+  "synthetic": true
+}
