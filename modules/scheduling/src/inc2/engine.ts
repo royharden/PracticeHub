@@ -14,6 +14,7 @@ import type {
   WaitlistEntry,
   WaitlistPriorityPause,
 } from '../types.js';
+import { intervalsOverlap, travelBufferMinutes } from './overlap.js';
 
 export class Increment2Error extends Error {
   constructor(
@@ -32,19 +33,6 @@ export class Increment2Error extends Error {
     super(message);
     this.name = 'Increment2Error';
   }
-}
-
-function overlaps(left: TimeInterval, right: TimeInterval, bufferMinutes = 0): boolean {
-  const bufferMs = bufferMinutes * 60_000;
-  const leftStart = Date.parse(left.start) - bufferMs;
-  const leftEnd = Date.parse(left.end) + bufferMs;
-  const rightStart = Date.parse(right.start);
-  const rightEnd = Date.parse(right.end);
-  return leftStart < rightEnd && rightStart < leftEnd;
-}
-
-function isVirtual(slot: Pick<SlotOffer, 'serviceId'>): boolean {
-  return slot.serviceId.startsWith('telehealth') || slot.serviceId.startsWith('virtual');
 }
 
 export class Increment2Engine {
@@ -144,14 +132,18 @@ export class Increment2Engine {
   detectTransportConflict(
     first: CatalogSlot,
     second: CatalogSlot,
-    travelBufferMinutes: number,
+    inPersonBufferMinutes: number,
   ): boolean {
     if (first.locationId === second.locationId) return false;
     const padded: TimeInterval = {
       start: new Date(Date.parse(first.start) - first.setupMinutes * 60_000).toISOString(),
       end: new Date(Date.parse(first.end) + first.cleanupMinutes * 60_000).toISOString(),
     };
-    return overlaps(padded, second, travelBufferMinutes);
+    return intervalsOverlap(
+      padded,
+      second,
+      travelBufferMinutes(first, second, inPersonBufferMinutes),
+    );
   }
 
   recordException(exception: ManagerSchedulingException): ManagerSchedulingException {
@@ -161,9 +153,22 @@ export class Increment2Engine {
 
   attachInterpreter(
     appointmentId: string,
-    interpreter: { resourceId: string; qualified: boolean; available: boolean },
+    interpreter: {
+      resourceId: string;
+      qualified: boolean;
+      available: boolean;
+      modalityOk?: boolean;
+      durationOk?: boolean;
+      leadTimeOk?: boolean;
+    },
   ): { status: 'confirmed' | 'requested' | 'tasked'; task?: ResourceUnavailableTask } {
-    if (!interpreter.qualified || !interpreter.available) {
+    if (
+      !interpreter.qualified ||
+      !interpreter.available ||
+      interpreter.modalityOk === false ||
+      interpreter.durationOk === false ||
+      interpreter.leadTimeOk === false
+    ) {
       const task: ResourceUnavailableTask = {
         taskId: `interp:${appointmentId}`,
         owner: 'accessibility-desk',
@@ -208,7 +213,7 @@ export class Increment2Engine {
     const pause = this.pauses.get(waitlistEntryId);
     if (!pause) return undefined;
     this.pauses.delete(waitlistEntryId);
-    return { ...pause, state: 'paused' };
+    return { ...pause, state: 'restored' };
   }
 
   sameDayBackfill(
@@ -225,37 +230,26 @@ export class Increment2Engine {
       staffPreferred: boolean;
     }[],
   ): { bookedPatientId: string | null; declined: readonly string[] } {
-    const ready = candidates.filter(
-      (candidate) =>
-        candidate.prerequisiteReady &&
-        candidate.authorizationReady &&
-        candidate.travelReady &&
-        candidate.interpreterReady &&
-        candidate.equipmentReady &&
-        candidate.consentedChannel,
-    );
-    const winner = ready[0];
+    const scored = candidates.map((candidate, index) => ({
+      candidate,
+      index,
+      score:
+        Number(candidate.prerequisiteReady) +
+        Number(candidate.authorizationReady) +
+        Number(candidate.travelReady) +
+        Number(candidate.interpreterReady) +
+        Number(candidate.equipmentReady) +
+        Number(candidate.consentedChannel),
+    }));
+    const eligible = scored
+      .filter((row) => row.score === 6)
+      .sort((left, right) => right.score - left.score || left.index - right.index);
+    const winner = eligible[0]?.candidate;
     if (!winner) {
       return {
         bookedPatientId: null,
         declined: candidates.map((candidate) => candidate.patientId),
       };
-    }
-    if (winner.predictedNoShow || winner.member || winner.staffPreferred) {
-      if (
-        !winner.prerequisiteReady ||
-        !winner.authorizationReady ||
-        !winner.travelReady ||
-        !winner.interpreterReady ||
-        !winner.equipmentReady ||
-        !winner.consentedChannel
-      ) {
-        throw new Increment2Error(
-          'READINESS_BYPASS_REFUSED',
-          'Predicted no-show, membership, or staff preference cannot bypass readiness.',
-          { patientId: winner.patientId },
-        );
-      }
     }
     return {
       bookedPatientId: winner.patientId,
@@ -348,14 +342,18 @@ export class Increment2Engine {
   checkPatientOverlap(
     existing: readonly (Appointment | Hold)[],
     candidate: SlotOffer,
-    travelBufferMinutes: number,
+    inPersonBufferMinutes: number,
   ): { blocked: boolean; requiresIntentionalConfirm: boolean } {
-    const buffer = isVirtual(candidate) ? 0 : travelBufferMinutes;
-    const hit = existing.some((row) => overlaps(row, candidate, buffer));
+    const hit = existing.some((row) =>
+      intervalsOverlap(row, candidate, travelBufferMinutes(row, candidate, inPersonBufferMinutes)),
+    );
     return { blocked: hit, requiresIntentionalConfirm: hit };
   }
 
-  sweepOverlaps(appointments: readonly Appointment[], travelBufferMinutes: number): Appointment[] {
+  sweepOverlaps(
+    appointments: readonly Appointment[],
+    inPersonBufferMinutes: number,
+  ): Appointment[] {
     const hits: Appointment[] = [];
     for (let i = 0; i < appointments.length; i += 1) {
       for (let j = i + 1; j < appointments.length; j += 1) {
@@ -363,8 +361,8 @@ export class Increment2Engine {
         const right = appointments[j];
         if (!left || !right) continue;
         if (left.patientId !== right.patientId) continue;
-        const buffer = isVirtual(left) || isVirtual(right) ? 0 : travelBufferMinutes;
-        if (overlaps(left, right, buffer)) {
+        const buffer = travelBufferMinutes(left, right, inPersonBufferMinutes);
+        if (intervalsOverlap(left, right, buffer)) {
           hits.push(left, right);
         }
       }

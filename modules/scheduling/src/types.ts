@@ -201,7 +201,7 @@ export interface WaitlistPriorityPause {
   owner: string;
   originalPriority: number;
   reevaluationDeadline: string;
-  state: 'paused';
+  state: 'paused' | 'restored' | 'closed';
 }
 
 export interface ManagerSchedulingException {
