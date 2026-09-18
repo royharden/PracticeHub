@@ -1,0 +1,8 @@
+{
+  "synthetic": true,
+  "class": "BOUNDARY",
+  "requirements": ["REQ-MEM"],
+  "scenario": "employer-payer vintage consumes the same composition as a member vintage without mixing vintages",
+  "expected": { "payer": "employer" },
+  "bugClass": "employer and member vintages collapsed"
+}

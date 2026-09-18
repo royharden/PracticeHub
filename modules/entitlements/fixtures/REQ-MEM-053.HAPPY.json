@@ -1,0 +1,8 @@
+{
+  "synthetic": true,
+  "class": "HAPPY",
+  "requirements": ["REQ-MEM"],
+  "scenario": "active vintage consumes a fully mapped non-covered composition with a legal discount",
+  "expected": { "ok": true },
+  "bugClass": "consume skipped vintage or coverage class"
+}

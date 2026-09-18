@@ -1,0 +1,8 @@
+{
+  "synthetic": true,
+  "class": "FAILURE",
+  "requirements": ["REQ-MEM"],
+  "scenario": "discount against a covered-only billed set is refused",
+  "expected": { "code": "DISCOUNT_ON_COVERED" },
+  "bugClass": "OIG cost-share discount applied to covered care"
+}

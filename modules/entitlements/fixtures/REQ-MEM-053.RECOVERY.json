@@ -1,0 +1,8 @@
+{
+  "synthetic": true,
+  "class": "RECOVERY",
+  "requirements": ["REQ-MEM"],
+  "scenario": "two concurrent consume attempts against one vintage+sku yield one win and one double-consumption",
+  "expected": { "winners": 1, "doubleConsumption": 1 },
+  "bugClass": "lost race double-spends an entitlement"
+}
