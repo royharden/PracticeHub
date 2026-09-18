@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-019",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "lesson WorkItem is recorded on failed-cutover for the next re-run",
+      "op": "failed-cutover",
+      "expectWorkItem": true
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-019",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "rehearsal re-run after failed-cutover can reach 20/20 POST-FREEZE",
+      "op": "rerun-after-fail",
+      "expectOutcome": "post-freeze-restored"
+    }
+  ]
+}

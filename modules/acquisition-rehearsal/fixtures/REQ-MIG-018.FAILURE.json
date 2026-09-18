@@ -1,0 +1,13 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-018",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "failed-cutover never freezes and opens a WorkItem",
+      "op": "failed-cutover",
+      "expectOutcome": "failed-cutover",
+      "expectFrozen": false
+    }
+  ]
+}

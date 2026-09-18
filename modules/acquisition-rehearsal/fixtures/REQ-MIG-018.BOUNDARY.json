@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-018",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "panel size other than 20 is rejected",
+      "op": "panel-not-twenty",
+      "expectError": "rehearsal panel must be exactly 20 synthetic subjects"
+    }
+  ]
+}

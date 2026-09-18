@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-019",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "duplicate subject refs are rejected before cutover",
+      "op": "duplicate-subjects",
+      "expectError": "rehearsal panel subjects must be unique"
+    }
+  ]
+}

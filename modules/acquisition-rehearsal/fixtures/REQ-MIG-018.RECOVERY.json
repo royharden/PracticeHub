@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-018",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "failed-cutover still restore+re-keys the rehearsal panel",
+      "op": "failed-cutover-restore",
+      "expectOutcome": "failed-cutover",
+      "expectRestored": true,
+      "expectRekeyed": true
+    }
+  ]
+}

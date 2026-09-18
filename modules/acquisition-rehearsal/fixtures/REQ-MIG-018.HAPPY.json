@@ -1,0 +1,13 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-018",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "20/20 synthetic panel freezes then POST-FREEZE restore+re-key",
+      "op": "twenty-twenty-post-freeze",
+      "expectOutcome": "post-freeze-restored",
+      "expectFrozen": true
+    }
+  ]
+}

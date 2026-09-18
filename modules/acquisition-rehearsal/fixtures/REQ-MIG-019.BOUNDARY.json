@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-019",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "non-synthetic rehearsal facts are rejected",
+      "op": "non-synthetic",
+      "expectError": "acquisition rehearsal facts must be synthetic"
+    }
+  ]
+}
