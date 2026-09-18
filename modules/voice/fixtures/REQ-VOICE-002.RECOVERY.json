@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-VOICE-002",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "unrecorded service still completes after a recording refusal",
+      "op": "complete-unrecorded",
+      "rule": "all-party",
+      "expectState": "completed",
+      "expectOutcome": "unrecorded-service"
+    }
+  ]
+}

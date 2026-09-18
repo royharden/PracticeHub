@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-VOICE-013",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "legal-hold registry is checked before purge and retain wins",
+      "op": "legal-hold-retain",
+      "expectOutcome": "legal-hold-retain"
+    }
+  ]
+}

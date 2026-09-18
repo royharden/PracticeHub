@@ -1,0 +1,13 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-VOICE-013",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "consent-captured recording is not a purge candidate",
+      "op": "record-with-all-party-consent",
+      "rule": "all-party",
+      "expectOutcome": "recording-permitted"
+    }
+  ]
+}

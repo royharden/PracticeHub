@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-VOICE-002",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "all-party refusal disables recording and forbids a transcript",
+      "op": "refuse-all-party",
+      "rule": "all-party",
+      "expectOutcome": "unrecorded-service",
+      "expectWorkflow": true,
+      "expectTranscript": false
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-VOICE-002",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "all-party consents permit recording and the call workflow continues",
+      "op": "record-with-all-party-consent",
+      "rule": "all-party",
+      "expectOutcome": "recording-permitted",
+      "expectWorkflow": true
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-VOICE-012",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "after-hours unanswered greeting includes 911 then urgent voicemail pages on-call",
+      "op": "after-hours-911-greeting",
+      "expect911": true,
+      "expectPaged": true
+    }
+  ]
+}

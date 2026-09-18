@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-VOICE-012",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "after-hours routine voicemail does not page on-call",
+      "op": "after-hours-routine",
+      "expectPaged": false
+    }
+  ]
+}

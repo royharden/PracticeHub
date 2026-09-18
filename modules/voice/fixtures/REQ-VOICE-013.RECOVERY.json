@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-VOICE-013",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "uncertain consent holds for human verification instead of purge",
+      "op": "uncertain-consent-human-verify",
+      "expectOutcome": "hold-human-verify"
+    }
+  ]
+}

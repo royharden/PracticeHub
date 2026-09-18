@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-VOICE-012",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "missing transcription fail-safes to urgent and pages with the voicemail rail",
+      "op": "missing-transcript-fail-safe",
+      "expectPaged": true
+    }
+  ]
+}

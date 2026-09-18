@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-VOICE-002",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "unknown location stays all-party until confirmed; never one-party permit",
+      "op": "unknown-location-all-party",
+      "expectOutcome": "recording-permitted"
+    }
+  ]
+}

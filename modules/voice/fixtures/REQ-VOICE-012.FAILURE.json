@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-VOICE-012",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "in-hours voicemail is rejected by the after-hours rail",
+      "op": "in-hours-rejected",
+      "expectError": "this rail is after-hours only"
+    }
+  ]
+}
