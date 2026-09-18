@@ -1,0 +1,7 @@
+{
+  "requirementId": "WP-103/VOICE-AGENT-CERT",
+  "fixtureClass": "BOUNDARY",
+  "synthetic": true,
+  "sampleDown": false,
+  "expectPass": true
+}

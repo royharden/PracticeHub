@@ -1,0 +1,7 @@
+{
+  "requirementId": "WP-103/VOICE-AGENT-CERT",
+  "fixtureClass": "RECOVERY",
+  "synthetic": true,
+  "sampleDown": false,
+  "expectPass": true
+}
