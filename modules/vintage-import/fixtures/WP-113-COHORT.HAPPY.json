@@ -1,0 +1,6 @@
+{
+  "requirement": "WP-113-COHORT",
+  "class": "HAPPY",
+  "probe": "clean-cohort-rehearsal-apply",
+  "synthetic": true
+}

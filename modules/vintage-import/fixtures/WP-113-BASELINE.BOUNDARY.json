@@ -1,0 +1,6 @@
+{
+  "requirement": "WP-113-BASELINE",
+  "class": "BOUNDARY",
+  "probe": "detect-requires-frozen-baseline",
+  "synthetic": true
+}

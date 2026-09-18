@@ -1,0 +1,6 @@
+{
+  "requirement": "WP-113-BASELINE",
+  "class": "RECOVERY",
+  "probe": "missing-key-does-not-apply",
+  "synthetic": true
+}

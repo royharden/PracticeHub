@@ -1,0 +1,6 @@
+{
+  "requirement": "WP-113-COHORT",
+  "class": "RECOVERY",
+  "probe": "batch-rollback-after-clean-apply",
+  "synthetic": true
+}

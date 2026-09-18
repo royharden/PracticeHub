@@ -1,0 +1,6 @@
+{
+  "requirement": "WP-113-BASELINE",
+  "class": "HAPPY",
+  "probe": "checksum-matches-frozen-bytes",
+  "synthetic": true
+}

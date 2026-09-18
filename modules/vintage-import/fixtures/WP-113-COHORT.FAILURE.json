@@ -1,0 +1,6 @@
+{
+  "requirement": "WP-113-COHORT",
+  "class": "FAILURE",
+  "probe": "cohort-price-drift-blocks-apply",
+  "synthetic": true
+}

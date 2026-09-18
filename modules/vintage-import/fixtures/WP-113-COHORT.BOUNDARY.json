@@ -1,0 +1,6 @@
+{
+  "requirement": "WP-113-COHORT",
+  "class": "BOUNDARY",
+  "probe": "cross-tenant-batch-ref-isolation",
+  "synthetic": true
+}
