@@ -1,0 +1,6 @@
+{
+  "id": "WP-128.RECOVERY",
+  "class": "RECOVERY",
+  "action": "refuse-canonical-encoded-claim",
+  "synthetic": true
+}

@@ -1,0 +1,6 @@
+{
+  "id": "WP-128.HAPPY",
+  "class": "HAPPY",
+  "ids": ["REQ-PLAT-025", "REQ-PLAT-026", "REQ-PLAT-030"],
+  "synthetic": true
+}
