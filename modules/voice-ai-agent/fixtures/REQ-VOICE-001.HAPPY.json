@@ -1,0 +1,9 @@
+{
+  "requirementId": "REQ-VOICE-001",
+  "fixtureClass": "HAPPY",
+  "synthetic": true,
+  "direction": "inbound",
+  "consentState": { "currentState": "opted_in" },
+  "ledgerAvailable": true,
+  "expectBlocked": false
+}

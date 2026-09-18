@@ -1,0 +1,9 @@
+{
+  "requirementId": "REQ-VOICE-001",
+  "fixtureClass": "BOUNDARY",
+  "synthetic": true,
+  "direction": "outbound",
+  "consentState": { "currentState": "opted_in" },
+  "ledgerAvailable": true,
+  "expectBlocked": true
+}

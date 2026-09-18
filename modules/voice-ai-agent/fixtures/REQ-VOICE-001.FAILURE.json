@@ -1,0 +1,10 @@
+{
+  "requirementId": "REQ-VOICE-001",
+  "fixtureClass": "FAILURE",
+  "synthetic": true,
+  "direction": "outbound",
+  "consentState": { "currentState": "opted_in" },
+  "ledgerAvailable": false,
+  "sponsorPolicy": { "recorded": true, "decision": "enabled", "policyTask": "human-owned-outbound-ai-voice-policy" },
+  "expectBlocked": true
+}
