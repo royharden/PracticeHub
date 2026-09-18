@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-SCH-022",
+  "class": "BOUNDARY",
+  "probe": "expiry-equals-now",
+  "synthetic": true
+}

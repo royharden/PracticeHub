@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-SCH-002",
+  "class": "HAPPY",
+  "probe": "equivalent-options-same-slot",
+  "synthetic": true
+}

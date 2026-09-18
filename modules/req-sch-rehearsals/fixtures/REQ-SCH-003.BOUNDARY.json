@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-SCH-003",
+  "class": "BOUNDARY",
+  "probe": "voice-channel-token",
+  "synthetic": true
+}

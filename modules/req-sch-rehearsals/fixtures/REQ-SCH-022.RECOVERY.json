@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-SCH-022",
+  "class": "RECOVERY",
+  "probe": "boundary-one-second-before",
+  "synthetic": true
+}

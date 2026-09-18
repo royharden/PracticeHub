@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-SCH-002",
+  "class": "BOUNDARY",
+  "probe": "two-slots-rejected",
+  "synthetic": true
+}

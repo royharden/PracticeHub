@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-SCH-022",
+  "class": "HAPPY",
+  "probe": "accept-before-expiry",
+  "synthetic": true
+}

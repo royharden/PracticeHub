@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-SCH-002",
+  "class": "RECOVERY",
+  "probe": "idempotent-present",
+  "synthetic": true
+}

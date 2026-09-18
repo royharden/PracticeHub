@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-SCH-021",
+  "class": "HAPPY",
+  "probe": "same-day-multi-offer",
+  "synthetic": true
+}

@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-SCH-003",
+  "class": "RECOVERY",
+  "probe": "email-channel-token",
+  "synthetic": true
+}

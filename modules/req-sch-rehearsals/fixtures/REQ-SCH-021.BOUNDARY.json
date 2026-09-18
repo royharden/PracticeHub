@@ -1,0 +1,6 @@
+{
+  "requirement": "REQ-SCH-021",
+  "class": "BOUNDARY",
+  "probe": "tenant-clock-day-prefix",
+  "synthetic": true
+}

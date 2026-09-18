@@ -1,0 +1,1 @@
+{ "requirement": "REQ-SCH-003", "class": "HAPPY", "probe": "sms-channel-token", "synthetic": true }
