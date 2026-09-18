@@ -1,0 +1,8 @@
+{
+  "requirementId": "WP-136/REQ-AUTH",
+  "fixtureClass": "HAPPY",
+  "synthetic": true,
+  "kind": "step-up",
+  "expectAllowed": true,
+  "session": { "sessionId": "s1", "kind": "elevated", "anomaly": false, "synthetic": true }
+}

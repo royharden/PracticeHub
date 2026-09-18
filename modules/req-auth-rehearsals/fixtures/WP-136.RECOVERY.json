@@ -1,0 +1,8 @@
+{
+  "requirementId": "WP-136/REQ-AUTH",
+  "fixtureClass": "RECOVERY",
+  "synthetic": true,
+  "kind": "step-up",
+  "expectAllowed": true,
+  "session": { "sessionId": "s4", "kind": "elevated", "anomaly": false, "synthetic": true }
+}

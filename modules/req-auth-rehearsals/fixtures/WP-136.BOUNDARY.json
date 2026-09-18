@@ -1,0 +1,8 @@
+{
+  "requirementId": "WP-136/REQ-AUTH",
+  "fixtureClass": "BOUNDARY",
+  "synthetic": true,
+  "kind": "pre-auth",
+  "expectAllowed": false,
+  "session": { "sessionId": "s2", "kind": "pre-auth", "anomaly": false, "synthetic": true }
+}

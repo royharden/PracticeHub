@@ -1,0 +1,8 @@
+{
+  "requirementId": "WP-136/REQ-AUTH",
+  "fixtureClass": "FAILURE",
+  "synthetic": true,
+  "kind": "ato-lockdown",
+  "expectAllowed": false,
+  "session": { "sessionId": "s3", "kind": "elevated", "anomaly": true, "synthetic": true }
+}
