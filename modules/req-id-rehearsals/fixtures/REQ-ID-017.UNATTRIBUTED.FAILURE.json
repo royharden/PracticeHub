@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-017",
+  "class": "FAILURE",
+  "description": "NR-024 rehearsal: an unattributed wrong-person report is refused.",
+  "cases": [
+    {
+      "name": "unattributed report refused",
+      "op": "unattributed-dispute"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-022",
+  "class": "HAPPY",
+  "description": "Employee independently verifies identity and consent; own contact prefs govern.",
+  "cases": [
+    {
+      "name": "AC-1 enroll after independent verify+consent",
+      "op": "verify-and-consent"
+    },
+    {
+      "name": "AC-3 enrolled contact prefs govern",
+      "op": "contact-pref"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-022",
+  "class": "RECOVERY",
+  "description": "Roster removal later; personal account and consent persist.",
+  "cases": [
+    {
+      "name": "EX-2 persist after roster removal",
+      "op": "remove-from-roster"
+    }
+  ]
+}

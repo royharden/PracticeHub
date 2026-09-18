@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-022",
+  "class": "BOUNDARY",
+  "description": "Decline shows the employer only declined status, not the reason.",
+  "cases": [
+    {
+      "name": "AC-2 employer sees declined without reason",
+      "op": "decline"
+    }
+  ]
+}

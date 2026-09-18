@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-ID-022",
+  "class": "FAILURE",
+  "description": "Employer-supplied contact is wrong; employee self-corrects without employer resubmit.",
+  "cases": [
+    {
+      "name": "EX-1 self-correct contact",
+      "op": "self-correct"
+    }
+  ]
+}
