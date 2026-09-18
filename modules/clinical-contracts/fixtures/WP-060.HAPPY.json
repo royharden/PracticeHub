@@ -1,0 +1,18 @@
+{
+  "requirementId": "WP-060",
+  "fixtureClass": "HAPPY",
+  "synthetic": true,
+  "cases": [
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-happy",
+        "tenantId": "northwind-synthetic",
+        "subjectRef": "wp060-subject-1",
+        "sourceVersion": "clinical-record-port-v1-double",
+        "coding": { "system": "http://loinc.org", "code": "8867-4" },
+        "synthetic": true
+      }
+    }
+  ]
+}

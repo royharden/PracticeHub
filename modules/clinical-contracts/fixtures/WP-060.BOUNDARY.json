@@ -1,0 +1,18 @@
+{
+  "requirementId": "WP-060",
+  "fixtureClass": "BOUNDARY",
+  "synthetic": true,
+  "cases": [
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-boundary",
+        "tenantId": "northwind-synthetic",
+        "subjectRef": "wp060-subject-1",
+        "sourceVersion": "clinical-record-port-v1-double",
+        "coding": { "system": "http://snomed.info/sct", "code": "38341003" },
+        "synthetic": true
+      }
+    }
+  ]
+}

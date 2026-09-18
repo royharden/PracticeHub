@@ -1,0 +1,18 @@
+{
+  "requirementId": "WP-060",
+  "fixtureClass": "RECOVERY",
+  "synthetic": true,
+  "cases": [
+    {
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "med-recovery",
+        "tenantId": "northwind-synthetic",
+        "subjectRef": "wp060-subject-1",
+        "sourceVersion": "clinical-record-port-v1-double",
+        "coding": { "system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "197361" },
+        "synthetic": true
+      }
+    }
+  ]
+}

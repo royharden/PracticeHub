@@ -1,0 +1,18 @@
+{
+  "requirementId": "WP-060",
+  "fixtureClass": "FAILURE",
+  "synthetic": true,
+  "cases": [
+    {
+      "resource": {
+        "resourceType": "AllergyIntolerance",
+        "id": "allergy-failure",
+        "tenantId": "northwind-synthetic",
+        "subjectRef": "wp060-subject-1",
+        "sourceVersion": "clinical-record-port-v1-double",
+        "coding": { "system": "http://snomed.info/sct", "code": "91936005" },
+        "synthetic": true
+      }
+    }
+  ]
+}
