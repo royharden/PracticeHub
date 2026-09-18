@@ -1,0 +1,15 @@
+{
+  "requirementId": "WP-133/REQ-WL",
+  "fixtureClass": "BOUNDARY",
+  "synthetic": true,
+  "kind": "priority-hold",
+  "expectOk": true,
+  "entry": {
+    "patientId": "p1",
+    "priority": 7,
+    "holdExpired": false,
+    "prerequisitePaused": true,
+    "synthetic": true
+  },
+  "schedule": { "slotId": "s1", "bookedPatientId": "p9", "version": 3 }
+}

@@ -1,0 +1,15 @@
+{
+  "requirementId": "WP-133/REQ-WL",
+  "fixtureClass": "RECOVERY",
+  "synthetic": true,
+  "kind": "recall-noshow",
+  "expectOk": true,
+  "entry": {
+    "patientId": "p2",
+    "priority": 1,
+    "holdExpired": false,
+    "prerequisitePaused": false,
+    "synthetic": true
+  },
+  "schedule": { "slotId": "s2", "bookedPatientId": null, "version": 1 }
+}

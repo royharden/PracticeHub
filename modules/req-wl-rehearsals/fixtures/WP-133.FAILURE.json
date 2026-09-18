@@ -1,0 +1,15 @@
+{
+  "requirementId": "WP-133/REQ-WL",
+  "fixtureClass": "FAILURE",
+  "synthetic": true,
+  "kind": "late-accept",
+  "expectOk": false,
+  "entry": {
+    "patientId": "p1",
+    "priority": 2,
+    "holdExpired": true,
+    "prerequisitePaused": false,
+    "synthetic": true
+  },
+  "schedule": { "slotId": "s1", "bookedPatientId": "p9", "version": 4 }
+}

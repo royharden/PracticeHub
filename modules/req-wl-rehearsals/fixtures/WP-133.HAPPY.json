@@ -1,0 +1,15 @@
+{
+  "requirementId": "WP-133/REQ-WL",
+  "fixtureClass": "HAPPY",
+  "synthetic": true,
+  "kind": "offer",
+  "expectOk": true,
+  "entry": {
+    "patientId": "p1",
+    "priority": 2,
+    "holdExpired": false,
+    "prerequisitePaused": false,
+    "synthetic": true
+  },
+  "schedule": { "slotId": "s1", "bookedPatientId": null, "version": 1 }
+}
