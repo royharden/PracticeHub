@@ -1,0 +1,16 @@
+{
+  "requirementId": "WP-118/DAY-ONE-BOOTSTRAP",
+  "fixtureClass": "BOUNDARY",
+  "synthetic": true,
+  "expectComplete": true,
+  "records": [
+    { "surface": "staff", "ready": true, "synthetic": true },
+    { "surface": "staff", "ready": true, "synthetic": true },
+    { "surface": "hours", "ready": true, "synthetic": true },
+    { "surface": "locations", "ready": true, "synthetic": true },
+    { "surface": "templates", "ready": true, "synthetic": true },
+    { "surface": "printers", "ready": true, "synthetic": true },
+    { "surface": "fax", "ready": true, "synthetic": true },
+    { "surface": "intake", "ready": true, "synthetic": true }
+  ]
+}
