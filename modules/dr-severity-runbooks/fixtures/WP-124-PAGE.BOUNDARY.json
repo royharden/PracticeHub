@@ -1,0 +1,6 @@
+{
+  "requirement": "WP-124-PAGE",
+  "class": "BOUNDARY",
+  "probe": "sev3-ticket-not-page",
+  "synthetic": true
+}

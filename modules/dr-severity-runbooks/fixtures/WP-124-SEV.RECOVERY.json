@@ -1,0 +1,6 @@
+{
+  "requirement": "WP-124-SEV",
+  "class": "RECOVERY",
+  "probe": "sev4-runbook-only",
+  "synthetic": true
+}

@@ -1,0 +1,6 @@
+{
+  "requirement": "WP-124-SEV",
+  "class": "FAILURE",
+  "probe": "sev1-without-coverage-throws",
+  "synthetic": true
+}

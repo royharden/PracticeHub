@@ -1,0 +1,6 @@
+{
+  "requirement": "WP-124-PAGE",
+  "class": "RECOVERY",
+  "probe": "in-app-and-runbook-when-vendor-down",
+  "synthetic": true
+}

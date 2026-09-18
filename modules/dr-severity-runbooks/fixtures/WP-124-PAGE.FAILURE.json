@@ -1,0 +1,6 @@
+{
+  "requirement": "WP-124-PAGE",
+  "class": "FAILURE",
+  "probe": "vendor-down-does-not-drop-sev1",
+  "synthetic": true
+}

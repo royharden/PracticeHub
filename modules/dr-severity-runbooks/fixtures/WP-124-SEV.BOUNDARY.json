@@ -1,0 +1,6 @@
+{
+  "requirement": "WP-124-SEV",
+  "class": "BOUNDARY",
+  "probe": "cross-tenant-oncall-isolation",
+  "synthetic": true
+}
