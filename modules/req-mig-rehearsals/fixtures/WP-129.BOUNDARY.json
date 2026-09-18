@@ -1,0 +1,6 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-019",
+  "class": "BOUNDARY",
+  "cases": [{ "name": "frozen mapping blocks re-run", "op": "frozen-rerun" }]
+}

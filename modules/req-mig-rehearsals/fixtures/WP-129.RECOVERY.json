@@ -1,0 +1,6 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-012",
+  "class": "RECOVERY",
+  "cases": [{ "name": "never rewrite workbench", "op": "rewrite" }]
+}

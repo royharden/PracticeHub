@@ -1,0 +1,6 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-001",
+  "class": "FAILURE",
+  "cases": [{ "name": "workbench double refusal", "op": "refused-workbench" }]
+}

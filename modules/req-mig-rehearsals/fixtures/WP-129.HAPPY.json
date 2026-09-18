@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-MIG-001",
+  "class": "HAPPY",
+  "cases": [
+    { "name": "capture local exceptions", "op": "encode", "req": "REQ-MIG-001" },
+    { "name": "work continuity", "op": "encode", "req": "REQ-MIG-007" },
+    { "name": "deadline preservation", "op": "encode", "req": "REQ-MIG-008" },
+    { "name": "ERA EFT recon", "op": "encode", "req": "REQ-MIG-009" },
+    { "name": "re-run protocol", "op": "encode", "req": "REQ-MIG-019" }
+  ]
+}
