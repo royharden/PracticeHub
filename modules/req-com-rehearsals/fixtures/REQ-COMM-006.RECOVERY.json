@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-006",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "alternate-contact is the recovery path",
+      "op": "undeliverable-sms",
+      "expectNext": "alternate-contact"
+    }
+  ]
+}

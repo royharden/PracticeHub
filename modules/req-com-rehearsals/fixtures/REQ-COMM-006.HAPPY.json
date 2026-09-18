@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-006",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "undeliverable SMS offers alternate contact",
+      "op": "undeliverable-sms",
+      "expectNext": "alternate-contact"
+    }
+  ]
+}

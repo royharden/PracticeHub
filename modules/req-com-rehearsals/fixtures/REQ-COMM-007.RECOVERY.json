@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-007",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "after PHI reject, a no-PHI email can send",
+      "op": "email-phi-then-clean",
+      "expectStatus": "sent"
+    }
+  ]
+}

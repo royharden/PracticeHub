@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-015",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "after recovery marketing can send",
+      "op": "10dlc-recover-send",
+      "expectStatus": "sent"
+    }
+  ]
+}

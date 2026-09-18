@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-024",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "other scopes remain sendable after marketing STOP",
+      "op": "stop-marketing-send-treatment",
+      "expectStatus": "sent"
+    }
+  ]
+}

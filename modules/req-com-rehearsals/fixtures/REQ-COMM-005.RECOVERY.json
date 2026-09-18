@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-005",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "treatment send still works after marketing STOP",
+      "op": "stop-marketing-send-treatment",
+      "expectStatus": "sent"
+    }
+  ]
+}

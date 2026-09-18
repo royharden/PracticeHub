@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-014",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "quiet-hours message is deferred not dropped",
+      "op": "quiet-hours-defer",
+      "expectStatus": "deferred"
+    }
+  ]
+}

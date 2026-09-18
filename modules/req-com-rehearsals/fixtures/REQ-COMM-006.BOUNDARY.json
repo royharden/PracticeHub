@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-006",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "undeliverable does not rewrite voice or fax",
+      "op": "undeliverable-sms",
+      "expectNext": "alternate-contact"
+    }
+  ]
+}

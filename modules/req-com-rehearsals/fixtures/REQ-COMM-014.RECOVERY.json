@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-014",
+  "class": "RECOVERY",
+  "cases": [
+    {
+      "name": "deferred message is released before value expires",
+      "op": "quiet-hours-release",
+      "expectStatus": "sent"
+    }
+  ]
+}

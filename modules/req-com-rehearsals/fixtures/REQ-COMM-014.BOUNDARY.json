@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-014",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "deferral is audited as quiet-hours-deferred",
+      "op": "quiet-hours-defer",
+      "expectAudit": "quiet-hours-deferred"
+    }
+  ]
+}

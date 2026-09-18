@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-015",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "rejected 10DLC blocks marketing send",
+      "op": "10dlc-block",
+      "expectError": "marketing send blocked until 10DLC recovery"
+    }
+  ]
+}

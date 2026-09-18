@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-014",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "sending during quiet hours does not mark sent",
+      "op": "quiet-hours-defer",
+      "expectStatus": "deferred"
+    }
+  ]
+}

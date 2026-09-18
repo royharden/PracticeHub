@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-005",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "STOP applies only to named scope",
+      "op": "stop-marketing-send-treatment",
+      "expectStatus": "sent"
+    }
+  ]
+}

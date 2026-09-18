@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-005",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "STOP marketing still allows treatment SMS",
+      "op": "stop-marketing-send-treatment",
+      "expectStatus": "sent"
+    }
+  ]
+}

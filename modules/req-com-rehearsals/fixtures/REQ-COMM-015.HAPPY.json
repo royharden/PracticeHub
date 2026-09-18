@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-015",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "10DLC recovery unblocks marketing",
+      "op": "10dlc-recover-send",
+      "expectStatus": "sent"
+    }
+  ]
+}

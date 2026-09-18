@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-006",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "undeliverable status is failed-undeliverable",
+      "op": "undeliverable-sms",
+      "expectStatus": "failed-undeliverable"
+    }
+  ]
+}

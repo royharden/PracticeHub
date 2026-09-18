@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-015",
+  "class": "BOUNDARY",
+  "cases": [
+    {
+      "name": "recover without a rejection fails closed",
+      "op": "10dlc-recover-without-reject",
+      "expectError": "no 10DLC rejection to recover"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-024",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "second marketing send after STOP is still blocked",
+      "op": "stop-marketing-send-marketing",
+      "expectError": "post-STOP send prevented for marketing"
+    }
+  ]
+}

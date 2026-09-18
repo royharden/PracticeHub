@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-005",
+  "class": "FAILURE",
+  "cases": [
+    {
+      "name": "STOP marketing blocks further marketing",
+      "op": "stop-marketing-send-marketing",
+      "expectError": "post-STOP send prevented for marketing"
+    }
+  ]
+}

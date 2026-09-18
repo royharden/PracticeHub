@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "requirementId": "REQ-COMM-007",
+  "class": "HAPPY",
+  "cases": [
+    {
+      "name": "ordinary email without PHI is sent",
+      "op": "email-no-phi",
+      "expectStatus": "sent"
+    }
+  ]
+}
