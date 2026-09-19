@@ -32,6 +32,8 @@ importers:
         specifier: 4.1.10
         version: 4.1.10(@types/node@24.13.3)(vite@8.1.5(@types/node@24.13.3))
 
+  adapters/athena: {}
+
   adapters/cpaas-twilio:
     devDependencies:
       '@practicehub/vendor-sim-kit':
@@ -42,6 +44,28 @@ importers:
         version: link:../../sims/vendor-simulator
 
   adapters/medplum: {}
+
+  adapters/medplum-local:
+    dependencies:
+      '@practicehub/clinical-contracts':
+        specifier: workspace:*
+        version: link:../../modules/clinical-contracts
+
+  adapters/stripe:
+    dependencies:
+      '@practicehub/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@practicehub/platform-integration':
+        specifier: workspace:*
+        version: link:../../modules/platform-integration
+    devDependencies:
+      '@practicehub/vendor-sim-kit':
+        specifier: workspace:*
+        version: link:../../sims/vendor-sim-kit
+      '@practicehub/vendor-simulator':
+        specifier: workspace:*
+        version: link:../../sims/vendor-simulator
 
   apps/server: {}
 
@@ -56,6 +80,18 @@ importers:
       '@practicehub/testkit':
         specifier: workspace:*
         version: link:../../packages/testkit
+
+  modules/acquisition-rehearsal:
+    devDependencies:
+      '@practicehub/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+
+  modules/ai-drafting:
+    devDependencies:
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@24.13.3)(vite@8.1.5(@types/node@24.13.3))
 
   modules/ai-gateway:
     dependencies:
@@ -91,6 +127,8 @@ importers:
         specifier: 4.1.10
         version: 4.1.10(@types/node@24.13.3)(vite@8.1.5(@types/node@24.13.3))
 
+  modules/ai-kill-switch: {}
+
   modules/analytics:
     dependencies:
       '@practicehub/contracts':
@@ -109,6 +147,12 @@ importers:
       pg:
         specifier: 8.16.3
         version: 8.16.3
+
+  modules/athena-cutover:
+    devDependencies:
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@24.13.3)(vite@8.1.5(@types/node@24.13.3))
 
   modules/audit-evidence:
     dependencies:
@@ -130,6 +174,22 @@ importers:
         version: 8.16.3
 
   modules/breach-case:
+    dependencies:
+      '@practicehub/platform-core':
+        specifier: workspace:*
+        version: link:../platform-core
+    devDependencies:
+      '@practicehub/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+      '@types/pg':
+        specifier: 8.16.0
+        version: 8.16.0
+      pg:
+        specifier: 8.16.3
+        version: 8.16.3
+
+  modules/catalog:
     dependencies:
       '@practicehub/platform-core':
         specifier: workspace:*
@@ -179,6 +239,10 @@ importers:
         specifier: 8.16.3
         version: 8.16.3
 
+  modules/clinical-contracts: {}
+
+  modules/cloud-swap-rehearsal: {}
+
   modules/comms:
     dependencies:
       '@practicehub/consent':
@@ -217,6 +281,8 @@ importers:
         specifier: 8.16.3
         version: 8.16.3
 
+  modules/day-one-bootstrap: {}
+
   modules/documents:
     dependencies:
       '@practicehub/audit-evidence':
@@ -241,6 +307,16 @@ importers:
       pg:
         specifier: 8.16.3
         version: 8.16.3
+
+  modules/dr-severity-runbooks: {}
+
+  modules/drills-automation: {}
+
+  modules/employer-groups: {}
+
+  modules/encounters: {}
+
+  modules/entitlements: {}
 
   modules/events:
     dependencies:
@@ -267,6 +343,8 @@ importers:
         specifier: 8.16.3
         version: 8.16.3
 
+  modules/hubspot-exit: {}
+
   modules/identity:
     dependencies:
       '@practicehub/contracts':
@@ -292,6 +370,52 @@ importers:
         specifier: 8.16.3
         version: 8.16.3
 
+  modules/load-replay:
+    devDependencies:
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@24.13.3)(vite@8.1.5(@types/node@24.13.3))
+
+  modules/loop-hardening:
+    dependencies:
+      '@practicehub/catalog-cash':
+        specifier: workspace:*
+        version: link:../catalog-cash
+      '@practicehub/comms':
+        specifier: workspace:*
+        version: link:../comms
+      '@practicehub/consent':
+        specifier: workspace:*
+        version: link:../consent
+      '@practicehub/cpaas-twilio':
+        specifier: workspace:*
+        version: link:../../adapters/cpaas-twilio
+      '@practicehub/events':
+        specifier: workspace:*
+        version: link:../events
+      '@practicehub/membership-entitlements':
+        specifier: workspace:*
+        version: link:../membership-entitlements
+      '@practicehub/payments-ledger':
+        specifier: workspace:*
+        version: link:../payments-ledger
+      '@practicehub/vendor-sim-kit':
+        specifier: workspace:*
+        version: link:../../sims/vendor-sim-kit
+      '@practicehub/vendor-simulator':
+        specifier: workspace:*
+        version: link:../../sims/vendor-simulator
+
+  modules/membership:
+    dependencies:
+      '@practicehub/platform-core':
+        specifier: workspace:*
+        version: link:../platform-core
+    devDependencies:
+      '@practicehub/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+
   modules/membership-entitlements:
     dependencies:
       '@practicehub/platform-core':
@@ -316,6 +440,8 @@ importers:
       pg:
         specifier: 8.16.3
         version: 8.16.3
+
+  modules/pai-coverage-audit: {}
 
   modules/payments-ledger:
     dependencies:
@@ -396,6 +522,36 @@ importers:
         specifier: 8.16.3
         version: 8.16.3
 
+  modules/req-auth-rehearsals: {}
+
+  modules/req-com-rehearsals:
+    devDependencies:
+      '@practicehub/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+
+  modules/req-id-rehearsals: {}
+
+  modules/req-mig-rehearsals:
+    devDependencies:
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@24.13.3)(vite@8.1.5(@types/node@24.13.3))
+
+  modules/req-obs-rehearsals: {}
+
+  modules/req-plat-rehearsals: {}
+
+  modules/req-sch-rehearsals: {}
+
+  modules/req-wl-rehearsals: {}
+
+  modules/rollout-toggle-harness:
+    dependencies:
+      '@practicehub/platform-core':
+        specifier: workspace:*
+        version: link:../platform-core
+
   modules/scheduling:
     dependencies:
       '@practicehub/platform-core':
@@ -411,6 +567,57 @@ importers:
       pg:
         specifier: 8.16.3
         version: 8.16.3
+
+  modules/security-review-prep: {}
+
+  modules/self-portability: {}
+
+  modules/tenant-isolation-proof: {}
+
+  modules/tenant-white-label:
+    devDependencies:
+      '@practicehub/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+
+  modules/urgency-screen:
+    devDependencies:
+      '@practicehub/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+
+  modules/vintage-import:
+    dependencies:
+      '@practicehub/platform-core':
+        specifier: workspace:*
+        version: link:../platform-core
+    devDependencies:
+      '@practicehub/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+
+  modules/voice:
+    dependencies:
+      '@practicehub/events':
+        specifier: workspace:*
+        version: link:../events
+      '@practicehub/platform-core':
+        specifier: workspace:*
+        version: link:../platform-core
+    devDependencies:
+      '@practicehub/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+      '@types/pg':
+        specifier: 8.16.0
+        version: 8.16.0
+      pg:
+        specifier: 8.16.3
+        version: 8.16.3
+
+  modules/voice-agent-cert: {}
+
+  modules/voice-ai-agent: {}
 
   packages/contracts: {}
 
@@ -444,11 +651,22 @@ importers:
         specifier: workspace:*
         version: link:../../packages/contracts
 
+  sims/stripe-sim:
+    dependencies:
+      '@practicehub/vendor-sim-kit':
+        specifier: workspace:*
+        version: link:../vendor-sim-kit
+      '@practicehub/vendor-simulator':
+        specifier: workspace:*
+        version: link:../vendor-simulator
+
   sims/synthea-runner:
     dependencies:
       '@practicehub/synthgen':
         specifier: workspace:*
         version: link:../../tools/synthgen
+
+  sims/twilio-sim-voice: {}
 
   sims/vendor-sim-kit:
     dependencies:
