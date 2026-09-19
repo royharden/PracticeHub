@@ -9,7 +9,7 @@ import { catalogRlsSpecs } from './rls-specs.js';
 const root = fileURLToPath(new URL('../../..', import.meta.url));
 describe('0037 catalog RLS drift', () => {
   it('embeds the exact generated tenant-RLS section and coverage guard', () => {
-    const migration = readFileSync(`${root}infra/postgres/migrations/0037-catalog.sql`, 'utf8');
+    const migration = readFileSync(`${root}modules/catalog/migrations/0037-catalog.sql`, 'utf8');
     expect(extractRlsMigrationSection(migration)).toBe(
       renderRlsMigrationSection('catalog', catalogRlsSpecs, catalogRlsSpecs),
     );
