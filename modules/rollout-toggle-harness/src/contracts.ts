@@ -25,7 +25,8 @@ export const WP032_DESCRIPTOR_SHA256 = createHash('sha256')
   .digest('hex');
 
 export type WorkPackageLoop = 'WP-030' | 'WP-031' | 'WP-032';
-export type BindingParity = 'real-consumer' | 'real-consumer-pending-tenant-fence' | 'versioned-double';
+export type BindingParity =
+  'real-consumer' | 'real-consumer-pending-tenant-fence' | 'versioned-double';
 
 export type RecorderCategory =
   | 'queuedIntent'
@@ -168,11 +169,15 @@ export function intentHashFor(proposal: TenantScopedClinicalProposal): string {
 }
 
 export function effectIdFor(tenantId: string, requestKey: string, intentHash: string): string {
-  return createHash('sha256').update(JSON.stringify([tenantId, requestKey, intentHash])).digest('hex');
+  return createHash('sha256')
+    .update(JSON.stringify([tenantId, requestKey, intentHash]))
+    .digest('hex');
 }
 
 export function assertDescriptorHash(): void {
-  if (WP032_DESCRIPTOR_SHA256 !== 'bf73e87c0ef1d4116a8b69f899d8c48f33a2a983665bf08b9530aa5039dfea96') {
+  if (
+    WP032_DESCRIPTOR_SHA256 !== 'bf73e87c0ef1d4116a8b69f899d8c48f33a2a983665bf08b9530aa5039dfea96'
+  ) {
     throw new HarnessError('DESCRIPTOR_HASH_MISMATCH', WP032_DESCRIPTOR_SHA256);
   }
 }

@@ -23,8 +23,7 @@ export function verifyCompleteness(records: readonly ExitRecord[]): Completeness
       }
     }
   }
-  const complete =
-    objectKinds.every((kind) => counts[kind] > 0) && missingPhi.length === 0;
+  const complete = objectKinds.every((kind) => counts[kind] > 0) && missingPhi.length === 0;
   return { counts, missingPhi, complete };
 }
 

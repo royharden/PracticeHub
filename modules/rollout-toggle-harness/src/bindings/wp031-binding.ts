@@ -17,9 +17,10 @@ import {
 } from '../contracts.js';
 import type { EffectRecorder } from '../effect-recorder.js';
 
-export class Wp031LocalDouble
-  implements LoopToggleBindingV1<TenantScopedLoopInput, TenantScopedLoopInput>
-{
+export class Wp031LocalDouble implements LoopToggleBindingV1<
+  TenantScopedLoopInput,
+  TenantScopedLoopInput
+> {
   public readonly contractVersion = 1 as const;
   public readonly workPackage = 'WP-031' as const;
   public readonly capabilityId: CapabilityId = WP031_LOCAL_CAPABILITY_ID;

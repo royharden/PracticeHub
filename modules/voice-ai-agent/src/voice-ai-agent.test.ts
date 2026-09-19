@@ -26,7 +26,9 @@ function inbound(): ConversationRelaySession {
 
 describe('WP-047 F1–F4 close', () => {
   it('does not own WP-046 recording clauses', () => {
-    expect([...ENCODED_VOICE_CLAUSES]).not.toEqual(expect.arrayContaining([...WP046_OWNED_CLAUSES]));
+    expect([...ENCODED_VOICE_CLAUSES]).not.toEqual(
+      expect.arrayContaining([...WP046_OWNED_CLAUSES]),
+    );
     expect(() => refuseWp046RecordingClause('REQ-VOICE-002')).toThrow(VoiceAgentError);
     expect(clauseDispositions.some((row) => row.fwdId === 'FWD-CONSENT-047-AIVOICE')).toBe(true);
   });

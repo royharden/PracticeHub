@@ -1,11 +1,7 @@
 export const CERT_IDENTITY = 'WP-103/VOICE-AGENT-CERT';
 
 export type DrillName =
-  | 'emergency-interrupt'
-  | 'tool-calls'
-  | 'consent'
-  | 'kill-switch'
-  | 'qa-completeness';
+  'emergency-interrupt' | 'tool-calls' | 'consent' | 'kill-switch' | 'qa-completeness';
 
 export class CertError extends Error {
   public constructor(

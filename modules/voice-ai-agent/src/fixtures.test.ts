@@ -27,7 +27,11 @@ const directory = dirname(fileURLToPath(import.meta.url));
 function loadPack(fixtureClass: FixtureClass): FixturePack {
   const path = resolve(directory, `../fixtures/REQ-VOICE-001.${fixtureClass}.json`);
   const raw = JSON.parse(readFileSync(path, 'utf8')) as Partial<FixturePack>;
-  if (raw.requirementId !== 'REQ-VOICE-001' || raw.fixtureClass !== fixtureClass || raw.synthetic !== true) {
+  if (
+    raw.requirementId !== 'REQ-VOICE-001' ||
+    raw.fixtureClass !== fixtureClass ||
+    raw.synthetic !== true
+  ) {
     throw new Error(`INVALID_WP047_FIXTURE:${fixtureClass}`);
   }
   return raw as FixturePack;

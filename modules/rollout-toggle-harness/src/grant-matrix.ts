@@ -75,7 +75,11 @@ export function assertKnownState(state: string): CapabilityState {
   return state as CapabilityState;
 }
 
-function loopInput(tenantId: string, requestKey: string, payloadHash = 'payload-v1'): TenantScopedLoopInput {
+function loopInput(
+  tenantId: string,
+  requestKey: string,
+  payloadHash = 'payload-v1',
+): TenantScopedLoopInput {
   return { requestKey, tenantId, payloadHash, synthetic: true };
 }
 
@@ -114,7 +118,8 @@ function gateFor(
 export interface MatrixWorld {
   readonly recorder: EffectRecorder;
   readonly registry: ReturnType<typeof localHarnessRegistry>;
-  readonly binding: LoopToggleBindingV1<TenantScopedLoopInput, TenantScopedLoopInput> | Wp032CapabilityDoubleV1;
+  readonly binding:
+    LoopToggleBindingV1<TenantScopedLoopInput, TenantScopedLoopInput> | Wp032CapabilityDoubleV1;
   readonly capabilityId: CapabilityId;
   readonly workPackage: WorkPackageLoop;
 }
@@ -147,7 +152,10 @@ async function invoke(
     const input = clinicalInput(tenantId, requestKey, payloadHash);
     return checkpoint === 'enqueue' ? double.enqueue(input, gate) : double.drain(input, gate);
   }
-  const binding = world.binding as LoopToggleBindingV1<TenantScopedLoopInput, TenantScopedLoopInput>;
+  const binding = world.binding as LoopToggleBindingV1<
+    TenantScopedLoopInput,
+    TenantScopedLoopInput
+  >;
   const input = loopInput(tenantId, requestKey, payloadHash);
   return checkpoint === 'enqueue' ? binding.enqueue(input, gate) : binding.drain(input, gate);
 }
@@ -196,7 +204,10 @@ export async function runMatrixRow(
   const world = createWorld(workPackage);
   const first = orientation === 'ab' ? TENANT_A : TENANT_B;
   const second = orientation === 'ab' ? TENANT_B : TENANT_A;
-  const pair = (left: CapabilityState | 'absent', right: CapabilityState | 'absent'): CapabilityGrant[] =>
+  const pair = (
+    left: CapabilityState | 'absent',
+    right: CapabilityState | 'absent',
+  ): CapabilityGrant[] =>
     orientation === 'ab'
       ? grantsFor(world.capabilityId, left, right)
       : grantsFor(world.capabilityId, right, left);
@@ -268,7 +279,10 @@ export async function runMatrixRow(
     const both = grantsFor(world.capabilityId, 'simulated', 'simulated');
     await invoke(world, TENANT_B, onlyB, 'enqueue', 1, 'stable-b');
     const afterB = await invoke(world, TENANT_B, onlyB, 'drain', 1, 'stable-b');
-    if (JSON.stringify(before.drainedEffects[TENANT_B]) !== JSON.stringify(afterB.drainedEffects[TENANT_B])) {
+    if (
+      JSON.stringify(before.drainedEffects[TENANT_B]) !==
+      JSON.stringify(afterB.drainedEffects[TENANT_B])
+    ) {
       throw new HarnessError('NEIGHBOR_DELTA_DRIFT', TENANT_B);
     }
     await invoke(world, TENANT_A, both, 'enqueue', 2, 'op-a');

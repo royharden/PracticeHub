@@ -55,7 +55,9 @@ export class EffectRecorder {
   }
 
   public snapshot(): EffectSnapshot {
-    const freeze = (index: Record<string, RecorderEvent[]>): Record<string, readonly RecorderEvent[]> => {
+    const freeze = (
+      index: Record<string, RecorderEvent[]>,
+    ): Record<string, readonly RecorderEvent[]> => {
       const out: Record<string, readonly RecorderEvent[]> = {};
       for (const [tenantId, events] of Object.entries(index)) {
         out[tenantId] = [...events];

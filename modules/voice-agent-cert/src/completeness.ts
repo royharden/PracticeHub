@@ -1,9 +1,6 @@
 import { CertError, type DrillResult } from './contracts.js';
 
-export function assertNoSampleDown(
-  emergencySessions: number,
-  reviewedSessions: number,
-): void {
+export function assertNoSampleDown(emergencySessions: number, reviewedSessions: number): void {
   if (emergencySessions === 0) {
     throw new CertError('NO_EMERGENCY_SAMPLE', 'empty');
   }

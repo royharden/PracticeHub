@@ -6,7 +6,12 @@ import {
   defaultSponsorPolicy,
   type SponsorOutboundPolicy,
 } from './consent-gate.js';
-import { VoiceAgentError, type Direction, type RelayTurn, type VoiceSessionSnapshot } from './contracts.js';
+import {
+  VoiceAgentError,
+  type Direction,
+  type RelayTurn,
+  type VoiceSessionSnapshot,
+} from './contracts.js';
 import { withMorningHandoff, withWarmTransfer } from './escalation.js';
 import { VoiceKillSwitch } from './kill-switch.js';
 import { assertAllowlistedTool, assertNoClinicalJudgment } from './tool-calls.js';
@@ -64,7 +69,10 @@ export class ConversationRelaySession {
       refillNotApproval: false,
       handoff: null,
       turns: [
-        { kind: 'agent_speech', text: 'This call uses an AI voice. Responsible party: PracticeHub. Press 9 to opt out.' },
+        {
+          kind: 'agent_speech',
+          text: 'This call uses an AI voice. Responsible party: PracticeHub. Press 9 to opt out.',
+        },
         { kind: 'opt_out', text: 'opt-out-offered' },
       ],
       synthetic: true,
@@ -104,7 +112,10 @@ export class ConversationRelaySession {
       language: this.#snapshot.language,
       channel: 'sms',
       comprehensionUncertain: true,
-      turns: [...this.#snapshot.turns, { kind: 'agent_speech', text: 'switching-channel-preserving-language' }],
+      turns: [
+        ...this.#snapshot.turns,
+        { kind: 'agent_speech', text: 'switching-channel-preserving-language' },
+      ],
     };
     return this.#snapshot;
   }

@@ -52,7 +52,10 @@ function loadFixture(fixtureClass: FixtureClass): FixturePack {
       throw new Error(`UNKNOWN_WP034_FIXTURE_OPERATION:${String(candidate.operation)}`);
     }
     if (candidate.operation === 'matrix') {
-      if (candidate.row === undefined || !(matrixRows as readonly string[]).includes(candidate.row)) {
+      if (
+        candidate.row === undefined ||
+        !(matrixRows as readonly string[]).includes(candidate.row)
+      ) {
         throw new Error(`UNKNOWN_WP034_MATRIX_ROW:${String(candidate.row)}`);
       }
       if (candidate.workPackage === undefined) {

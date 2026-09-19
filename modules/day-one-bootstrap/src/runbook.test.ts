@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { DayOneError, RUNBOOK_IDENTITY, requiredSurfaces, type SurfaceRecord } from './contracts.js';
+import {
+  DayOneError,
+  RUNBOOK_IDENTITY,
+  requiredSurfaces,
+  type SurfaceRecord,
+} from './contracts.js';
 import { assertComplete, evaluateRunbook } from './runbook.js';
 
 function ready(surface: SurfaceRecord['surface']): SurfaceRecord {
@@ -23,7 +28,10 @@ describe('WP-118 day-one runbook', () => {
 
   it('rejects non-synthetic records', () => {
     expect(() =>
-      evaluateRunbook([{ surface: 'staff', ready: true, synthetic: true }, { surface: 'fax', ready: true } as SurfaceRecord]),
+      evaluateRunbook([
+        { surface: 'staff', ready: true, synthetic: true },
+        { surface: 'fax', ready: true } as SurfaceRecord,
+      ]),
     ).toThrow(DayOneError);
   });
 });

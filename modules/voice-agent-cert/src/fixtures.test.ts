@@ -21,7 +21,11 @@ const directory = dirname(fileURLToPath(import.meta.url));
 function loadPack(fixtureClass: FixtureClass): FixturePack {
   const path = resolve(directory, `../fixtures/WP-103.${fixtureClass}.json`);
   const raw = JSON.parse(readFileSync(path, 'utf8')) as Partial<FixturePack>;
-  if (raw.requirementId !== 'WP-103/VOICE-AGENT-CERT' || raw.fixtureClass !== fixtureClass || raw.synthetic !== true) {
+  if (
+    raw.requirementId !== 'WP-103/VOICE-AGENT-CERT' ||
+    raw.fixtureClass !== fixtureClass ||
+    raw.synthetic !== true
+  ) {
     throw new Error(`INVALID_WP103_FIXTURE:${fixtureClass}`);
   }
   return raw as FixturePack;

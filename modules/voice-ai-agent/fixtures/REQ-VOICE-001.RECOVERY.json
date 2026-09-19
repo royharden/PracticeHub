@@ -5,6 +5,10 @@
   "direction": "outbound",
   "consentState": { "currentState": "opted_in" },
   "ledgerAvailable": true,
-  "sponsorPolicy": { "recorded": true, "decision": "enabled", "policyTask": "human-owned-outbound-ai-voice-policy" },
+  "sponsorPolicy": {
+    "recorded": true,
+    "decision": "enabled",
+    "policyTask": "human-owned-outbound-ai-voice-policy"
+  },
   "expectBlocked": false
 }

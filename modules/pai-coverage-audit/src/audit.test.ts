@@ -21,7 +21,10 @@ describe('PAI coverage audit', () => {
     expect(audit.flaggedWithoutPai[0]).toBe('REQ-AI-047');
     expect(audit.flaggedWithoutPai[24]).toBe('REQ-AI-071');
     const report = renderAuditMarkdown(audit);
-    const reportPath = resolve(dirname(fileURLToPath(import.meta.url)), '../reports/pai-coverage-audit.md');
+    const reportPath = resolve(
+      dirname(fileURLToPath(import.meta.url)),
+      '../reports/pai-coverage-audit.md',
+    );
     writeFileSync(reportPath, report, 'utf8');
     expect(report).toContain('WP-106/PAI-COVERAGE');
     expect(report).toContain('allExpectedMapped: true');

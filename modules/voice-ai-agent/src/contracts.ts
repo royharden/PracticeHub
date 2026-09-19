@@ -15,7 +15,8 @@ export const WP046_OWNED_CLAUSES = ['REQ-VOICE-002', 'REQ-VOICE-012', 'REQ-VOICE
 
 export type EncodedVoiceClause = (typeof ENCODED_VOICE_CLAUSES)[number];
 export type Direction = 'inbound' | 'outbound';
-export type ToolName = 'book_routine' | 'capture_refill_intake' | 'transfer_oncall' | 'queue_morning_handoff';
+export type ToolName =
+  'book_routine' | 'capture_refill_intake' | 'transfer_oncall' | 'queue_morning_handoff';
 
 export class VoiceAgentError extends Error {
   public constructor(
@@ -28,7 +29,8 @@ export class VoiceAgentError extends Error {
 }
 
 export interface RelayTurn {
-  readonly kind: 'agent_speech' | 'user_speech' | 'barge_in' | 'tool' | 'handoff' | 'blocked' | 'opt_out';
+  readonly kind:
+    'agent_speech' | 'user_speech' | 'barge_in' | 'tool' | 'handoff' | 'blocked' | 'opt_out';
   readonly text: string;
   readonly toolName?: ToolName;
 }

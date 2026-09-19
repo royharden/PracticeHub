@@ -3,11 +3,41 @@
   "fixtureClass": "HAPPY",
   "synthetic": true,
   "cases": [
-    { "name": "WP-030 M1 dark A lit B", "operation": "matrix", "workPackage": "WP-030", "row": "M1" },
-    { "name": "WP-030 M2 lit A dark B", "operation": "matrix", "workPackage": "WP-030", "row": "M2" },
-    { "name": "WP-031 M1 dark A lit B", "operation": "matrix", "workPackage": "WP-031", "row": "M1" },
-    { "name": "WP-031 M2 lit A dark B", "operation": "matrix", "workPackage": "WP-031", "row": "M2" },
-    { "name": "WP-032 M1 dark A lit B", "operation": "matrix", "workPackage": "WP-032", "row": "M1" },
-    { "name": "WP-032 M2 lit A dark B", "operation": "matrix", "workPackage": "WP-032", "row": "M2" }
+    {
+      "name": "WP-030 M1 dark A lit B",
+      "operation": "matrix",
+      "workPackage": "WP-030",
+      "row": "M1"
+    },
+    {
+      "name": "WP-030 M2 lit A dark B",
+      "operation": "matrix",
+      "workPackage": "WP-030",
+      "row": "M2"
+    },
+    {
+      "name": "WP-031 M1 dark A lit B",
+      "operation": "matrix",
+      "workPackage": "WP-031",
+      "row": "M1"
+    },
+    {
+      "name": "WP-031 M2 lit A dark B",
+      "operation": "matrix",
+      "workPackage": "WP-031",
+      "row": "M2"
+    },
+    {
+      "name": "WP-032 M1 dark A lit B",
+      "operation": "matrix",
+      "workPackage": "WP-032",
+      "row": "M1"
+    },
+    {
+      "name": "WP-032 M2 lit A dark B",
+      "operation": "matrix",
+      "workPackage": "WP-032",
+      "row": "M2"
+    }
   ]
 }

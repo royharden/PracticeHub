@@ -46,8 +46,5 @@ export interface ThreadUrgencyPort {
 
 /** WP-023 consumes page intent; this package never resolves coverage. */
 export interface OnCallPagePort {
-  requestPage(input: {
-    readonly inboundId: string;
-    readonly fact: VersionedUrgencyFact;
-  }): void;
+  requestPage(input: { readonly inboundId: string; readonly fact: VersionedUrgencyFact }): void;
 }

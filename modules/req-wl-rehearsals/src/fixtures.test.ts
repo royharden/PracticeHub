@@ -24,7 +24,11 @@ const directory = dirname(fileURLToPath(import.meta.url));
 function loadPack(fixtureClass: FixtureClass): FixturePack {
   const path = resolve(directory, `../fixtures/WP-133.${fixtureClass}.json`);
   const raw = JSON.parse(readFileSync(path, 'utf8')) as Partial<FixturePack>;
-  if (raw.requirementId !== 'WP-133/REQ-WL' || raw.fixtureClass !== fixtureClass || raw.synthetic !== true) {
+  if (
+    raw.requirementId !== 'WP-133/REQ-WL' ||
+    raw.fixtureClass !== fixtureClass ||
+    raw.synthetic !== true
+  ) {
     throw new Error(`INVALID_WP133_FIXTURE:${fixtureClass}`);
   }
   return raw as FixturePack;

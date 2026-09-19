@@ -1,6 +1,9 @@
 import type { VoiceSessionSnapshot } from './contracts.js';
 
-export function withWarmTransfer(snapshot: VoiceSessionSnapshot, advise911: boolean): VoiceSessionSnapshot {
+export function withWarmTransfer(
+  snapshot: VoiceSessionSnapshot,
+  advise911: boolean,
+): VoiceSessionSnapshot {
   return {
     ...snapshot,
     warmTransfer: true,
@@ -14,7 +17,15 @@ export function withWarmTransfer(snapshot: VoiceSessionSnapshot, advise911: bool
       completedActions: snapshot.toolCalls,
       advise911,
     },
-    turns: [...snapshot.turns, { kind: 'handoff', text: advise911 ? 'connecting-now-if-life-threat-call-911' : 'connecting-you-to-a-person-now' }],
+    turns: [
+      ...snapshot.turns,
+      {
+        kind: 'handoff',
+        text: advise911
+          ? 'connecting-now-if-life-threat-call-911'
+          : 'connecting-you-to-a-person-now',
+      },
+    ],
   };
 }
 
@@ -28,6 +39,9 @@ export function withMorningHandoff(snapshot: VoiceSessionSnapshot): VoiceSession
   return {
     ...snapshot,
     morningWorklist: [...snapshot.morningWorklist, row],
-    turns: [...snapshot.turns, { kind: 'tool', text: 'queue_morning_handoff', toolName: 'queue_morning_handoff' }],
+    turns: [
+      ...snapshot.turns,
+      { kind: 'tool', text: 'queue_morning_handoff', toolName: 'queue_morning_handoff' },
+    ],
   };
 }

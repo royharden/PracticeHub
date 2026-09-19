@@ -54,11 +54,7 @@ describe('lintStripeCharge', () => {
   });
 
   it('blocks a clinical SKU before egress', () => {
-    const decision = lintStripeCharge(
-      { ...draft, sku: 'sku_patient_visit' },
-      vendor(),
-      request(),
-    );
+    const decision = lintStripeCharge({ ...draft, sku: 'sku_patient_visit' }, vendor(), request());
     expect(decision).toMatchObject({ allow: false, reason: 'sku-not-opaque', egress: null });
   });
 

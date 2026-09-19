@@ -23,7 +23,11 @@ const directory = dirname(fileURLToPath(import.meta.url));
 function loadPack(fixtureClass: FixtureClass): FixturePack {
   const path = resolve(directory, `../fixtures/WP-125.${fixtureClass}.json`);
   const raw = JSON.parse(readFileSync(path, 'utf8')) as Partial<FixturePack>;
-  if (raw.requirementId !== 'WP-125/CLOUD-SWAP' || raw.fixtureClass !== fixtureClass || raw.synthetic !== true) {
+  if (
+    raw.requirementId !== 'WP-125/CLOUD-SWAP' ||
+    raw.fixtureClass !== fixtureClass ||
+    raw.synthetic !== true
+  ) {
     throw new Error(`INVALID_WP125_FIXTURE:${fixtureClass}`);
   }
   return raw as FixturePack;

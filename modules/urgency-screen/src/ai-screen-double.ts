@@ -15,7 +15,12 @@ export function assistiveAiScreen(input: {
   readonly version: typeof AI_SCREEN_DOUBLE_VERSION;
 } {
   if (input.killSwitchTripped) {
-    return { class: input.keywordClass, confidence: 0, abstained: true, version: AI_SCREEN_DOUBLE_VERSION };
+    return {
+      class: input.keywordClass,
+      confidence: 0,
+      abstained: true,
+      version: AI_SCREEN_DOUBLE_VERSION,
+    };
   }
   if (input.keywordClass === 'urgent') {
     return { class: 'urgent', confidence: 1, abstained: false, version: AI_SCREEN_DOUBLE_VERSION };
@@ -26,7 +31,12 @@ export function assistiveAiScreen(input: {
     haystack.includes('lips blue') ||
     haystack.includes('labios azules');
   if (escalate) {
-    return { class: 'urgent', confidence: 0.7, abstained: false, version: AI_SCREEN_DOUBLE_VERSION };
+    return {
+      class: 'urgent',
+      confidence: 0.7,
+      abstained: false,
+      version: AI_SCREEN_DOUBLE_VERSION,
+    };
   }
   return { class: 'routine', confidence: 0.4, abstained: false, version: AI_SCREEN_DOUBLE_VERSION };
 }

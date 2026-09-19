@@ -3,8 +3,18 @@
   "fixtureClass": "RECOVERY",
   "synthetic": true,
   "cases": [
-    { "name": "lowered grant zero new drain M7", "operation": "matrix", "workPackage": "WP-030", "row": "M7" },
-    { "name": "concurrent same key M9", "operation": "matrix", "workPackage": "WP-031", "row": "M9" },
+    {
+      "name": "lowered grant zero new drain M7",
+      "operation": "matrix",
+      "workPackage": "WP-030",
+      "row": "M7"
+    },
+    {
+      "name": "concurrent same key M9",
+      "operation": "matrix",
+      "workPackage": "WP-031",
+      "row": "M9"
+    },
     { "name": "identity replay M13", "operation": "matrix", "workPackage": "WP-032", "row": "M13" },
     { "name": "stale snapshot M14", "operation": "matrix", "workPackage": "WP-032", "row": "M14" }
   ]

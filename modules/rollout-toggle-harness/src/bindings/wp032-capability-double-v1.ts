@@ -33,9 +33,10 @@ interface BoundRequest {
   readonly operationId: string;
 }
 
-export class Wp032CapabilityDoubleV1
-  implements LoopToggleBindingV1<TenantScopedClinicalProposal, TenantScopedClinicalProposal>
-{
+export class Wp032CapabilityDoubleV1 implements LoopToggleBindingV1<
+  TenantScopedClinicalProposal,
+  TenantScopedClinicalProposal
+> {
   public readonly contractVersion = 1 as const;
   public readonly workPackage = 'WP-032' as const;
   public readonly capabilityId: CapabilityId = WP032_LOCAL_CAPABILITY_ID;
@@ -53,17 +54,11 @@ export class Wp032CapabilityDoubleV1
     this.#recorder = recorder;
   }
 
-  public enqueue(
-    input: TenantScopedClinicalProposal,
-    gate: GateInput,
-  ): Promise<EffectSnapshot> {
+  public enqueue(input: TenantScopedClinicalProposal, gate: GateInput): Promise<EffectSnapshot> {
     return this.#phase(input, gate, 'enqueue');
   }
 
-  public drain(
-    input: TenantScopedClinicalProposal,
-    gate: GateInput,
-  ): Promise<EffectSnapshot> {
+  public drain(input: TenantScopedClinicalProposal, gate: GateInput): Promise<EffectSnapshot> {
     return this.#phase(input, gate, 'drain');
   }
 
@@ -114,7 +109,9 @@ export class Wp032CapabilityDoubleV1
         if (checkpoint === 'enqueue') {
           const already = this.#recorder
             .snapshot()
-            .queuedIntents[bound.tenantId]?.some((event) => event.operationId === bound.operationId);
+            .queuedIntents[bound.tenantId]?.some(
+              (event) => event.operationId === bound.operationId,
+            );
           if (already === true) {
             return;
           }

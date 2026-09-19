@@ -43,7 +43,9 @@ describe('WP-045 urgency screen', () => {
   });
 
   it('BOUNDARY: Spanish emergency language hits the same urgent class', () => {
-    const fact = screenInbound(inbound({ language: 'es', text: 'Es una emergencia, dolor de pecho' }));
+    const fact = screenInbound(
+      inbound({ language: 'es', text: 'Es una emergencia, dolor de pecho' }),
+    );
     expect(fact.class).toBe('urgent');
     expect(fact.reasons.some((reason) => reason.includes('keyword:es:emergencia'))).toBe(true);
   });
@@ -55,7 +57,9 @@ describe('WP-045 urgency screen', () => {
   });
 
   it('FAILURE: kill-switch never silently routines; it forces human review', () => {
-    const fact = screenInbound(inbound({ killSwitchTripped: true, text: 'Need a refill next week' }));
+    const fact = screenInbound(
+      inbound({ killSwitchTripped: true, text: 'Need a refill next week' }),
+    );
     expect(fact.humanFallback).toBe(true);
     expect(fact.routing).toBe('human_review');
     expect(fact.class).toBe('urgent');

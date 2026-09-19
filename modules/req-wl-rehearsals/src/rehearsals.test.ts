@@ -47,7 +47,16 @@ describe('WP-133 waitlist rehearsals', () => {
 
   it('rejects non-synthetic entries', () => {
     expect(() =>
-      rehearse('offer', { patientId: 'p1', priority: 1, holdExpired: false, prerequisitePaused: false } as WaitlistEntry, openSlot),
+      rehearse(
+        'offer',
+        {
+          patientId: 'p1',
+          priority: 1,
+          holdExpired: false,
+          prerequisitePaused: false,
+        } as WaitlistEntry,
+        openSlot,
+      ),
     ).toThrow(WaitlistRehearsalError);
   });
 });
