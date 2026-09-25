@@ -298,6 +298,16 @@ export const capabilityDefinitionsV1: readonly CapabilityDefinition[] = [
       'Synthetic portal intake command scope. Enqueue requires simulated; protective ' +
       'decline, abandon, quarantine and emergency paths remain ungated.',
   },
+  {
+    capabilityId: 'telehealth.media-session',
+    ownerRole: 'telehealth-operations',
+    dimensions: ['location'],
+    description:
+      'Synthetic RAIL-006 media-session effects for WP-048 telehealth visits (AUTH-017 / M12). ' +
+      'Gated commands (start, rejoin, phone resume, post-move resume) floor at simulated; ' +
+      'protective block, pause, reconcile, handoff, emergency containment and audit are ungated ' +
+      'workflow methods that stay available below it and can never create a session.',
+  },
 ];
 
 /** Exact mirror of docs/architecture/capability-edge-preconditions.csv (FROZEN). */
@@ -354,11 +364,18 @@ export const capabilityEdgesV1: readonly CapabilityEdge[] = [
 ];
 
 /**
- * External-wait ceilings register: empty at WP-012. The package that owns an
- * affected capability adds its ceiling row (planning/external-waits.csv holds
- * the private register; the ceiling here is the executable form).
+ * External-wait ceilings register. The package that owns an affected
+ * capability adds its ceiling row (planning/external-waits.csv holds the
+ * private register; the ceiling here is the executable form).
  */
-export const capabilityCeilingsV1: readonly CapabilityCeiling[] = [];
+export const capabilityCeilingsV1: readonly CapabilityCeiling[] = [
+  {
+    capabilityId: 'telehealth.media-session',
+    maxState: 'simulated',
+    releaseEvidencePrefix: 'ew-008-release:',
+    ref: 'EW-008',
+  },
+];
 
 export const capabilityApprovalPolicyV1: CapabilityApprovalPolicy = {
   version: 1,
@@ -633,6 +650,16 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
     },
     {
       capabilityId: 'portal.intake',
+      tenantId: riverbend,
+      scope: {},
+      state: 'disabled',
+      sinceEventId: null,
+      evidenceRefs: ['synthetic-negative-control'],
+      rollbackRef: 'already-disabled',
+      synthetic: true,
+    },
+    {
+      capabilityId: 'telehealth.media-session',
       tenantId: riverbend,
       scope: {},
       state: 'disabled',
@@ -946,6 +973,22 @@ export const syntheticCapabilitySeedV1: CapabilitySeed = {
       'scaffolded',
       'simulated',
       'synthetic-gate:portal-intake-simulated',
+    ),
+    chainEvent(
+      'synthetic-cap-evt-0030',
+      'telehealth.media-session',
+      {},
+      'disabled',
+      'scaffolded',
+      'synthetic-gate:wp-048-telehealth-scaffold',
+    ),
+    chainEvent(
+      'synthetic-cap-evt-0031',
+      'telehealth.media-session',
+      {},
+      'scaffolded',
+      'simulated',
+      'synthetic-gate:wp-048-telehealth-simulated',
     ),
   ],
 };

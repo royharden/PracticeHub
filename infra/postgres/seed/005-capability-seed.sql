@@ -47,7 +47,9 @@ VALUES
   ('synthetic-cap-evt-0026', 'northwind-synthetic', 'cash.paid-service-loop', '{}'::jsonb, '(root)', 'disabled', 'scaffolded', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:wp-031-paid-service-loop-scaffold"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true),
   ('synthetic-cap-evt-0027', 'northwind-synthetic', 'cash.paid-service-loop', '{}'::jsonb, '(root)', 'scaffolded', 'simulated', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:wp-031-paid-service-loop-simulated"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true),
   ('synthetic-cap-evt-0028', 'northwind-synthetic', 'portal.intake', '{}'::jsonb, '(root)', 'disabled', 'scaffolded', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:portal-intake-scaffold"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true),
-  ('synthetic-cap-evt-0029', 'northwind-synthetic', 'portal.intake', '{}'::jsonb, '(root)', 'scaffolded', 'simulated', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:portal-intake-simulated"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true)
+  ('synthetic-cap-evt-0029', 'northwind-synthetic', 'portal.intake', '{}'::jsonb, '(root)', 'scaffolded', 'simulated', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:portal-intake-simulated"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true),
+  ('synthetic-cap-evt-0030', 'northwind-synthetic', 'telehealth.media-session', '{}'::jsonb, '(root)', 'disabled', 'scaffolded', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:wp-048-telehealth-scaffold"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true),
+  ('synthetic-cap-evt-0031', 'northwind-synthetic', 'telehealth.media-session', '{}'::jsonb, '(root)', 'scaffolded', 'simulated', 'synthetic-platform-bootstrap', '[{"approverRef":"synthetic-architecture-owner","role":"architecture"}]'::jsonb, '["synthetic-gate:wp-048-telehealth-simulated"]'::jsonb, 'registry-event-replay', NULL, NULL, 'synthetic bootstrap chain', true)
 ON CONFLICT (event_id) DO NOTHING;
 
 INSERT INTO platform_core.capability_grant
@@ -77,6 +79,7 @@ VALUES
   ('northwind-synthetic', 'privacy.gipa-partition', '{}'::jsonb, '(root)', 'scaffolded', 'synthetic-cap-evt-0013', '["synthetic-gate:wp-015-gipa-partition-scaffold"]'::jsonb, 'registry-event-replay', true),
   ('northwind-synthetic', 'rcm.rail-path', '{"payer":"synthetic-payer-aurora","provider":"synthetic-dr-lee","transaction":"x12-270-271"}'::jsonb, 'payer=synthetic-payer-aurora/provider=synthetic-dr-lee/transaction=x12-270-271', 'scaffolded', 'synthetic-cap-evt-0007', '["synthetic-gate:rail-270-271-scaffold"]'::jsonb, 'registry-event-replay', true),
   ('northwind-synthetic', 'rcm.rail-path', '{"payer":"synthetic-payer-aurora","provider":"synthetic-dr-lee","transaction":"x12-837"}'::jsonb, 'payer=synthetic-payer-aurora/provider=synthetic-dr-lee/transaction=x12-837', 'simulated', 'synthetic-cap-evt-0006', '["synthetic-gate:rail-837-sim-conformance"]'::jsonb, 'registry-event-replay', true),
+  ('northwind-synthetic', 'telehealth.media-session', '{}'::jsonb, '(root)', 'simulated', 'synthetic-cap-evt-0031', '["synthetic-gate:wp-048-telehealth-simulated"]'::jsonb, 'registry-event-replay', true),
   ('riverbend-synthetic', 'ai.gateway', '{"feature":"draft-visit-summary","cohort":"cohort-alpha"}'::jsonb, 'cohort=cohort-alpha/feature=draft-visit-summary', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
   ('riverbend-synthetic', 'cash.paid-service-loop', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
   ('riverbend-synthetic', 'consent.operational', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
@@ -97,7 +100,8 @@ VALUES
   ('riverbend-synthetic', 'platform.tasking-engine', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
   ('riverbend-synthetic', 'platform.vendor-registry', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
   ('riverbend-synthetic', 'portal.intake', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
-  ('riverbend-synthetic', 'privacy.gipa-partition', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true)
+  ('riverbend-synthetic', 'privacy.gipa-partition', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true),
+  ('riverbend-synthetic', 'telehealth.media-session', '{}'::jsonb, '(root)', 'disabled', NULL, '["synthetic-negative-control"]'::jsonb, 'already-disabled', true)
 ON CONFLICT (tenant_id, capability_id, scope_key) DO UPDATE
 SET scope = EXCLUDED.scope,
     state = EXCLUDED.state,

@@ -166,6 +166,29 @@ async function insertAuditRecord(exec: Queryable, record: AuditRecord): Promise<
   );
 }
 
+/**
+ * Same-transaction audit write for authority-bearing actions that have no
+ * frozen event type (WP-048 telehealth). The audit half of
+ * `runOutboxCommit`, with no outbox envelope: it reads the chain head,
+ * validates and links through `emitAuditEvent` — which throws before any
+ * write when the operation cannot be audited — then inserts on the
+ * caller's transaction. The caller's COMMIT lands it; a ROLLBACK leaves
+ * nothing. Use `runOutboxCommit` instead whenever the action also emits a
+ * domain event: this helper never enqueues one.
+ */
+export async function appendAuditRecord(
+  exec: Queryable,
+  input: AuditEmitInput,
+): Promise<AuditRecord> {
+  const chainDay = chainDayOf(input.occurredAt);
+  const chainState = await nextAuditChainState(exec, input.tenantId, chainDay);
+  // emitAuditEvent validates the input and computes the chain link (throws
+  // before any write if the operation cannot be audited).
+  const record = emitAuditEvent(chainState, input).record;
+  await insertAuditRecord(exec, record);
+  return record;
+}
+
 export interface OutboxCommitInput<TPayload> {
   readonly envelope: EventEnvelope<TPayload>;
   /**
