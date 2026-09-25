@@ -522,6 +522,8 @@ importers:
         specifier: 8.16.3
         version: 8.16.3
 
+  modules/rcm: {}
+
   modules/req-auth-rehearsals: {}
 
   modules/req-com-rehearsals:

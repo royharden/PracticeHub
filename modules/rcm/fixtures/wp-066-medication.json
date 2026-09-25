@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "packageId": "WP-066",
+  "standsFor": "eRx vendor embed medication source",
+  "sources": [
+    {
+      "packageId": "WP-066",
+      "medicationId": "med-shadow-1",
+      "tenantId": "tenant-shadow",
+      "daysOfSupplyRemaining": 2,
+      "nextFillInDays": 8,
+      "interimSource": "athena"
+    }
+  ]
+}

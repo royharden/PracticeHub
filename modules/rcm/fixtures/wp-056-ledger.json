@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "packageId": "WP-056",
+  "standsFor": "M19 double-entry ledger",
+  "postings": [
+    {
+      "packageId": "WP-056",
+      "postingId": "wp056-placeholder-posting-1",
+      "tenantId": "tenant-shadow",
+      "amountMinor": 12500,
+      "currency": "USD",
+      "sourceSeal": "placeholder-until-wp-056"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "synthetic": true,
+  "packageId": "WP-062",
+  "standsFor": "encounter charge source",
+  "expected": [
+    {
+      "packageId": "WP-062",
+      "encounterId": "enc-missing",
+      "tenantId": "tenant-shadow",
+      "chargeId": "chg-missing",
+      "amountMinor": 1000,
+      "currency": "USD"
+    },
+    {
+      "packageId": "WP-062",
+      "encounterId": "enc-dup",
+      "tenantId": "tenant-shadow",
+      "chargeId": "chg-dup",
+      "amountMinor": 2000,
+      "currency": "USD"
+    },
+    {
+      "packageId": "WP-062",
+      "encounterId": "enc-ok",
+      "tenantId": "tenant-shadow",
+      "chargeId": "chg-ok",
+      "amountMinor": 3000,
+      "currency": "USD"
+    }
+  ]
+}
