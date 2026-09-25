@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "rows": [
+    {
+      "campaignId": "camp-a",
+      "sends": 4,
+      "conversions": 1
+    },
+    {
+      "campaignId": "camp-b",
+      "sends": 6,
+      "conversions": 3
+    }
+  ],
+  "totals": {
+    "sends": 10,
+    "conversions": 4,
+    "conversionRateBps": 4000
+  }
+}
