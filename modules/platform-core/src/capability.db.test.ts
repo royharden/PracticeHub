@@ -185,23 +185,28 @@ describe('capability registry (DB level)', () => {
                '["synthetic-gate:db-probe"]'::jsonb, 'registry-event-replay', true)
        ON CONFLICT (event_id) DO NOTHING`,
     );
-    expect(
-      await boundQueryError(
-        'northwind-synthetic',
-        `UPDATE platform_core.capability_event SET to_state = 'active'
+    let removed: number | undefined;
+    try {
+      expect(
+        await boundQueryError(
+          'northwind-synthetic',
+          `UPDATE platform_core.capability_event SET to_state = 'active'
           WHERE event_id = 'cap-db-probe-0001'`,
-      ),
-    ).toBe('42501');
-    expect(
-      await boundQueryError(
-        'northwind-synthetic',
+        ),
+      ).toBe('42501');
+      expect(
+        await boundQueryError(
+          'northwind-synthetic',
+          `DELETE FROM platform_core.capability_event WHERE event_id = 'cap-db-probe-0001'`,
+        ),
+      ).toBe('42501');
+    } finally {
+      const cleanup = await owner.query(
         `DELETE FROM platform_core.capability_event WHERE event_id = 'cap-db-probe-0001'`,
-      ),
-    ).toBe('42501');
-    const cleanup = await owner.query(
-      `DELETE FROM platform_core.capability_event WHERE event_id = 'cap-db-probe-0001'`,
-    );
-    expect(cleanup.rowCount).toBe(1);
+      );
+      removed = cleanup.rowCount ?? 0;
+    }
+    expect(removed).toBe(1);
   });
 
   it('the runtime role can never delete a grant projection row', async () => {
