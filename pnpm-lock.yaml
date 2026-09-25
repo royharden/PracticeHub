@@ -318,6 +318,8 @@ importers:
 
   modules/entitlements: {}
 
+  modules/erx: {}
+
   modules/events:
     dependencies:
       '@practicehub/audit-evidence':
@@ -369,6 +371,20 @@ importers:
       pg:
         specifier: 8.16.3
         version: 8.16.3
+
+  modules/inventory: {}
+
+  modules/labs:
+    dependencies:
+      '@practicehub/clinical-contracts':
+        specifier: workspace:*
+        version: link:../clinical-contracts
+      '@practicehub/events':
+        specifier: workspace:*
+        version: link:../events
+      '@practicehub/platform-core':
+        specifier: workspace:*
+        version: link:../platform-core
 
   modules/load-replay:
     devDependencies:
