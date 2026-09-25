@@ -1,0 +1,8 @@
+{
+  "id": "WP-051.BOUNDARY",
+  "class": "BOUNDARY",
+  "gfeTotalMinor": 50000,
+  "below": { "deltaMinor": 39999, "actualTotalMinor": 89999, "flagged": false },
+  "at": { "deltaMinor": 40000, "actualTotalMinor": 90000, "flagged": true },
+  "synthetic": true
+}

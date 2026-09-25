@@ -101,7 +101,7 @@ BEGIN
      AND c.relkind = 'r'
      AND (NOT c.relrowsecurity
           OR NOT c.relforcerowsecurity
-          OR c.relname NOT IN ('catalog_offer', 'component_map', 'coverage_flag', 'signed_coverage_table'));
+          OR c.relname NOT IN ('catalog_offer', 'component_map', 'coverage_flag', 'fee_schedule_rate', 'gfe_line', 'good_faith_estimate', 'signed_coverage_table'));
   IF offender IS NOT NULL THEN
     RAISE EXCEPTION 'rls coverage failure in schema catalog: %', offender;
   END IF;

@@ -220,7 +220,7 @@ BEGIN
      AND c.relkind = 'r'
      AND (NOT c.relrowsecurity
           OR NOT c.relforcerowsecurity
-          OR c.relname NOT IN ('journal', 'journal_line', 'payment_intent'));
+          OR c.relname NOT IN ('credit_balance_clock', 'dunning_account', 'journal', 'journal_line', 'payment_intent', 'payout_drift_work_item', 'statement', 'write_off'));
   IF offender IS NOT NULL THEN
     RAISE EXCEPTION 'rls coverage failure in schema payments_ledger: %', offender;
   END IF;

@@ -2,6 +2,8 @@ import { createHash } from 'node:crypto';
 
 import { assertSafeInteger, safeAdd } from './money.js';
 
+export const ledgerRails = ['insurance', 'membership', 'cash'] as const;
+export type LedgerRail = (typeof ledgerRails)[number];
 export type LedgerSide = 'debit' | 'credit';
 
 export interface LedgerLine {
@@ -18,9 +20,18 @@ export interface LedgerPostInput {
   readonly correlationId: string;
   readonly idempotencyKey: string;
   readonly lines: readonly LedgerLine[];
+  readonly rail?: LedgerRail;
+  readonly payoutRef?: string;
   readonly processorEffectRef?: string;
   readonly externalReceiptRef?: string;
   readonly reversalOfJournalId?: string;
+}
+
+export interface AccountBalance {
+  readonly accountRef: string;
+  readonly currency: string;
+  readonly debitMinor: number;
+  readonly creditMinor: number;
 }
 
 export interface LedgerReceipt {
@@ -86,30 +97,84 @@ export class BalancedLedger {
 
   public postBalancedSet(input: LedgerPostInput): LedgerReceipt {
     assertLines(input.lines);
-    const hash = hashInput(input);
-    const prior = this.#byIdempotency.get(tupleKey(input.tenantId, input.idempotencyKey));
+    const posted = normalizePost(input);
+    const hash = hashInput(posted);
+    const prior = this.#byIdempotency.get(tupleKey(posted.tenantId, posted.idempotencyKey));
     if (prior !== undefined) {
       if (prior.hash !== hash) throw new LedgerError('IDEMPOTENCY_CONFLICT');
       return prior.receipt;
     }
-    if (this.#journals.has(tupleKey(input.tenantId, input.journalId))) {
+    if (this.#journals.has(tupleKey(posted.tenantId, posted.journalId))) {
       throw new LedgerError('IDEMPOTENCY_CONFLICT');
     }
-    if (input.reversalOfJournalId !== undefined) this.#assertReversal(input);
+    if (posted.reversalOfJournalId !== undefined) this.#assertReversal(posted);
     const receipt: LedgerReceipt = {
-      tenantId: input.tenantId,
-      journalId: input.journalId,
+      tenantId: posted.tenantId,
+      journalId: posted.journalId,
       canonicalPayloadHash: hash,
-      ...(input.reversalOfJournalId === undefined
+      ...(posted.reversalOfJournalId === undefined
         ? {}
-        : { reversalOfJournalId: input.reversalOfJournalId }),
+        : { reversalOfJournalId: posted.reversalOfJournalId }),
     };
-    this.#journals.set(tupleKey(input.tenantId, input.journalId), input);
-    this.#byIdempotency.set(tupleKey(input.tenantId, input.idempotencyKey), { hash, receipt });
-    if (input.reversalOfJournalId !== undefined) {
-      this.#reversed.add(tupleKey(input.tenantId, input.reversalOfJournalId));
+    this.#journals.set(tupleKey(posted.tenantId, posted.journalId), posted);
+    this.#byIdempotency.set(tupleKey(posted.tenantId, posted.idempotencyKey), { hash, receipt });
+    if (posted.reversalOfJournalId !== undefined) {
+      this.#reversed.add(tupleKey(posted.tenantId, posted.reversalOfJournalId));
     }
     return receipt;
+  }
+
+  /** Debit and credit totals per account. A posted ledger balances when, for every currency, the sums match. */
+  public accountBalances(tenantId?: string): readonly AccountBalance[] {
+    const totals = new Map<string, AccountBalance>();
+    for (const journal of this.#journals.values()) {
+      if (tenantId !== undefined && journal.tenantId !== tenantId) continue;
+      for (const line of journal.lines) {
+        const key = JSON.stringify([journal.tenantId, line.accountRef, line.currency]);
+        const current = totals.get(key) ?? {
+          accountRef: line.accountRef,
+          currency: line.currency,
+          debitMinor: 0,
+          creditMinor: 0,
+        };
+        const amount = line.amountMinor;
+        const name = `${line.currency} ${line.accountRef}`;
+        totals.set(key, {
+          ...current,
+          debitMinor:
+            line.side === 'debit' ? safeAdd(current.debitMinor, amount, name) : current.debitMinor,
+          creditMinor:
+            line.side === 'credit'
+              ? safeAdd(current.creditMinor, amount, name)
+              : current.creditMinor,
+        });
+      }
+    }
+    return [...totals.values()].sort((left, right) =>
+      `${left.currency}|${left.accountRef}`.localeCompare(`${right.currency}|${right.accountRef}`),
+    );
+  }
+
+  /** Cash-rail bank side of one payout, in minor units. Debits add and credits subtract. */
+  public cashPayoutMinor(tenantId: string, payoutRef: string, currency: string): number {
+    let net = 0;
+    for (const journal of this.#journals.values()) {
+      if (
+        journal.tenantId !== tenantId ||
+        journal.rail !== 'cash' ||
+        journal.payoutRef !== payoutRef
+      ) {
+        continue;
+      }
+      for (const line of journal.lines) {
+        if (line.currency !== currency || line.accountRef !== 'cash') continue;
+        const signed = line.side === 'debit' ? line.amountMinor : -line.amountMinor;
+        const next = net + signed;
+        if (!Number.isSafeInteger(next)) throw new LedgerError('INVALID_LINE');
+        net = next;
+      }
+    }
+    return net;
   }
 
   #assertReversal(input: LedgerPostInput): void {
@@ -118,6 +183,9 @@ export class BalancedLedger {
     if (original === undefined) throw new LedgerError('ORIGINAL_NOT_FOUND');
     if (original.reversalOfJournalId !== undefined) throw new LedgerError('MIXED_REVERSAL');
     if (this.#reversed.has(originalKey)) throw new LedgerError('ALREADY_REVERSED');
+    if (input.rail !== original.rail || input.payoutRef !== original.payoutRef) {
+      throw new LedgerError('MIXED_REVERSAL');
+    }
     const expected = original.lines
       .map((line) => ({
         ...line,
@@ -136,6 +204,19 @@ export class BalancedLedger {
   public journal(tenantId: string, journalId: string): LedgerPostInput | undefined {
     return this.#journals.get(tupleKey(tenantId, journalId));
   }
+}
+
+function normalizePost(input: LedgerPostInput): LedgerPostInput {
+  const rail = input.rail ?? 'cash';
+  if (!ledgerRails.includes(rail)) throw new LedgerError('INVALID_LINE');
+  if (input.payoutRef !== undefined && (input.payoutRef.trim() === '' || rail !== 'cash')) {
+    throw new LedgerError('INVALID_LINE');
+  }
+  return {
+    ...input,
+    rail,
+    ...(input.payoutRef === undefined ? {} : { payoutRef: input.payoutRef }),
+  };
 }
 
 const compareLine = (left: LedgerLine, right: LedgerLine): number =>

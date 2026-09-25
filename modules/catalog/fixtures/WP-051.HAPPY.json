@@ -1,0 +1,47 @@
+{
+  "id": "WP-051.HAPPY",
+  "class": "HAPPY",
+  "synthetic": true,
+  "tenantId": "northwind-synthetic",
+  "gfeRef": "gfe:nwind-gfe-0001",
+  "subjectRef": "subject:nwind-0001",
+  "conveningPartyKind": "provider",
+  "conveningPartyRef": "party:prov-convene01",
+  "pfsVersionRef": "pfs-synth-v1",
+  "clfsVersionRef": "clfs-synth-v1",
+  "lines": [
+    {
+      "lineRef": "line:visit-99213-01",
+      "schedule": "PFS",
+      "code": "99213",
+      "quantity": 1,
+      "coverage": "non-covered",
+      "partyKind": "provider",
+      "partyRef": "party:prov-convene01",
+      "partyRole": "convening"
+    },
+    {
+      "lineRef": "line:visit-99214-01",
+      "schedule": "PFS",
+      "code": "99214",
+      "quantity": 1,
+      "coverage": "covered",
+      "partyKind": "provider",
+      "partyRef": "party:prov-convene01",
+      "partyRole": "convening"
+    },
+    {
+      "lineRef": "line:lab-80053-0001",
+      "schedule": "CLFS",
+      "code": "80053",
+      "quantity": 2,
+      "coverage": "non-covered",
+      "partyKind": "facility",
+      "partyRef": "party:fac-lab000001",
+      "partyRole": "co-facility"
+    }
+  ],
+  "expectedGfeTotalMinor": 18798,
+  "expectedClaimTotalMinor": 22000,
+  "syntheticOracle": true
+}

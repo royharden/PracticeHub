@@ -1,0 +1,8 @@
+{
+  "id": "WP-051.FAILURE",
+  "class": "FAILURE",
+  "missingCode": "00000",
+  "schedule": "PFS",
+  "misattributedRole": "co-provider",
+  "synthetic": true
+}

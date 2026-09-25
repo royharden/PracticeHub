@@ -1,4 +1,7 @@
 export * from './catalog.js';
+export * from './decline-fee.js';
+export * from './gfe-issue.js';
+export * from './pipeline.js';
 export * from './attempt-store.js';
 export * from './fulfillment.js';
 export * from './workitem-port.js';

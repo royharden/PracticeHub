@@ -127,4 +127,63 @@ describe('BalancedLedger', () => {
     });
     expect(ledger.journals()).toHaveLength(2);
   });
+
+  it('keeps a posted set balanced across three rails and restores balances only by reversal', () => {
+    const ledger = new BalancedLedger();
+    for (const rail of ['insurance', 'membership', 'cash'] as const) {
+      ledger.postBalancedSet({
+        tenantId: 'northwind-synthetic',
+        journalId: `journal-${rail}`,
+        correlationId: `corr-${rail}`,
+        idempotencyKey: `key-${rail}`,
+        rail,
+        ...(rail === 'cash' ? { payoutRef: 'po-1' } : {}),
+        lines: lines(rail === 'cash' ? 2500 : 100),
+      });
+    }
+    const before = ledger.accountBalances('northwind-synthetic');
+    expect(before.every((balance) => balance.debitMinor === balance.creditMinor)).toBe(false);
+    const byCurrency = new Map<string, { debit: number; credit: number }>();
+    for (const balance of before) {
+      const total = byCurrency.get(balance.currency) ?? { debit: 0, credit: 0 };
+      total.debit += balance.debitMinor;
+      total.credit += balance.creditMinor;
+      byCurrency.set(balance.currency, total);
+    }
+    expect([...byCurrency.values()].every((total) => total.debit === total.credit)).toBe(true);
+    expect(() =>
+      ledger.postBalancedSet({
+        tenantId: 'northwind-synthetic',
+        journalId: 'journal-cash',
+        correlationId: 'corr-edit',
+        idempotencyKey: 'key-edit',
+        rail: 'cash',
+        lines: lines(2499),
+      }),
+    ).toThrowError(new LedgerError('IDEMPOTENCY_CONFLICT'));
+    expect(ledger.journal('northwind-synthetic', 'journal-cash')?.lines[0]?.amountMinor).toBe(2500);
+    ledger.postBalancedSet({
+      tenantId: 'northwind-synthetic',
+      journalId: 'journal-cash-reversal',
+      correlationId: 'corr-cash-r',
+      idempotencyKey: 'key-cash-r',
+      rail: 'cash',
+      payoutRef: 'po-1',
+      reversalOfJournalId: 'journal-cash',
+      lines: lines(2500).map((line) => ({
+        ...line,
+        side: line.side === 'debit' ? ('credit' as const) : ('debit' as const),
+      })),
+    });
+    expect(ledger.cashPayoutMinor('northwind-synthetic', 'po-1', 'USD')).toBe(0);
+    const after = ledger.accountBalances('northwind-synthetic');
+    const afterCurrency = new Map<string, { debit: number; credit: number }>();
+    for (const balance of after) {
+      const total = afterCurrency.get(balance.currency) ?? { debit: 0, credit: 0 };
+      total.debit += balance.debitMinor;
+      total.credit += balance.creditMinor;
+      afterCurrency.set(balance.currency, total);
+    }
+    expect([...afterCurrency.values()].every((total) => total.debit === total.credit)).toBe(true);
+  });
 });

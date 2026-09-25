@@ -1,0 +1,8 @@
+{
+  "id": "WP-051.RECOVERY",
+  "class": "RECOVERY",
+  "recordClass": "gfe-record",
+  "packageId": "WP-051",
+  "notices": ["ppdr-available"],
+  "synthetic": true
+}
