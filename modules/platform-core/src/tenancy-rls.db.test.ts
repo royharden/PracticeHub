@@ -269,26 +269,31 @@ describe('tenancy RLS cross-tenant negative suite (DB level)', () => {
   });
 
   it('REQ-ADM-027 AC-3: tenant_config writes are timestamped and attributed', async () => {
-    await expect(
-      owner.query(
+    let removedRowCount: number | null;
+    try {
+      await expect(
+        owner.query(
+          `INSERT INTO platform_core.tenant_config
+             (tenant_id, namespace, key, value, phi_class, counsel_owned, revision, synthetic)
+           VALUES ('northwind-synthetic', 'template', 'attribution-probe', '"x"'::jsonb, 'none', false, 1, true)`,
+        ),
+      ).rejects.toMatchObject({ code: '23502' });
+      const inserted = await owner.query(
         `INSERT INTO platform_core.tenant_config
-           (tenant_id, namespace, key, value, phi_class, counsel_owned, revision, synthetic)
-         VALUES ('northwind-synthetic', 'template', 'attribution-probe', '"x"'::jsonb, 'none', false, 1, true)`,
-      ),
-    ).rejects.toMatchObject({ code: '23502' });
-    const inserted = await owner.query(
-      `INSERT INTO platform_core.tenant_config
-         (tenant_id, namespace, key, value, phi_class, counsel_owned, revision, changed_by, synthetic)
-       VALUES ('northwind-synthetic', 'template', 'attribution-probe', '"x"'::jsonb, 'none', false, 1,
-               'synthetic-practice-manager-001', true)
-       RETURNING changed_at, changed_by`,
-    );
-    expect(inserted.rows[0]?.changed_by).toBe('synthetic-practice-manager-001');
-    expect(inserted.rows[0]?.changed_at).not.toBeNull();
-    const removed = await owner.query(
-      `DELETE FROM platform_core.tenant_config WHERE key = 'attribution-probe'`,
-    );
-    expect(removed.rowCount).toBe(1);
+           (tenant_id, namespace, key, value, phi_class, counsel_owned, revision, changed_by, synthetic)
+         VALUES ('northwind-synthetic', 'template', 'attribution-probe', '"x"'::jsonb, 'none', false, 1,
+                 'synthetic-practice-manager-001', true)
+         RETURNING changed_at, changed_by`,
+      );
+      expect(inserted.rows[0]?.changed_by).toBe('synthetic-practice-manager-001');
+      expect(inserted.rows[0]?.changed_at).not.toBeNull();
+    } finally {
+      const removed = await owner.query(
+        `DELETE FROM platform_core.tenant_config WHERE key = 'attribution-probe'`,
+      );
+      removedRowCount = removed.rowCount;
+    }
+    expect(removedRowCount).toBe(1);
   });
 
   it('T-12b: a CPOM entity without counsel ratification violates the CHECK (R6-SR-110)', async () => {
