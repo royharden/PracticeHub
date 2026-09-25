@@ -357,11 +357,13 @@ describe('audit-evidence DB suite (WP-020)', () => {
     await app.query(operationInsert);
     await app.query(auditInsert);
     await app.query('COMMIT');
-    expect(await countBoth()).toBe('2');
-
-    // Restore the seeded state exactly (owner bypasses the append-only posture).
-    await owner.query(`DELETE FROM audit_evidence.audit_event WHERE audit_id = 'dba-crash'`);
-    await owner.query(`DELETE FROM audit_evidence.legal_hold WHERE hold_id = 'dbh-crash'`);
+    try {
+      expect(await countBoth()).toBe('2');
+    } finally {
+      // Restore the seeded state exactly (owner bypasses the append-only posture).
+      await owner.query(`DELETE FROM audit_evidence.audit_event WHERE audit_id = 'dba-crash'`);
+      await owner.query(`DELETE FROM audit_evidence.legal_hold WHERE hold_id = 'dbh-crash'`);
+    }
     expect(await countBoth()).toBe('0');
   });
 
