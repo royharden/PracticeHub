@@ -167,6 +167,8 @@ function seed(): void {
   console.log('seeded infra/postgres/seed/004-jurisdiction-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/005-capability-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/005-capability-seed.sql');
+  psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/034-voice-seed.sql'), 'utf8'));
+  console.log('seeded infra/postgres/seed/034-voice-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/006-identity-seed.sql'), 'utf8'));
   console.log('seeded infra/postgres/seed/006-identity-seed.sql');
   psqlStdin(readFileSync(join(repoRoot, 'infra/postgres/seed/007-authn-seed.sql'), 'utf8'));
