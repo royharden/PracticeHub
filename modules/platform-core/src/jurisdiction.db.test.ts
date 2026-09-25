@@ -199,23 +199,28 @@ describe('jurisdiction registry + location capture (DB level)', () => {
                'NV', 'synthetic-db-suite', true)
        ON CONFLICT (tenant_id, capture_id) DO NOTHING`,
     );
-    expect(
-      await boundQueryError(
-        'northwind-synthetic',
-        `UPDATE platform_core.location_capture SET state_code = 'FL'
+    let removed: number | undefined;
+    try {
+      expect(
+        await boundQueryError(
+          'northwind-synthetic',
+          `UPDATE platform_core.location_capture SET state_code = 'FL'
           WHERE capture_id = 'cap-db-probe-0001'`,
-      ),
-    ).toBe('42501');
-    expect(
-      await boundQueryError(
-        'northwind-synthetic',
+        ),
+      ).toBe('42501');
+      expect(
+        await boundQueryError(
+          'northwind-synthetic',
+          `DELETE FROM platform_core.location_capture WHERE capture_id = 'cap-db-probe-0001'`,
+        ),
+      ).toBe('42501');
+    } finally {
+      const cleanup = await owner.query(
         `DELETE FROM platform_core.location_capture WHERE capture_id = 'cap-db-probe-0001'`,
-      ),
-    ).toBe('42501');
-    const cleanup = await owner.query(
-      `DELETE FROM platform_core.location_capture WHERE capture_id = 'cap-db-probe-0001'`,
-    );
-    expect(cleanup.rowCount).toBe(1);
+      );
+      removed = cleanup.rowCount ?? 0;
+    }
+    expect(removed).toBe(1);
   });
 
   it('cross-tenant: a Northwind-bound session cannot see Riverbend location captures', async () => {
