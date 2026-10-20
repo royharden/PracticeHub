@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -37,15 +37,9 @@ export interface CanonicalDocument {
 }
 
 export function canonicalJsonPath(): string {
-  const relative = resolve(
+  return resolve(
     dirname(fileURLToPath(import.meta.url)),
     '../../../docs/requirements/canonical-requirements.json',
-  );
-  if (existsSync(relative)) {
-    return relative;
-  }
-  return resolve(
-    'C:/Users/Roy Harden/OneDrive/PJ-OD/PracticeHub/PracticeHub/docs/requirements/canonical-requirements.json',
   );
 }
 
