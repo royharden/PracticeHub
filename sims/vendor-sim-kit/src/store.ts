@@ -19,6 +19,7 @@
 
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { platform } from 'node:os';
 import { dirname } from 'node:path';
 
 import { railIdPattern } from '@practicehub/platform-integration';
@@ -297,10 +298,13 @@ export class InMemorySimStateStore implements SimStateStore {
  */
 export class FileSimStateStore extends InMemorySimStateStore {
   private loading = false;
+  // Serialized bytes cannot alias records returned to callers or pending mutations.
+  private durableSnapshot: string;
 
   public constructor(private readonly path: string) {
     super();
     this.load();
+    this.durableSnapshot = JSON.stringify(this.snapshot());
   }
 
   private load(): void {
@@ -333,12 +337,51 @@ export class FileSimStateStore extends InMemorySimStateStore {
     if (this.loading) {
       return;
     }
-    const directory = dirname(this.path);
-    if (!existsSync(directory)) {
-      mkdirSync(directory, { recursive: true });
+    let prepared: string;
+    try {
+      prepared = `${JSON.stringify(this.snapshot(), null, 2)}\n`;
+      const directory = dirname(this.path);
+      if (!existsSync(directory)) {
+        mkdirSync(directory, { recursive: true });
+      }
+      const temporary = `${this.path}.writing`;
+      writeFileSync(temporary, prepared, 'utf8');
+      // Windows sharing violations can briefly prevent atomic replacement. Retry
+      // only the rename of these exact prepared bytes, never the store mutation.
+      const waits = [10, 20, 40, 80];
+      const sleeper = new Int32Array(new SharedArrayBuffer(4));
+      for (let attempt = 0; ; attempt += 1) {
+        try {
+          renameSync(temporary, this.path);
+          break;
+        } catch (error) {
+          const delay = waits[attempt];
+          if (
+            platform() !== 'win32' ||
+            !(error instanceof Error) ||
+            !('code' in error) ||
+            (error.code !== 'EPERM' && error.code !== 'EBUSY') ||
+            delay === undefined
+          ) {
+            throw error;
+          }
+          Atomics.wait(sleeper, 0, 0, delay);
+        }
+      }
+    } catch (error) {
+      const durable = JSON.parse(this.durableSnapshot) as SimStateSnapshot;
+      this.effects = new Map(
+        durable.effects.map((record) => [
+          effectKeyOf(record.railId, record.idempotencyKey),
+          record,
+        ]),
+      );
+      this.receipts = [...durable.receipts];
+      this.heartbeats = [...durable.heartbeats];
+      throw error;
     }
-    const temporary = `${this.path}.writing`;
-    writeFileSync(temporary, `${JSON.stringify(this.snapshot(), null, 2)}\n`, 'utf8');
-    renameSync(temporary, this.path);
+    // Nothing fallible remains after the rename commits; do not claim a disk
+    // rollback for a subsequent error. Keep the bytes that were actually written.
+    this.durableSnapshot = prepared;
   }
 }

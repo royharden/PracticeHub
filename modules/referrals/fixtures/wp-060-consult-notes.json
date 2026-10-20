@@ -1,0 +1,34 @@
+{
+  "synthetic": true,
+  "packageId": "WP-060",
+  "standsFor": "clinical contracts v2 consult-note resource (WP-060); replace with the frozen clinical contract once linked",
+  "notes": [
+    {
+      "packageId": "WP-060",
+      "noteRef": "synthetic-consult-note-0001",
+      "tenantId": "northwind-synthetic",
+      "patientRef": "synthetic-patient-0101",
+      "referralId": "synthetic-referral-0001",
+      "finalized": true,
+      "authoredBy": "synthetic-specialist-cardiology"
+    },
+    {
+      "packageId": "WP-060",
+      "noteRef": "synthetic-consult-note-0002",
+      "tenantId": "northwind-synthetic",
+      "patientRef": "synthetic-patient-0101",
+      "referralId": "synthetic-referral-0001",
+      "finalized": false,
+      "authoredBy": "synthetic-specialist-cardiology"
+    },
+    {
+      "packageId": "WP-060",
+      "noteRef": "synthetic-consult-note-0003",
+      "tenantId": "northwind-synthetic",
+      "patientRef": "synthetic-patient-0202",
+      "referralId": "synthetic-referral-0099",
+      "finalized": true,
+      "authoredBy": "synthetic-specialist-ortho"
+    }
+  ]
+}

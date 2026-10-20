@@ -22,10 +22,27 @@ export class ShadowStore {
         'shadow store posts only through the WP-056 placeholder',
       );
     }
+    // Runtime check: a live ledger cast to this type must still be refused.
+    const journal: unknown = (ledger as { readonly journal?: unknown }).journal;
+    if (journal !== 'shadow') {
+      throw new RcmShadowError(
+        'SHADOW_JOURNAL_REQUIRED',
+        'shadow postings go only to a shadow journal, never the live ledger',
+      );
+    }
   }
 
-  public append(body: MirrorBody, credential: PresentedCredential): SealedMirror {
+  public append(input: MirrorBody, credential: PresentedCredential): SealedMirror {
     const shadow = this.requireShadowCredential(credential);
+    // A private frozen copy: later caller mutation cannot change a sealed mirror.
+    const body: MirrorBody = Object.freeze({
+      tenantId: input.tenantId,
+      kind: input.kind,
+      controlNumber: input.controlNumber,
+      amountMinor: input.amountMinor,
+      currency: input.currency,
+      payload: input.payload,
+    });
     const sealed = sealMirror(body);
     const key = mirrorKey(body);
     const existing = this.mirrors.get(key);
@@ -37,28 +54,30 @@ export class ShadowStore {
     }
     const ledgerPosting =
       body.kind === '835'
-        ? this.ledger.record({
-            packageId: 'WP-056',
-            postingId: `wp056-${sealed.seal.slice(0, 16)}`,
-            tenantId: body.tenantId,
-            amountMinor: body.amountMinor,
-            currency: 'USD',
-            sourceSeal: sealed.seal,
+        ? Object.freeze({
+            ...this.ledger.record({
+              packageId: 'WP-056',
+              postingId: `wp056-${sealed.seal.slice(0, 16)}`,
+              tenantId: body.tenantId,
+              amountMinor: body.amountMinor,
+              currency: 'USD',
+              sourceSeal: sealed.seal,
+            }),
           })
         : null;
-    const record: SealedMirror = {
+    const record: SealedMirror = Object.freeze({
       seal: sealed.seal,
       canonical: sealed.canonical,
       body,
-      credential: shadow,
+      credential: Object.freeze({ ...shadow }),
       ledgerPosting,
-    };
+    });
     this.mirrors.set(key, record);
     return record;
   }
 
   public list(): readonly SealedMirror[] {
-    return [...this.mirrors.values()];
+    return Object.freeze([...this.mirrors.values()]);
   }
 
   private requireShadowCredential(credential: PresentedCredential): ShadowCredential {

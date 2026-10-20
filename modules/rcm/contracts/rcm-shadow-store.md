@@ -9,47 +9,38 @@ status: frozen
 
 # RCM shadow store (WP-080)
 
-Frozen contract for the M20 shadow store. Shadow means full compute with sealed, append-only outputs, credentials that are not live rail credentials, and no production side effects (ADR-011).
+`modules/rcm/contracts/rcm-shadow-store.md` is the module API contract. `docs/contracts/rcm-shadow-store.md` is its byte-identical publication copy; updates to the module text are synchronized to that copy. The distinct clearinghouse-router integration contract is separate.
 
-## Owned surface
+## Owned surface and boundary
 
-`modules/rcm` implements this contract. The ledger this store would post into is package WP-056 and is not imported. Callers use the named placeholder `Wp056LedgerPosting` and the fixture `modules/rcm/fixtures/wp-056-ledger.json`.
+`modules/rcm` provides an in-memory shadow store of sealed synthetic 835/837 mirrors and historical backload reconciliation. Shadow mode computes outcomes without live rail credentials or production side effects (ADR-011). The named WP-056 port remains a placeholder; this contract does not establish a real payments-ledger adapter, persistence, or production authorization.
 
-## Mirror body
+## Mirror body and seal
 
-A mirror body is `{ tenantId, kind, controlNumber, amountMinor, currency, payload }`.
+A mirror body is `{ tenantId, kind, controlNumber, amountMinor, currency, payload }`. `kind` is `837` or `835`; `amountMinor` is a non-negative safe integer and `currency` is `USD`. Tenant and control identifiers follow the constrained token format enforced by `assertMirrorBody`. The payload is a non-empty synthetic internal string of at most 4,000 characters, not an X12 document.
 
-- `kind` is `837` (claim) or `835` (remittance).
-- `amountMinor` is a non-negative safe integer. `currency` is `USD`.
-- `payload` is a synthetic internal string. It is not an X12 document.
-- `tenantId` and `controlNumber` are non-empty tokens without whitespace.
+`canonicalMirror` serializes JSON keys in this order: `amountMinor`, `controlNumber`, `currency`, `kind`, `payload`, `tenantId`. `sealCanonical` returns the lowercase hexadecimal SHA-256 of those UTF-8 bytes. The mirror identity is `(tenantId, kind, controlNumber)`.
 
-## Seal
+`ShadowStore.append` stores a private frozen copy of the body and freezes the returned record, shadow credential, and recorded posting. Re-appending the same sealed body returns the existing record. A different seal under the same identity throws `SEAL_CONFLICT`; it does not replace the earlier mirror or record another posting. `list()` returns a frozen array of the stored records. These guarantees describe one store instance, not durable storage across process restart.
 
-The canonical bytes are JSON with keys in this order: `amountMinor`, `controlNumber`, `currency`, `kind`, `payload`, `tenantId`. The seal is the lowercase hex SHA-256 of those UTF-8 bytes. The same body always seals the same way. Any change to a sealed field changes the seal. A stored mirror is kept only when `SHA-256(canonical)` equals `seal`.
+## Credentials and shadow ledger guard
 
-The identity of a mirror is `(tenantId, kind, controlNumber)`. Appending the same body again returns the existing sealed record. Appending a different body for the same identity is rejected and does not replace the stored seal.
+A presented credential is `{ class: 'shadow', credentialId }` or `{ class: 'live', credentialId, railId }`. Append rejects live credentials, invalid shadow credential identifiers, and shadow identifiers found in the supplied live-credential set. Live rail credentials are not copied into the sealed record.
 
-## Credentials
+Construction requires a `Wp056LedgerPort` with `packageId: 'WP-056'` and `journal: 'shadow'`. A missing or different journal value is refused with `SHADOW_JOURNAL_REQUIRED`, including a live port cast to the TypeScript interface. This is a declared-flag check, not proof of a port's underlying effects. A real live-ledger implementation must not advertise `journal: 'shadow'`; real WP-056 binding still needs the corresponding integration proof.
 
-A presented credential is either `{ class: "shadow", credentialId }` or `{ class: "live", credentialId, railId }`.
-
-The store is constructed with the set of live rail credential ids. Append accepts only `class: "shadow"` whose `credentialId` is absent from that set. A live credential is never copied onto a sealed record. Shadow credential ids and live rail credential ids are different values.
-
-## Ledger placeholder (WP-056)
-
-An accepted `835` asks the WP-056 placeholder port to record one `Wp056LedgerPosting`:
-
-`{ packageId: "WP-056", postingId, tenantId, amountMinor, currency: "USD", sourceSeal }`.
-
-`sourceSeal` is the mirror seal. The port's `packageId` is `WP-056`. An `837` records no posting. This package does not write the payments ledger.
+An accepted `835` records `{ packageId: 'WP-056', postingId, tenantId, amountMinor, currency: 'USD', sourceSeal }` through that shadow port. An `837` records no posting. The posting identifier is derived from the seal, and `sourceSeal` is the mirror seal. No live M19 posting is authorized by this interface.
 
 ## Historical backload
 
-Reconciliation compares incumbent rows to sealed mirrors on `(tenantId, kind, controlNumber)`.
+`reconcileBackload` validates incumbent rows and groups both inputs by `(tenantId, kind, controlNumber)`. Verification checks that the canonical bytes hash to the seal and that the supplied body re-canonicalizes to those same bytes. When sealed canonical data can be parsed and verified, it supplies the shadow key used for comparison.
 
-- `matched`: both sides exist, amounts are equal, payloads are equal, and the shadow seal verifies.
-- `unmatched`: the key is present on only one side (`incumbent` or `shadow`).
-- `conflicting`: both sides exist and the amount, the payload, or the seal check differs.
+- `matched`: both sides exist, the shadow seal/body checks hold, and amount and payload agree.
+- `unmatched`: a valid key exists only on the incumbent or shadow side.
+- `conflicting`: amount, payload, or seal verification differs, or repeated rows/mirrors share a key. Duplicate conflicts carry `reason: 'duplicate'` and `occurrences`; an invalid shadow seal is a conflict even without an incumbent row. Malformed incumbent rows are refused rather than silently matched.
 
-The report contains all three collections on every run.
+Every report contains all three collections. Reconciliation reports findings; it does not write a live ledger.
+
+## Limits and integration obligations
+
+The non-negative amount model cannot represent 835 recoupments or negative adjustments. Signed adjustments or another explicit representation remain required before real WP-056 wiring can claim to support those cases. The port, fixture `modules/rcm/fixtures/wp-056-ledger.json`, simulator boundary, and separate-credential proof remain in place. Documentation synchronization does not discharge adapter, database, full/local verification, or landing gates.

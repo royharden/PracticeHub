@@ -1,4 +1,4 @@
-import { LedgerError, type LedgerRail, type LedgerSide } from './ledger.js';
+import { LedgerError, type BalancedLedger, type LedgerRail, type LedgerSide } from './ledger.js';
 import { assertSafeInteger } from './money.js';
 
 export interface PayoutLedgerLine {
@@ -7,6 +7,10 @@ export interface PayoutLedgerLine {
   readonly side: LedgerSide;
   readonly amountMinor: number;
   readonly accountRef: string;
+  /** When present, must equal the reconciled tenant; a mismatch is `INVALID_LINE`. */
+  readonly tenantId?: string;
+  /** When present, must equal the reconciled payout; a mismatch is `INVALID_LINE`. */
+  readonly payoutRef?: string;
 }
 
 export interface PayoutDriftWorkItem {
@@ -18,6 +22,8 @@ export interface PayoutDriftWorkItem {
   readonly ledgerMinor: number;
   readonly payoutMinor: number;
   readonly driftMinor: number;
+  /** Present when the run was named; each drifting run opens its own item (0068 key). */
+  readonly reconciliationId?: string;
 }
 
 export interface PayoutReconciliation {
@@ -59,8 +65,53 @@ export function reconcilePayoutToThePenny(input: {
   readonly currency: string;
   readonly payoutAmountMinor: number;
   readonly lines: readonly PayoutLedgerLine[];
+  readonly reconciliationId?: string;
 }): PayoutReconciliation {
+  assertPayoutInput(input);
+  for (const line of input.lines) {
+    if (
+      (line.tenantId !== undefined && line.tenantId !== input.tenantId) ||
+      (line.payoutRef !== undefined && line.payoutRef !== input.payoutRef)
+    ) {
+      throw new LedgerError('INVALID_LINE');
+    }
+  }
+  return reconcileMinor(input, ledgerCashMinor(input.lines, input.currency));
+}
+
+/**
+ * Reconcile one payout against the ledger itself: the cash side comes from
+ * `ledger.cashPayoutMinor`, which already filters by tenant, cash rail and
+ * payout, so no caller-supplied line can leak into the total.
+ */
+export function reconcilePayoutFromLedger(
+  ledger: BalancedLedger,
+  input: {
+    readonly tenantId: string;
+    readonly payoutRef: string;
+    readonly currency: string;
+    readonly payoutAmountMinor: number;
+    readonly reconciliationId?: string;
+  },
+): PayoutReconciliation {
+  assertPayoutInput(input);
+  return reconcileMinor(
+    input,
+    ledger.cashPayoutMinor(input.tenantId, input.payoutRef, input.currency),
+  );
+}
+
+function assertPayoutInput(input: {
+  readonly tenantId: string;
+  readonly payoutRef: string;
+  readonly currency: string;
+  readonly payoutAmountMinor: number;
+  readonly reconciliationId?: string;
+}): void {
   if (input.tenantId.trim() === '' || input.payoutRef.trim() === '') {
+    throw new LedgerError('INVALID_LINE');
+  }
+  if (input.reconciliationId !== undefined && input.reconciliationId.trim() === '') {
     throw new LedgerError('INVALID_LINE');
   }
   if (!/^[A-Z]{3}$/.test(input.currency)) throw new LedgerError('INVALID_LINE');
@@ -69,7 +120,18 @@ export function reconcilePayoutToThePenny(input: {
   } catch {
     throw new LedgerError('INVALID_LINE');
   }
-  const ledgerMinor = ledgerCashMinor(input.lines, input.currency);
+}
+
+function reconcileMinor(
+  input: {
+    readonly tenantId: string;
+    readonly payoutRef: string;
+    readonly currency: string;
+    readonly payoutAmountMinor: number;
+    readonly reconciliationId?: string;
+  },
+  ledgerMinor: number,
+): PayoutReconciliation {
   const driftMinor = input.payoutAmountMinor - ledgerMinor;
   if (!Number.isSafeInteger(driftMinor)) throw new LedgerError('INVALID_LINE');
   const matched = driftMinor === 0;
@@ -84,6 +146,9 @@ export function reconcilePayoutToThePenny(input: {
         ledgerMinor,
         payoutMinor: input.payoutAmountMinor,
         driftMinor,
+        ...(input.reconciliationId === undefined
+          ? {}
+          : { reconciliationId: input.reconciliationId }),
       };
   return {
     matched,

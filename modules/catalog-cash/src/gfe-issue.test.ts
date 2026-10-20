@@ -100,3 +100,68 @@ describe('WP-051 cash GFE issue', () => {
     ).toThrow(expect.objectContaining({ code: 'ATTRIBUTION' }));
   });
 });
+
+// Rework 1 (review D48-WP-058-cc-review-1, F2 and F3). Each case fails on 2390dd1.
+describe('WP-051 cash GFE issue rework: tenancy and convening attribution', () => {
+  const codeOf = (action: () => unknown): string => {
+    try {
+      action();
+    } catch (error) {
+      return (error as CashGfeError).code;
+    }
+    return 'NO_ERROR';
+  };
+
+  it('refuses a document that belongs to another tenant and stores nothing', () => {
+    const issuer = new CashGfeIssuer();
+    expect(
+      codeOf(() =>
+        issuer.issue({
+          tenantId: 'riverbend-synthetic',
+          purchaseKey: 'purchase-nwind-02',
+          document: document(),
+        }),
+      ),
+    ).toBe('GFE_INVALID');
+    expect(
+      codeOf(() =>
+        issuer.variance({
+          tenantId: 'riverbend-synthetic',
+          purchaseKey: 'purchase-nwind-02',
+          actualTotalMinor: 0,
+        }),
+      ),
+    ).toBe('NOT_FOUND');
+  });
+
+  it('refuses an estimate with no convening party', () => {
+    const issuer = new CashGfeIssuer();
+    const noConvening = document().lines.filter((line) => line.partyRole !== 'convening');
+    expect(
+      codeOf(() =>
+        issuer.issue({
+          tenantId: 'northwind-synthetic',
+          purchaseKey: 'purchase-nwind-03',
+          document: { ...document(), gfeTotalMinor: 3798, claimTotalMinor: 0, lines: noConvening },
+        }),
+      ),
+    ).toBe('ATTRIBUTION');
+  });
+
+  it('refuses two different convening parties on one estimate', () => {
+    const issuer = new CashGfeIssuer();
+    const doc = document();
+    const lines = doc.lines.map((line, index) =>
+      index === 1 ? { ...line, partyRef: 'party:prov-convene02' } : line,
+    );
+    expect(
+      codeOf(() =>
+        issuer.issue({
+          tenantId: 'northwind-synthetic',
+          purchaseKey: 'purchase-nwind-04',
+          document: { ...doc, lines },
+        }),
+      ),
+    ).toBe('ATTRIBUTION');
+  });
+});

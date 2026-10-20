@@ -1,0 +1,76 @@
+{
+  "version": "nppes-slice-v1",
+  "synthetic": true,
+  "entries": [
+    {
+      "npi": "1900000013",
+      "name": "Synthetic Cardiology Group",
+      "taxonomy": "207RC0000X",
+      "state": "NV",
+      "location": "las-vegas",
+      "fax": "synthetic-fax:+1-555-0101",
+      "espAddress": "esp:synthetic-cardiology",
+      "active": true
+    },
+    {
+      "npi": "1900000021",
+      "name": "Synthetic Imaging Partners",
+      "taxonomy": "2085R0202X",
+      "state": "NV",
+      "location": "henderson",
+      "fax": "synthetic-fax:+1-555-0102",
+      "espAddress": null,
+      "active": true
+    },
+    {
+      "npi": "1900000039",
+      "name": "Synthetic Orthopedics North",
+      "taxonomy": "207X00000X",
+      "state": "MN",
+      "location": "minneapolis",
+      "fax": "synthetic-fax:+1-555-0103",
+      "espAddress": "esp:synthetic-ortho-north",
+      "active": true
+    },
+    {
+      "npi": "1900000047",
+      "name": "Synthetic Endocrine Clinic",
+      "taxonomy": "207RE0101X",
+      "state": "FL",
+      "location": "tampa",
+      "fax": null,
+      "espAddress": null,
+      "active": true
+    },
+    {
+      "npi": "1900000054",
+      "name": "Synthetic Retired Neurology",
+      "taxonomy": "2084N0400X",
+      "state": "IL",
+      "location": "chicago",
+      "fax": "synthetic-fax:+1-555-0105",
+      "espAddress": null,
+      "active": false
+    },
+    {
+      "npi": "1900000062",
+      "name": "Synthetic Referring Physician A",
+      "taxonomy": "207Q00000X",
+      "state": "NV",
+      "location": "las-vegas",
+      "fax": "synthetic-fax:+1-555-0106",
+      "espAddress": "esp:synthetic-referrer-a",
+      "active": true
+    },
+    {
+      "npi": "1900000070",
+      "name": "Synthetic Referring Physician B",
+      "taxonomy": "207R00000X",
+      "state": "MN",
+      "location": "minneapolis",
+      "fax": "synthetic-fax:+1-555-0107",
+      "espAddress": null,
+      "active": true
+    }
+  ]
+}

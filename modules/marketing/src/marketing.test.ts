@@ -59,13 +59,28 @@ describe('WP-071 marketing', () => {
     const run = runJourney({
       member: member(),
       campaign: { campaignId: 'camp-a', segmentId: 'segment-core' },
-      template: { templateId: 'tmpl-1', body: 'Synthetic panel reminder' },
+      template: {
+        templateId: 'tmpl-1',
+        body: 'Synthetic panel reminder {{unsubscribe_url}} {{postal_address}}',
+      },
       consent: consent('marketing', optedIn()),
+      // H-19: a named-segment campaign needs its segment, and a marketing send needs CAN-SPAM context.
+      segment: {
+        rule: { segmentId: 'segment-core', criteria: { plan_tier: ['core'] } },
+        profile: { plan_tier: 'core' },
+      },
+      canSpam: {
+        unsubscribeUrl: 'https://example.test/u/synthetic',
+        postalAddress: '1 Synthetic Way, Reno NV',
+      },
     });
     expect(run.steps).toEqual(['entered', 'rendered', 'sent']);
     expect(run.send?.purpose).toBe('marketing');
     expect(run.send?.memberId).toBe('member-synthetic-1');
-    expect(run.send?.body).toBe('Synthetic panel reminder');
+    // The sent body is the CAN-SPAM rendering of the template.
+    expect(run.send?.body).toBe(
+      'Synthetic panel reminder https://example.test/u/synthetic 1 Synthetic Way, Reno NV',
+    );
   });
 
   it('attribution math matches the fixture totals', () => {

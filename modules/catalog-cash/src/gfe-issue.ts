@@ -72,9 +72,21 @@ export class CashGfeIssuer {
     readonly purchaseKey: string;
     readonly document: CashGfeDocument;
   }): IssuedCashGfe {
-    if (!purchasePattern.test(input.purchaseKey) || input.document.lines.length === 0) {
+    if (
+      !purchasePattern.test(input.purchaseKey) ||
+      input.document.lines.length === 0 ||
+      input.tenantId === '' ||
+      input.document.tenantId !== input.tenantId
+    ) {
       throw new CashGfeError('GFE_INVALID');
     }
+    // Exactly one convening party (D-03), as catalog's assertAttribution requires.
+    const convening = new Set(
+      input.document.lines
+        .filter((line) => line.partyRole === 'convening')
+        .map((line) => JSON.stringify([line.partyKind, line.partyRef])),
+    );
+    if (convening.size !== 1) throw new CashGfeError('ATTRIBUTION');
     for (const line of input.document.lines) {
       if (
         line.lineRef === '' ||

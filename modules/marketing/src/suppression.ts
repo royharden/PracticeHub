@@ -3,6 +3,7 @@ import type { CanSendInput } from '@practicehub/consent';
 import { runJourney } from './journey.js';
 import type { Campaign, JourneyRun, Template } from './journey.js';
 import type { Wp070CrmMember } from './placeholder.js';
+import type { CanSpamContext, DemographicProfile, SegmentRule } from './segments.js';
 
 export const demographicFields = ['age_band', 'region', 'plan_tier'] as const;
 
@@ -52,6 +53,12 @@ export function applyBounce(input: {
   };
 }
 
+/**
+ * Address-keyed delivery kept for backward compatibility. It trusts the caller's
+ * address; use deliverToMember, which resolves the member's own address,
+ * checks person-level suppression and the sender's deliverability posture.
+ * @deprecated
+ */
 export function deliver(input: {
   readonly member: Wp070CrmMember;
   readonly campaign: Campaign;
@@ -60,6 +67,10 @@ export function deliver(input: {
   readonly address: string;
   readonly suppressions: readonly Suppression[];
   readonly partitionFields: readonly string[];
+  /** Passed to the journey (NR-156). */
+  readonly segment?: { readonly rule: SegmentRule; readonly profile: DemographicProfile };
+  /** Passed to the journey (NR-157). */
+  readonly canSpam?: CanSpamContext;
 }): { readonly blocked: 'partition' | 'suppressed' | null; readonly run: JourneyRun | null } {
   if (!partitionAllows(input.partitionFields)) {
     return { blocked: 'partition', run: null };
@@ -74,6 +85,8 @@ export function deliver(input: {
       campaign: input.campaign,
       template: input.template,
       consent: input.consent,
+      ...(input.segment === undefined ? {} : { segment: input.segment }),
+      ...(input.canSpam === undefined ? {} : { canSpam: input.canSpam }),
     }),
   };
 }

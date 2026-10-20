@@ -194,6 +194,7 @@ export class LabBook {
     if (result.critical) {
       this.#openClosure(order, result);
     }
+    this.#resolveAging(order, result.recordedAt);
     return result;
   }
 
@@ -210,7 +211,7 @@ export class LabBook {
     requireSynthetic(input.synthetic);
     const order = this.#requireOrder(input.tenantId, input.orderId);
     this.#requireNoResults(order);
-    const calibration = this.#requireCalibration(input.calibration);
+    const calibration = this.#requireCalibration(input.calibration, input.recordedAt);
     const result = this.#putResult({
       tenantId: order.tenantId,
       order,
@@ -229,6 +230,7 @@ export class LabBook {
     if (result.critical) {
       this.#openClosure(order, result);
     }
+    this.#resolveAging(order, result.recordedAt);
     return result;
   }
 
@@ -240,6 +242,10 @@ export class LabBook {
     readonly value: string;
     readonly critical: boolean;
     readonly recordedAt: string;
+    /** Required when correcting a device result: the correction carries fresh calibration. */
+    readonly calibration?: DeviceCalibration;
+    /** Required when correcting a kept manual result: the correction is a manual entry. */
+    readonly readBack?: ReadBack;
     readonly synthetic: true;
   }): LabResult {
     requireSynthetic(input.synthetic);
@@ -248,11 +254,18 @@ export class LabBook {
     if (prior.orderId !== order.orderId || order.currentResultId !== prior.resultId) {
       throw new LabError('LAB_NOT_CURRENT', `result ${prior.resultId} is not the current result`);
     }
-    if (prior.source !== 'electronic') {
+    if (prior.reconciliation === 'pending' || prior.reconciliation === 'conflict') {
       throw new LabError(
         'LAB_ORDER_STATE',
-        'manual results are reconciled, not corrected in place',
+        `result ${prior.resultId} is pending reconciliation; reconcile or adjudicate it first`,
       );
+    }
+    const device = prior.source === 'device';
+    // A correction keeps the provenance of what it corrects: a kept manual value is
+    // corrected by a manual entry (with its read-back), never relabelled electronic.
+    const manual = prior.source === 'manual';
+    if (manual && input.readBack === undefined) {
+      throw new LabError('LAB_READ_BACK', 'correcting a manual result requires a read-back');
     }
     const result = this.#putResult({
       tenantId: order.tenantId,
@@ -261,12 +274,17 @@ export class LabBook {
       value: input.value,
       critical: input.critical,
       recordedAt: input.recordedAt,
-      source: 'electronic',
+      source: prior.source,
       provisional: false,
-      reconciliation: 'not-applicable',
+      reconciliation: manual ? 'adjudicated-manual' : 'not-applicable',
       supersedesResultId: prior.resultId,
-      readBack: null,
-      calibration: null,
+      readBack:
+        manual && input.readBack !== undefined
+          ? this.#requireReadBack(input.readBack, input.value)
+          : null,
+      calibration: device
+        ? this.#requireCalibration(input.calibration ?? null, input.recordedAt)
+        : null,
     });
     this.#replaceOrder(order, { status: 'resulted', currentResultId: result.resultId });
     if (result.critical && !this.#closures.has(key(order.tenantId, result.resultId))) {
@@ -428,6 +446,17 @@ export class LabBook {
       synthetic: true,
     };
     this.#recalls.set(key(tenantId, `${deviceId}\u0000${lotId}`), cohort);
+    // Already-ingested results in the cohort are marked (NR-109); later ingests are
+    // flagged in #putResult.
+    for (const resultId of resultIds) {
+      const resultKey = key(tenantId, resultId);
+      const result = this.#results.get(resultKey);
+      if (result === undefined || result.recallIds?.includes(cohort.recallId) === true) continue;
+      this.#results.set(resultKey, {
+        ...result,
+        recallIds: [...(result.recallIds ?? []), cohort.recallId],
+      });
+    }
     return cohort;
   }
 
@@ -505,6 +534,7 @@ export class LabBook {
     if (result.critical) {
       this.#openClosure(order, result);
     }
+    this.#resolveAging(order, result.recordedAt);
     return result;
   }
 
@@ -557,6 +587,12 @@ export class LabBook {
     if (sameValue) {
       this.#replaceOrder(order, { status: 'resulted', currentResultId: electronic.resultId });
     }
+    // A critical electronic value pages at once, even while its conflict is open.
+    // A matched value already paged through its manual row is not paged twice.
+    const alreadyPaged = sameValue && this.#closures.has(key(order.tenantId, manual.resultId));
+    if (electronic.critical && !alreadyPaged) {
+      this.#openClosure(order, electronic);
+    }
     const reconciliation: Reconciliation = {
       tenantId: order.tenantId,
       orderId: order.orderId,
@@ -590,21 +626,33 @@ export class LabBook {
     const actorRef = requireId(input.actorRef, 'actorRef');
     const manual = this.readResult(order.tenantId, current.manualResultId);
     const electronic = this.readResult(order.tenantId, current.electronicResultId);
-    const manualState: ReconciliationState =
-      input.decision === 'keep-manual' ? 'adjudicated-manual' : 'adjudicated-electronic';
-    const electronicState: ReconciliationState = manualState;
-    this.#results.set(key(order.tenantId, manual.resultId), {
-      ...manual,
-      reconciliation: manualState,
-      provisional: true,
-    });
-    this.#results.set(key(order.tenantId, electronic.resultId), {
+    const keepManual = input.decision === 'keep-manual';
+    const state: ReconciliationState = keepManual ? 'adjudicated-manual' : 'adjudicated-electronic';
+    // The kept value becomes final; the rejected value stays provisional and readable.
+    const keptManual: LabResult = { ...manual, reconciliation: state, provisional: !keepManual };
+    const keptElectronic: LabResult = {
       ...electronic,
-      reconciliation: electronicState,
-      provisional: false,
-    });
-    if (input.decision === 'accept-electronic') {
-      this.#replaceOrder(order, { status: 'resulted', currentResultId: electronic.resultId });
+      reconciliation: state,
+      provisional: keepManual,
+    };
+    this.#results.set(key(order.tenantId, manual.resultId), keptManual);
+    this.#results.set(key(order.tenantId, electronic.resultId), keptElectronic);
+    const adopted = keepManual ? keptManual : keptElectronic;
+    this.#replaceOrder(order, { status: 'resulted', currentResultId: adopted.resultId });
+    if (adopted.critical && !this.#closures.has(key(order.tenantId, adopted.resultId))) {
+      this.#openClosure(order, adopted);
+    }
+    if (keepManual) {
+      // The rejected critical electronic value's closure ends as superseded, with the
+      // adjudicator, the instant and the reason recorded; it is never left open or
+      // closed silently (NR-142).
+      this.#supersedeClosure(
+        order.tenantId,
+        electronic.resultId,
+        actorRef,
+        at,
+        `rejected by keep-manual adjudication; ${manual.resultId} kept`,
+      );
     }
     const decided: Reconciliation = {
       ...current,
@@ -615,6 +663,27 @@ export class LabBook {
     };
     this.#reconciliations.set(key(order.tenantId, order.orderId), decided);
     return decided;
+  }
+
+  /** Every critical closure opened for an order, oldest first. */
+  closuresForOrder(tenantId: string, orderId: string): readonly CriticalClosure[] {
+    const order = this.#requireOrder(tenantId, orderId);
+    return [...this.#closures.values()]
+      .filter((closure) => closure.tenantId === order.tenantId && closure.orderId === order.orderId)
+      .sort(
+        (left, right) =>
+          left.pagedAt.localeCompare(right.pagedAt) || left.resultId.localeCompare(right.resultId),
+      );
+  }
+
+  orderStatus(tenantId: string, orderId: string): LabOrder['status'] {
+    return this.#requireOrder(tenantId, orderId).status;
+  }
+
+  /** The expected-result aging row for an order, or null when it never aged. */
+  agingFor(tenantId: string, orderId: string): ExpectedResultAge | null {
+    const order = this.#requireOrder(tenantId, orderId);
+    return this.#ages.get(key(order.tenantId, order.orderId)) ?? null;
   }
 
   reconciliationFor(tenantId: string, orderId: string): Reconciliation {
@@ -642,16 +711,24 @@ export class LabBook {
     }
   }
 
-  #requireCalibration(calibration: DeviceCalibration | null): DeviceCalibration {
+  #requireCalibration(
+    calibration: DeviceCalibration | null,
+    recordedAt: string,
+  ): DeviceCalibration {
     if (calibration === null) {
       throw new LabError('LAB_CALIBRATION', 'a device result requires calibration metadata');
     }
     const deviceId = requireId(calibration.deviceId, 'deviceId');
     const lotId = requireId(calibration.lotId, 'lotId');
+    const calibratedAt = requireInstant(calibration.calibratedAt, 'calibratedAt');
+    // Calibration provenance cannot post-date the reading it vouches for (NR-110).
+    if (instantMs(calibratedAt) > instantMs(requireInstant(recordedAt, 'recordedAt'))) {
+      throw new LabError('LAB_CALIBRATION', 'calibratedAt must not be after recordedAt');
+    }
     return {
       deviceId,
       lotId,
-      calibratedAt: requireInstant(calibration.calibratedAt, 'calibratedAt'),
+      calibratedAt,
       method: requireText(calibration.method, 'method'),
     };
   }
@@ -688,7 +765,13 @@ export class LabBook {
     if (this.#results.has(resultKey)) {
       throw new LabError('LAB_DUPLICATE', `result ${resultId} already exists`);
     }
-    if (input.source === 'manual' && (input.provisional !== true || input.readBack === null)) {
+    // A manual result carries a read-back and is provisional, except a correction of
+    // an adjudicated (kept) manual value, which is final like the value it corrects.
+    if (
+      input.source === 'manual' &&
+      (input.readBack === null ||
+        input.provisional !== (input.reconciliation !== 'adjudicated-manual'))
+    ) {
       throw new LabError(
         'LAB_PROVISIONAL',
         'a manual result is provisional and carries a read-back',
@@ -703,6 +786,15 @@ export class LabBook {
     }
     const recordedAt = requireInstant(input.recordedAt, 'recordedAt');
     const value = requireText(input.value, 'value');
+    // A device result from a recalled device and lot is flagged at ingest (NR-109).
+    const recalls =
+      input.source === 'device' && input.calibration !== null
+        ? this.#recallsFor(
+            input.order.tenantId,
+            input.calibration.deviceId,
+            input.calibration.lotId,
+          )
+        : [];
     const result: LabResult = {
       resultId,
       tenantId: input.order.tenantId,
@@ -716,6 +808,7 @@ export class LabBook {
       reconciliation: input.reconciliation,
       readBack: input.readBack,
       calibration: input.calibration,
+      ...(recalls.length === 0 ? {} : { recallIds: recalls.map((recall) => recall.recallId) }),
       observation: resource({
         resourceType: 'Observation',
         id: resultId,
@@ -735,7 +828,18 @@ export class LabBook {
       synthetic: true,
     };
     this.#results.set(resultKey, result);
+    for (const recall of recalls) {
+      this.#recalls.set(key(recall.tenantId, `${recall.deviceId}\u0000${recall.lotId}`), {
+        ...recall,
+        resultIds: [...recall.resultIds, resultId].sort(),
+      });
+    }
     return result;
+  }
+
+  #recallsFor(tenantId: string, deviceId: string, lotId: string): readonly RecallCohort[] {
+    const recall = this.#recalls.get(key(tenantId, `${deviceId}\u0000${lotId}`));
+    return recall === undefined ? [] : [recall];
   }
 
   #replaceOrder(
@@ -773,6 +877,48 @@ export class LabBook {
     };
     this.#closures.set(key(order.tenantId, result.resultId), closure);
     return closure;
+  }
+
+  /** The first result for an aged order resolves its aging WorkItem. */
+  #resolveAging(order: LabOrder, at: string): void {
+    const ageKey = key(order.tenantId, order.orderId);
+    const aged = this.#ages.get(ageKey);
+    if (aged === undefined || aged.workItem.status === 'resolved') return;
+    const workItem = withEvent(aged.workItem, {
+      workItemId: aged.workItem.workItemId,
+      eventSeq: aged.workItem.lastEventSeq + 1,
+      eventType: 'resolved',
+      occurredAt: at,
+      actorRef: 'system:lab-result-received',
+    });
+    this.#ages.set(ageKey, { ...aged, workItem });
+  }
+
+  #supersedeClosure(
+    tenantId: string,
+    resultId: string,
+    actorRef: string,
+    at: string,
+    reason: string,
+  ): void {
+    const closure = this.#closures.get(key(tenantId, resultId));
+    if (closure === undefined || closure.phase === 'closed' || closure.phase === 'superseded')
+      return;
+    const workItem = withEvent(closure.workItem, {
+      workItemId: closure.workItem.workItemId,
+      eventSeq: closure.workItem.lastEventSeq + 1,
+      eventType: 'resolved',
+      occurredAt: at,
+      actorRef,
+    });
+    this.#saveClosure({
+      ...closure,
+      phase: 'superseded',
+      supersededAt: at,
+      supersededBy: actorRef,
+      supersededReason: requireText(reason, 'reason'),
+      workItem,
+    });
   }
 
   #saveClosure(closure: CriticalClosure): CriticalClosure {

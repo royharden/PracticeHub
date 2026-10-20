@@ -19,9 +19,20 @@ export const paymentsLedgerStatementRlsSpecs: readonly RlsTableSpec[] = [
   { schema: 'payments_ledger', table: 'credit_balance_clock', kind: 'tenant-scoped' },
 ];
 
-/** Full schema registry. Every payments_ledger migration's coverage guard names these tables. */
-export const paymentsLedgerSchemaRlsSpecs: readonly RlsTableSpec[] = [
+/** Tables created by 0070-oig-exception-report.sql (WP-095 rework 1). */
+export const paymentsLedgerOigRlsSpecs: readonly RlsTableSpec[] = [
+  { schema: 'payments_ledger', table: 'oig_exception_report', kind: 'tenant-scoped' },
+];
+
+/** Immutable pre-0070 epoch: the original 0019/0021/0022 coverage contract. */
+export const paymentsLedgerHistoricalRlsSpecs: readonly RlsTableSpec[] = [
   ...paymentsLedgerRlsSpecs,
   ...paymentsLedgerV2RlsSpecs,
   ...paymentsLedgerStatementRlsSpecs,
+];
+
+/** Current schema from 0070 onward; shares the historical table definitions. */
+export const paymentsLedgerSchemaRlsSpecs: readonly RlsTableSpec[] = [
+  ...paymentsLedgerHistoricalRlsSpecs,
+  ...paymentsLedgerOigRlsSpecs,
 ];

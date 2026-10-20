@@ -1,0 +1,152 @@
+{
+  "corpusId": "wp-084-edit-regression-v1",
+  "synthetic": true,
+  "packs": [
+    {
+      "packId": "NCCI-2026Q3",
+      "family": "NCCI",
+      "version": "2026Q3",
+      "effectiveOn": "2026-07-01",
+      "effectiveThrough": "2026-09-30",
+      "edits": [
+        {
+          "editId": "ptp-1",
+          "code": "80053",
+          "column2Code": "80048",
+          "modifierIndicator": "0",
+          "maxUnits": null
+        },
+        {
+          "editId": "ptp-2",
+          "code": "99214",
+          "column2Code": "36415",
+          "modifierIndicator": "1",
+          "maxUnits": null
+        }
+      ]
+    },
+    {
+      "packId": "NCCI-2026Q4",
+      "family": "NCCI",
+      "version": "2026Q4",
+      "effectiveOn": "2026-10-01",
+      "edits": [
+        {
+          "editId": "ptp-1",
+          "code": "80053",
+          "column2Code": "80048",
+          "modifierIndicator": "0",
+          "maxUnits": null
+        },
+        {
+          "editId": "ptp-2",
+          "code": "99214",
+          "column2Code": "36415",
+          "modifierIndicator": "1",
+          "maxUnits": null
+        },
+        {
+          "editId": "ptp-3",
+          "code": "93000",
+          "column2Code": "93005",
+          "modifierIndicator": "0",
+          "maxUnits": null
+        }
+      ]
+    },
+    {
+      "packId": "MUE-2026Q3",
+      "family": "MUE",
+      "version": "2026Q3",
+      "effectiveOn": "2026-07-01",
+      "effectiveThrough": "2026-09-30",
+      "edits": [
+        { "editId": "mue-36415", "code": "36415", "maxUnits": 1 },
+        { "editId": "mue-97110", "code": "97110", "maxUnits": 4 }
+      ]
+    },
+    {
+      "packId": "MUE-2026Q4",
+      "family": "MUE",
+      "version": "2026Q4",
+      "effectiveOn": "2026-10-01",
+      "edits": [
+        { "editId": "mue-36415", "code": "36415", "maxUnits": 1 },
+        { "editId": "mue-97110", "code": "97110", "maxUnits": 6 }
+      ]
+    },
+    {
+      "packId": "LCD-NCD-v1",
+      "family": "LCD-NCD",
+      "version": "v1",
+      "effectiveOn": "2026-01-01",
+      "edits": [{ "editId": "lcd-g0103", "code": "G0103", "maxUnits": null }]
+    }
+  ],
+  "cases": [
+    {
+      "caseId": "case-ptp",
+      "lines": [
+        { "lineId": "L1", "code": "80053", "units": 1 },
+        { "lineId": "L2", "code": "80048", "units": 1 },
+        { "lineId": "L3", "code": "99214", "units": 1 },
+        { "lineId": "L4", "code": "36415", "units": 1, "modifiers": ["59"] }
+      ]
+    },
+    {
+      "caseId": "case-mue-split",
+      "lines": [
+        { "lineId": "M1", "code": "97110", "units": 3 },
+        { "lineId": "M2", "code": "97110", "units": 2 },
+        { "lineId": "M3", "code": "36415", "units": 1 },
+        { "lineId": "M4", "code": "36415", "units": 1 }
+      ]
+    },
+    {
+      "caseId": "case-lcd",
+      "lines": [{ "lineId": "G1", "code": "G0103", "units": 1 }]
+    },
+    {
+      "caseId": "case-ncci-new",
+      "lines": [
+        { "lineId": "E1", "code": "93000", "units": 1 },
+        { "lineId": "E2", "code": "93005", "units": 1 }
+      ]
+    }
+  ],
+  "baselines": [
+    { "packId": "NCCI-2026Q3", "caseId": "case-ptp", "edits": ["NCCI|ptp-1|L2|80048"] },
+    { "packId": "NCCI-2026Q3", "caseId": "case-mue-split", "edits": [] },
+    { "packId": "NCCI-2026Q3", "caseId": "case-lcd", "edits": [] },
+    { "packId": "NCCI-2026Q3", "caseId": "case-ncci-new", "edits": [] },
+    { "packId": "NCCI-2026Q4", "caseId": "case-ptp", "edits": ["NCCI|ptp-1|L2|80048"] },
+    { "packId": "NCCI-2026Q4", "caseId": "case-mue-split", "edits": [] },
+    { "packId": "NCCI-2026Q4", "caseId": "case-lcd", "edits": [] },
+    { "packId": "NCCI-2026Q4", "caseId": "case-ncci-new", "edits": ["NCCI|ptp-3|E2|93005"] },
+    { "packId": "MUE-2026Q3", "caseId": "case-ptp", "edits": [] },
+    {
+      "packId": "MUE-2026Q3",
+      "caseId": "case-mue-split",
+      "edits": ["MUE|mue-97110|M1|97110", "MUE|mue-36415|M3|36415"]
+    },
+    { "packId": "MUE-2026Q3", "caseId": "case-lcd", "edits": [] },
+    { "packId": "MUE-2026Q3", "caseId": "case-ncci-new", "edits": [] },
+    { "packId": "MUE-2026Q4", "caseId": "case-ptp", "edits": [] },
+    { "packId": "MUE-2026Q4", "caseId": "case-mue-split", "edits": ["MUE|mue-36415|M3|36415"] },
+    { "packId": "MUE-2026Q4", "caseId": "case-lcd", "edits": [] },
+    { "packId": "MUE-2026Q4", "caseId": "case-ncci-new", "edits": [] },
+    { "packId": "LCD-NCD-v1", "caseId": "case-ptp", "edits": [] },
+    { "packId": "LCD-NCD-v1", "caseId": "case-mue-split", "edits": [] },
+    { "packId": "LCD-NCD-v1", "caseId": "case-lcd", "edits": ["LCD-NCD|lcd-g0103|G1|G0103"] },
+    { "packId": "LCD-NCD-v1", "caseId": "case-ncci-new", "edits": [] }
+  ],
+  "retired": [
+    {
+      "fromPackId": "MUE-2026Q3",
+      "toPackId": "MUE-2026Q4",
+      "caseId": "case-mue-split",
+      "edit": "MUE|mue-97110|M1|97110",
+      "reason": "Synthetic Q4 pack raises the 97110 MUE from 4 to 6 units per day; 5 units no longer exceed it."
+    }
+  ]
+}

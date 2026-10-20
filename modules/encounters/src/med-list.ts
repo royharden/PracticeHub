@@ -1,3 +1,5 @@
+import type { DowntimeWriteGuard } from './downtime.js';
+
 export class MedListError extends Error {
   public constructor(message: string) {
     super(message);
@@ -21,9 +23,12 @@ export class MedicationList {
   public constructor(
     public readonly tenantId: string,
     public readonly personId: string,
+    /** The downtime online-write guard; every write path checks it first. */
+    private readonly writeGuard?: DowntimeWriteGuard,
   ) {}
 
   public claimOwner(ownerRef: string): string {
+    this.writeGuard?.assertWritable();
     if (this.ownerRef !== null && this.ownerRef !== ownerRef) {
       throw new MedListError('med-list already has a single owner');
     }
@@ -32,6 +37,7 @@ export class MedicationList {
   }
 
   public add(itemId: string, display: string, actorRef: string): MedListItem {
+    this.writeGuard?.assertWritable();
     this.requireOwner(actorRef);
     const item: MedListItem = { itemId, display, ownerRef: actorRef };
     this.items.set(itemId, item);
@@ -39,6 +45,7 @@ export class MedicationList {
   }
 
   public remove(itemId: string, actorRef: string): void {
+    this.writeGuard?.assertWritable();
     this.requireOwner(actorRef);
     this.items.delete(itemId);
   }

@@ -36,6 +36,8 @@ const guarantors: readonly GuarantorTerm[] = [
 
 const evidenced = [
   grant('membership.entitlement-ledger', 'simulated', ['synthetic-entitlement-evidence-0001']),
+  // IC-3 (rework 1): a statement also needs simulated billing authority.
+  grant('finance.billing-authority', 'simulated', ['synthetic-billing-evidence-0001']),
 ];
 
 describe('WP-057 statements, dunning, refunds, and clocks', () => {

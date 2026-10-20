@@ -30,7 +30,9 @@ describe('write-off approval tiers', () => {
     ).toThrowError(new WriteOffError('UNDER_AUTHORIZED'));
   });
 
-  it('posts an authorized write-off as a new balanced set', () => {
+  it('the deprecated tier-only path no longer posts on a caller-declared role (H-21)', () => {
+    // It used to post this write-off on the caller's word that it was a billing clerk.
+    // Governed write-offs now go through approveWriteOff + postApprovedWriteOff.
     const ledger = new BalancedLedger();
     const approval = authorizeWriteOff({
       tenantId: 'northwind-synthetic',
@@ -40,29 +42,14 @@ describe('write-off approval tiers', () => {
       role: 'billing-clerk',
       rail: 'cash',
     });
-    postWriteOff(ledger, approval, {
-      journalId: 'wo-1',
-      correlationId: 'corr-wo-1',
-      idempotencyKey: 'wo-key-1',
-      sourceRef: 'wo-src-1',
-    });
-    const balances = ledger.accountBalances('northwind-synthetic');
-    expect(balances).toEqual([
-      { accountRef: 'accounts-receivable', currency: 'USD', debitMinor: 0, creditMinor: 1000 },
-      { accountRef: 'write-off-expense', currency: 'USD', debitMinor: 1000, creditMinor: 0 },
-    ]);
     expect(() =>
-      postWriteOff(
-        ledger,
-        { ...approval, amountMinor: 500 },
-        {
-          journalId: 'wo-2',
-          correlationId: 'corr-wo-2',
-          idempotencyKey: 'wo-key-2',
-          sourceRef: 'wo-src-2',
-        },
-      ),
-    ).toThrowError(new WriteOffError('APPROVAL_MISMATCH'));
-    expect(ledger.journals()).toHaveLength(1);
+      postWriteOff(ledger, approval, {
+        journalId: 'wo-1',
+        correlationId: 'corr-wo-1',
+        idempotencyKey: 'wo-key-1',
+        sourceRef: 'wo-src-1',
+      }),
+    ).toThrowError(new WriteOffError('DEPRECATED_PATH_REFUSED'));
+    expect(ledger.journals()).toHaveLength(0);
   });
 });

@@ -19,6 +19,6 @@ export default defineConfig({
   },
   test: {
     include: ['src/**/*.test.ts'],
-    exclude: ['dist/**', 'node_modules/**'],
+    exclude: ['src/**/*.db.test.ts', 'dist/**', 'node_modules/**'],
   },
 });

@@ -146,7 +146,7 @@ describe('WP-051 GFE estimates', () => {
         synthetic: true,
         lines: [{ ...visit, code: failure.missingCode }],
       }),
-    ).toThrow(EstimateError);
+    ).toThrow(expect.objectContaining({ constructor: EstimateError, code: 'RATE_NOT_FOUND' }));
     expect(() =>
       issueGoodFaithEstimate({
         ...happy,

@@ -25,9 +25,26 @@ export interface LedgerPostInput {
   readonly processorEffectRef?: string;
   readonly externalReceiptRef?: string;
   readonly reversalOfJournalId?: string;
+  /** Present only on a governed write-off journal (see write-off.ts). */
+  readonly writeOff?: WriteOffMemo;
+  /**
+   * When the journal happened (ISO-8601 instant; the DB `journal.occurred_at`).
+   * Accounting exports place a journal in a period by its UTC date.
+   */
+  readonly occurredAt?: string;
+}
+
+/** The approval a write-off journal was posted under, carried on the journal itself. */
+export interface WriteOffMemo {
+  readonly writeOffId: string;
+  readonly reason: string;
+  readonly approvalHash: string;
+  readonly approverActorId: string;
 }
 
 export interface AccountBalance {
+  /** The tenant these totals belong to; rows from different tenants never merge. */
+  readonly tenantId: string;
   readonly accountRef: string;
   readonly currency: string;
   readonly debitMinor: number;
@@ -37,7 +54,14 @@ export interface AccountBalance {
 export interface LedgerReceipt {
   readonly tenantId: string;
   readonly journalId: string;
+  /** sha256 of JSON.stringify(the stored journal), as landed; importers recompute it from `journal()`. */
   readonly canonicalPayloadHash: string;
+  /**
+   * sha256 of the order-independent canonical tuple (fixed key order, defaults
+   * applied). Retries are compared on this, so key order or an explicit
+   * default never makes an identical retry conflict.
+   */
+  readonly canonicalTupleHash?: string;
   readonly reversalOfJournalId?: string;
 }
 
@@ -56,8 +80,47 @@ export class LedgerError extends Error {
   }
 }
 
-const hashInput = (input: LedgerPostInput): string =>
-  createHash('sha256').update(JSON.stringify(input)).digest('hex');
+/**
+ * Canonical form for the idempotency hash: a fixed key order with defaults
+ * applied, so a retry that differs only in key order or in spelling out a
+ * default (`rail: 'cash'`) hashes the same.
+ */
+const canonicalPost = (input: LedgerPostInput): readonly unknown[] => [
+  input.tenantId,
+  input.journalId,
+  input.correlationId,
+  input.idempotencyKey,
+  input.rail ?? 'cash',
+  input.payoutRef ?? null,
+  input.processorEffectRef ?? null,
+  input.externalReceiptRef ?? null,
+  input.reversalOfJournalId ?? null,
+  input.writeOff === undefined
+    ? null
+    : [
+        input.writeOff.writeOffId,
+        input.writeOff.reason,
+        input.writeOff.approvalHash,
+        input.writeOff.approverActorId,
+      ],
+  input.lines.map((line) => [
+    line.accountRef,
+    line.side,
+    line.amountMinor,
+    line.currency,
+    line.sourceRef,
+  ]),
+  input.occurredAt ?? null,
+];
+
+const tupleHash = (input: LedgerPostInput): string =>
+  createHash('sha256')
+    .update(JSON.stringify(canonicalPost(input)))
+    .digest('hex');
+
+/** The landed receipt hash: the stored journal exactly as `journal()` returns it. */
+const payloadHash = (stored: LedgerPostInput): string =>
+  createHash('sha256').update(JSON.stringify(stored)).digest('hex');
 
 const tupleKey = (...parts: readonly string[]): string => JSON.stringify(parts);
 
@@ -98,7 +161,7 @@ export class BalancedLedger {
   public postBalancedSet(input: LedgerPostInput): LedgerReceipt {
     assertLines(input.lines);
     const posted = normalizePost(input);
-    const hash = hashInput(posted);
+    const hash = tupleHash(posted);
     const prior = this.#byIdempotency.get(tupleKey(posted.tenantId, posted.idempotencyKey));
     if (prior !== undefined) {
       if (prior.hash !== hash) throw new LedgerError('IDEMPOTENCY_CONFLICT');
@@ -111,7 +174,8 @@ export class BalancedLedger {
     const receipt: LedgerReceipt = {
       tenantId: posted.tenantId,
       journalId: posted.journalId,
-      canonicalPayloadHash: hash,
+      canonicalPayloadHash: payloadHash(posted),
+      canonicalTupleHash: hash,
       ...(posted.reversalOfJournalId === undefined
         ? {}
         : { reversalOfJournalId: posted.reversalOfJournalId }),
@@ -124,7 +188,11 @@ export class BalancedLedger {
     return receipt;
   }
 
-  /** Debit and credit totals per account. A posted ledger balances when, for every currency, the sums match. */
+  /**
+   * Debit and credit totals per tenant, account and currency. A posted ledger
+   * balances when, for every tenant and currency, the sums match. Without a
+   * tenantId every tenant is returned, each row keyed by its own tenantId.
+   */
   public accountBalances(tenantId?: string): readonly AccountBalance[] {
     const totals = new Map<string, AccountBalance>();
     for (const journal of this.#journals.values()) {
@@ -132,6 +200,7 @@ export class BalancedLedger {
       for (const line of journal.lines) {
         const key = JSON.stringify([journal.tenantId, line.accountRef, line.currency]);
         const current = totals.get(key) ?? {
+          tenantId: journal.tenantId,
           accountRef: line.accountRef,
           currency: line.currency,
           debitMinor: 0,
@@ -151,7 +220,9 @@ export class BalancedLedger {
       }
     }
     return [...totals.values()].sort((left, right) =>
-      `${left.currency}|${left.accountRef}`.localeCompare(`${right.currency}|${right.accountRef}`),
+      JSON.stringify([left.tenantId, left.currency, left.accountRef]).localeCompare(
+        JSON.stringify([right.tenantId, right.currency, right.accountRef]),
+      ),
     );
   }
 
@@ -210,6 +281,21 @@ function normalizePost(input: LedgerPostInput): LedgerPostInput {
   const rail = input.rail ?? 'cash';
   if (!ledgerRails.includes(rail)) throw new LedgerError('INVALID_LINE');
   if (input.payoutRef !== undefined && (input.payoutRef.trim() === '' || rail !== 'cash')) {
+    throw new LedgerError('INVALID_LINE');
+  }
+  if (
+    input.occurredAt !== undefined &&
+    (!/^\d{4}-\d{2}-\d{2}T/.test(input.occurredAt) || Number.isNaN(Date.parse(input.occurredAt)))
+  ) {
+    throw new LedgerError('INVALID_LINE');
+  }
+  if (
+    input.writeOff !== undefined &&
+    (input.writeOff.writeOffId.trim() === '' ||
+      input.writeOff.reason.trim() === '' ||
+      input.writeOff.approverActorId.trim() === '' ||
+      !/^[0-9a-f]{64}$/.test(input.writeOff.approvalHash))
+  ) {
     throw new LedgerError('INVALID_LINE');
   }
   return {

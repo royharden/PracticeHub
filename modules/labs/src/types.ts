@@ -17,7 +17,13 @@ export const reconciliationStates = [
 ] as const;
 export type ReconciliationState = (typeof reconciliationStates)[number];
 
-export const closurePhases = ['paged', 'acknowledged', 'contacted', 'closed'] as const;
+export const closurePhases = [
+  'paged',
+  'acknowledged',
+  'contacted',
+  'closed',
+  'superseded',
+] as const;
 export type ClosurePhase = (typeof closurePhases)[number];
 
 export interface ReadBack {
@@ -60,6 +66,8 @@ export interface LabResult {
   readonly reconciliation: ReconciliationState;
   readonly readBack: ReadBack | null;
   readonly calibration: DeviceCalibration | null;
+  /** Recalls whose device and lot this result belongs to (projection of labs.device_recall). */
+  readonly recallIds?: readonly string[];
   readonly observation: PhClinicalResource;
   readonly report: PhClinicalResource;
   readonly synthetic: true;
@@ -78,6 +86,13 @@ export interface CriticalClosure {
   readonly contactEvidence: string | null;
   readonly closedAt: string | null;
   readonly closedBy: string | null;
+  /**
+   * Set when the closure ends because its value was rejected by adjudication
+   * (phase `superseded`): who decided, when, and why. Never silent.
+   */
+  readonly supersededAt?: string | null;
+  readonly supersededBy?: string | null;
+  readonly supersededReason?: string | null;
   readonly workItem: WorkItem;
   readonly synthetic: true;
 }

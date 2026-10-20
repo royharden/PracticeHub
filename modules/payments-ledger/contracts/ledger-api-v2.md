@@ -1,6 +1,6 @@
 ---
 doc_id: ledger-api-v2
-title: "Ledger API v2 — FROZEN contract (WP-056)"
+title: 'Ledger API v2 — FROZEN contract (WP-056)'
 status: frozen
 depends_on: [IPF5-ADR-012, capability-registry, stripe-phi-linter-spec]
 ---
@@ -42,12 +42,12 @@ against. This contract does not change that adapter.
    `small-balance`, `contractual-adjustment`, `uncollectible`, and `charity`.
    Roles rank `billing-clerk` < `billing-supervisor` < `rcm-lead`.
 
-   | reason | ceiling | who may approve |
-   |---|---|---|
-   | small-balance | 1000 minor | clerk up to 1000; a larger amount is `TIER_EXCEEDED` for every role |
-   | contractual-adjustment | any safe integer | clerk to 1000; supervisor to 10000; lead above that |
-   | uncollectible | any safe integer | supervisor to 10000; lead above that; clerk never |
-   | charity | any safe integer | lead only |
+   | reason                 | ceiling          | who may approve                                                     |
+   | ---------------------- | ---------------- | ------------------------------------------------------------------- |
+   | small-balance          | 1000 minor       | clerk up to 1000; a larger amount is `TIER_EXCEEDED` for every role |
+   | contractual-adjustment | any safe integer | clerk to 1000; supervisor to 10000; lead above that                 |
+   | uncollectible          | any safe integer | supervisor to 10000; lead above that; clerk never                   |
+   | charity                | any safe integer | lead only                                                           |
 
    `authorizeWriteOff` throws `UNDER_AUTHORIZED` when the role is below that
    row. `postWriteOff` posts a new balanced pair (`write-off-expense` debit,
@@ -69,3 +69,20 @@ against. This contract does not change that adapter.
 - `modules/payments-ledger/src/write-off.ts`
 - `modules/payments-ledger/src/billing-authority.ts`
 - `modules/payments-ledger/migrations/0021-ledger-v2.sql`
+
+## Governed write-off database execution safety
+
+Governed write-off insertion requires PostgreSQL READ COMMITTED isolation. The
+0071 deferred constraint rejects every other or unknown isolation mode with
+SQLSTATE `23514` and `governed write-off insertion requires READ COMMITTED isolation`;
+it never changes the caller's isolation level. This includes READ UNCOMMITTED,
+REPEATABLE READ and SERIALIZABLE.
+
+For a tenant, receivable target and currency, the check acquires an exclusive
+transaction advisory lock before reading the open receivable in a separate SQL
+statement. The lock lasts until commit or rollback, including after explicitly
+forcing deferred checks. The function is VOLATILE and SECURITY INVOKER. A hash
+collision can conservatively serialize unrelated targets. Transactions touching
+multiple targets can deadlock; callers must roll back and retry the complete
+transaction when PostgreSQL reports a deadlock. Existing approval, journal,
+amount, tenant and deferred-commit rules and API economic shapes are unchanged.

@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { reconcilePayoutToThePenny, type PayoutLedgerLine } from './payout-reconciliation.js';
+import { BalancedLedger } from './ledger.js';
+import {
+  reconcilePayoutFromLedger,
+  reconcilePayoutToThePenny,
+  type PayoutLedgerLine,
+} from './payout-reconciliation.js';
 
 const lines = (cashMinor: number): readonly PayoutLedgerLine[] => [
   {
@@ -64,5 +69,58 @@ describe('payout reconciliation to the penny', () => {
       payoutMinor: 2499,
       driftMinor: -1,
     });
+  });
+});
+
+describe('payout reconciliation from the ledger', () => {
+  it('counts only this tenant and payout, and names each drifting run', () => {
+    const ledger = new BalancedLedger();
+    const post = (tenantId: string, journalId: string, payoutRef: string, amount: number) =>
+      ledger.postBalancedSet({
+        tenantId,
+        journalId,
+        correlationId: `c-${journalId}`,
+        idempotencyKey: `k-${journalId}`,
+        rail: 'cash',
+        payoutRef,
+        lines: [
+          {
+            accountRef: 'cash',
+            side: 'debit',
+            amountMinor: amount,
+            currency: 'USD',
+            sourceRef: journalId,
+          },
+          {
+            accountRef: 'service-liability',
+            side: 'credit',
+            amountMinor: amount,
+            currency: 'USD',
+            sourceRef: journalId,
+          },
+        ],
+      });
+    post('northwind-synthetic', 'j1', 'po_1', 2500);
+    post('northwind-synthetic', 'j2', 'po_2', 700);
+    post('riverbend-synthetic', 'j1', 'po_1', 9900);
+
+    const matched = reconcilePayoutFromLedger(ledger, {
+      tenantId: 'northwind-synthetic',
+      payoutRef: 'po_1',
+      currency: 'USD',
+      payoutAmountMinor: 2500,
+    });
+    expect(matched.matched).toBe(true);
+    expect(matched.ledgerMinor).toBe(2500);
+
+    const drift = reconcilePayoutFromLedger(ledger, {
+      tenantId: 'northwind-synthetic',
+      payoutRef: 'po_1',
+      currency: 'USD',
+      payoutAmountMinor: 2501,
+      reconciliationId: 'recon-2',
+    });
+    expect(drift.workItem?.reconciliationId).toBe('recon-2');
+    expect(drift.workItem?.driftMinor).toBe(1);
   });
 });

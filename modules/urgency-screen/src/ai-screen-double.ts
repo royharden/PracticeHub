@@ -1,8 +1,24 @@
+import {
+  compactReading,
+  normalizeForScreen,
+  normalizeV1ForScreen,
+  normalizedReadings,
+} from './normalize.js';
 import { AI_SCREEN_DOUBLE_VERSION, type UrgencyClass } from './types.js';
+
+const ESCALATION_PHRASES: readonly string[] = [
+  'worst headache',
+  'thunderclap',
+  'lips blue',
+  'labios azules',
+].map(normalizeForScreen);
 
 /**
  * Model-sim assistive screen (D5.5 dev). It may escalate routine → urgent.
  * It must never downgrade a keyword-urgent decision (false-negative floor).
+ * v4 matches each phrase as a substring of the raw lower-cased text (as the landed double did),
+ * of the normalize.v1 text (as a2 did), of both normalize readings and of the compact reading,
+ * so it escalates whenever any earlier version would have.
  */
 export function assistiveAiScreen(input: {
   readonly text: string;
@@ -25,11 +41,17 @@ export function assistiveAiScreen(input: {
   if (input.keywordClass === 'urgent') {
     return { class: 'urgent', confidence: 1, abstained: false, version: AI_SCREEN_DOUBLE_VERSION };
   }
-  const haystack = input.text.toLowerCase();
-  const escalate =
-    haystack.includes('worst headache') ||
-    haystack.includes('lips blue') ||
-    haystack.includes('labios azules');
+  const haystacks = [
+    input.text.toLowerCase(),
+    normalizeV1ForScreen(input.text),
+    ...normalizedReadings(input.text),
+  ];
+  const compact = compactReading(input.text);
+  const escalate = ESCALATION_PHRASES.some(
+    (phrase) =>
+      haystacks.some((haystack) => haystack.includes(phrase)) ||
+      (compact !== null && compact.includes(phrase.replaceAll(' ', ''))),
+  );
   if (escalate) {
     return {
       class: 'urgent',
