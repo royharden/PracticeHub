@@ -37,7 +37,8 @@ export interface StageDefinition {
 
 export class PipelineError extends Error {
   public constructor(
-    public readonly code: 'STAGE_OWNER_REQUIRED' | 'STAGE_UNKNOWN' | 'CLOCK_INVALID',
+    public readonly code:
+      'STAGE_OWNER_REQUIRED' | 'STAGE_UNKNOWN' | 'CLOCK_INVALID' | 'STAGE_MISMATCH',
   ) {
     super(code);
     this.name = 'PipelineError';
@@ -97,6 +98,15 @@ export const queueForAge = (input: {
   if (input.stage.ownerRole === '' || input.workRef === '') {
     throw new PipelineError('STAGE_OWNER_REQUIRED');
   }
+  // NR-095: the canonical table decides owner and threshold; a caller-supplied definition that
+  // differs from it is refused rather than trusted.
+  const canonical = stageDefinition(input.stage.stage);
+  if (
+    canonical.ownerRole !== input.stage.ownerRole ||
+    canonical.agingThresholdMinutes !== input.stage.agingThresholdMinutes
+  ) {
+    throw new PipelineError('STAGE_MISMATCH');
+  }
   if (
     !Number.isSafeInteger(input.stage.agingThresholdMinutes) ||
     input.stage.agingThresholdMinutes <= 0
@@ -137,11 +147,40 @@ export const rollupPackage = (
   });
 };
 
+/** Days after payment before paid-but-not-performed work counts as leakage (NR-092). */
+export const LEAKAGE_GRACE_DAYS = 7;
+
+/**
+ * Paid work not yet performed. With options.now, work counts only once paidAt is at least
+ * graceDays (default 7) in the past, so work paid moments ago is not leakage; every work item
+ * must then carry a parseable paidAt. Without options the legacy ungraced count is returned.
+ * @deprecated the no-clock form; pass { now }.
+ */
 export const leakageWorkRefs = (
-  works: readonly { readonly workRef: string; readonly stage: FulfillmentStage }[],
+  works: readonly {
+    readonly workRef: string;
+    readonly stage: FulfillmentStage;
+    readonly paidAt?: string;
+  }[],
+  options?: { readonly now: string; readonly graceDays?: number },
 ): readonly string[] => {
   const performedAt = stageIndex('performed');
+  const unperformed = works.filter((work) => stageIndex(work.stage) < performedAt);
+  if (options === undefined) {
+    return Object.freeze(unperformed.map((work) => work.workRef));
+  }
+  const graceDays = options.graceDays ?? LEAKAGE_GRACE_DAYS;
+  if (!Number.isSafeInteger(graceDays) || graceDays < 0) throw new PipelineError('CLOCK_INVALID');
+  const now = Date.parse(options.now);
+  if (!Number.isFinite(now)) throw new PipelineError('CLOCK_INVALID');
+  const graceMs = graceDays * 86_400_000;
   return Object.freeze(
-    works.filter((work) => stageIndex(work.stage) < performedAt).map((work) => work.workRef),
+    unperformed
+      .filter((work) => {
+        const paid = work.paidAt === undefined ? Number.NaN : Date.parse(work.paidAt);
+        if (!Number.isFinite(paid)) throw new PipelineError('CLOCK_INVALID');
+        return now - paid >= graceMs;
+      })
+      .map((work) => work.workRef),
   );
 };

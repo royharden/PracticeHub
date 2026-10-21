@@ -1,3 +1,11 @@
 import { defineConfig } from 'vitest/config';
 
-export default defineConfig({ test: { include: ['src/**/*.db.test.ts'], testTimeout: 30_000 } });
+// Each suite owns a fresh synthetic database; serialize cluster-wide role bootstrap.
+export default defineConfig({
+  test: {
+    include: ['src/**/*.db.test.ts'],
+    fileParallelism: false,
+    testTimeout: 30_000,
+    hookTimeout: 60_000,
+  },
+});

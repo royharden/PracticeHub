@@ -5,14 +5,17 @@ import { reportDoubleBills, routeTakeback, seededDoubleBillFixture } from './oig
 describe('WP-095 OIG execution', () => {
   it('reports the seeded double-bill and does not miss it', () => {
     const findings = reportDoubleBills(seededDoubleBillFixture);
-    expect(findings).toEqual([
-      {
-        patientRef: 'patient-casey',
-        serviceRef: 'svc-awv',
-        serviceDate: '2026-03-01',
-        chargeIds: ['chg-insurance-awv', 'chg-membership-awv'],
-      },
-    ]);
+    // Rework 1: the seeded set also carries a same-rail pair and a three-rail group,
+    // and each finding is labelled with its kind and rails.
+    expect(findings[0]).toEqual({
+      patientRef: 'patient-casey',
+      serviceRef: 'svc-awv',
+      serviceDate: '2026-03-01',
+      chargeIds: ['chg-insurance-awv', 'chg-membership-awv'],
+      kind: 'cross-rail',
+      rails: ['insurance', 'membership'],
+    });
+    expect(findings).toHaveLength(3);
   });
 
   it('routes an absorbed takeback to hardship', () => {

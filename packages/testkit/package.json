@@ -9,6 +9,6 @@
     "build": "tsc -p tsconfig.json",
     "lint": "eslint src --max-warnings=0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run --exclude dist/**"
+    "test": "vitest run --exclude \"dist/**\""
   }
 }

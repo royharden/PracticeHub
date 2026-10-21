@@ -1,40 +1,20 @@
-import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
-import { fileURLToPath } from 'node:url';
 
 import { tenantBindingSql } from '@practicehub/platform-core';
-import { Client } from 'pg';
+import type { Client } from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-const root = fileURLToPath(new URL('../../..', import.meta.url));
-const config = {
-  host: process.env['PRACTICEHUB_DB_HOST'] ?? '127.0.0.1',
-  port: Number(process.env['PRACTICEHUB_DB_PORT'] ?? '55432'),
-  database: 'practicehub',
-};
-let owner: Client;
+import { createLedgerDb, type LedgerDb } from './db-test-harness.js';
+
+let db: LedgerDb | undefined;
 let app: Client;
 
 beforeAll(async () => {
-  owner = new Client({ ...config, user: 'practicehub', password: 'practicehub_synthetic_local' });
-  app = new Client({
-    ...config,
-    user: 'practicehub_app',
-    password: 'practicehub_app_synthetic_local',
-  });
-  await owner.connect();
-  await owner.query(readFileSync(`${root}infra/postgres/init/001-bootstrap.sql`, 'utf8'));
-  await owner.query(
-    readFileSync(`${root}modules/platform-core/migrations/0001-tenancy.sql`, 'utf8'),
-  );
-  await owner.query(
-    readFileSync(`${root}modules/payments-ledger/migrations/0019-cash-ledger.sql`, 'utf8'),
-  );
-  await app.connect();
+  db = await createLedgerDb('legacy_cash', ['0019-cash-ledger.sql']);
+  app = db.app;
 });
 afterAll(async () => {
-  await app?.end();
-  await owner?.end();
+  await db?.dispose();
 });
 
 async function bound(tenantId: string, sql: string): Promise<readonly Record<string, unknown>[]> {

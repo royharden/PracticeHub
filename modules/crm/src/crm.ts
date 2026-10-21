@@ -73,9 +73,16 @@ export interface MemberRecord {
   readonly email: string;
   readonly householdId: string;
   readonly membershipAccountId: string;
+  /** Owning tenant. Optional only for backward compatibility; `member360ForCaller` refuses a record without it. */
+  readonly tenantId?: string;
   readonly synthetic: true;
 }
 
+/**
+ * The purpose allowlist projection, with no tenant or caller check. Callers
+ * outside CRM use `member360ForCaller`, which adds tenancy and the PDP decision.
+ * @deprecated as an entry point; kept for backward compatibility.
+ */
 export function member360(
   record: MemberRecord,
   purpose: Member360Purpose,

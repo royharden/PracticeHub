@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   FULFILLMENT_STAGES,
+  LEAKAGE_GRACE_DAYS,
   leakageWorkRefs,
   queueForAge,
   rollupPackage,
@@ -91,5 +92,45 @@ describe('WP-058 fulfillment pipeline', () => {
     if (existsSync(docsPath)) {
       expect(Buffer.compare(readFileSync(docsPath), copied)).toBe(0);
     }
+  });
+});
+
+describe('H-16 catalog hardening', () => {
+  const enteredAt = '2026-01-01T00:00:00.000Z';
+
+  it('NR-095: queueForAge refuses a caller-supplied stage definition that differs from the table', () => {
+    const paid = stageDefinition('paid');
+    for (const forged of [
+      { ...paid, agingThresholdMinutes: 1 },
+      { ...paid, ownerRole: 'role:someone-else' },
+    ]) {
+      expect(() =>
+        queueForAge({
+          workRef: 'work-1',
+          stage: forged,
+          enteredAt,
+          now: '2026-01-01T00:05:00.000Z',
+        }),
+      ).toThrow(expect.objectContaining({ code: 'STAGE_MISMATCH' }));
+    }
+    expect(
+      queueForAge({ workRef: 'work-1', stage: paid, enteredAt, now: '2026-01-01T00:05:00.000Z' }),
+    ).toBeNull();
+  });
+
+  it('NR-092: with a clock, work paid inside the grace period is not leakage; after it, it is', () => {
+    const works = [
+      { workRef: 'fresh', stage: 'paid' as const, paidAt: '2026-03-01T09:00:00.000Z' },
+      { workRef: 'old', stage: 'scheduled' as const, paidAt: '2026-02-01T09:00:00.000Z' },
+      { workRef: 'done', stage: 'performed' as const, paidAt: '2026-01-01T09:00:00.000Z' },
+    ];
+    const now = '2026-03-01T09:00:10.000Z';
+    expect(leakageWorkRefs(works, { now })).toEqual(['old']);
+    expect(LEAKAGE_GRACE_DAYS).toBe(7);
+    expect(leakageWorkRefs(works, { now: '2026-03-08T09:00:00.000Z' })).toEqual(['fresh', 'old']);
+    expect(leakageWorkRefs(works, { now, graceDays: 0 })).toEqual(['fresh', 'old']);
+    expect(() => leakageWorkRefs([{ workRef: 'x', stage: 'paid' }], { now })).toThrow(
+      expect.objectContaining({ code: 'CLOCK_INVALID' }),
+    );
   });
 });

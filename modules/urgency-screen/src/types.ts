@@ -1,6 +1,13 @@
 export const URGENCY_SCREEN_VERSION = 'urgency-screen.v1' as const;
-export const KEYWORD_CLASSIFIER_VERSION = 'keyword-classifier.v1' as const;
-export const AI_SCREEN_DOUBLE_VERSION = 'ai-screen-double.v1' as const;
+/**
+ * v4 (WP-045 a4, targeted fix): the union of the v3 concept vocabulary (whole-word and stem,
+ * both format-character readings, plus a compact reading when the message carries a format
+ * character), the verbatim v2 vocabulary and the verbatim landed v1 vocabulary. Strictly safer
+ * than every earlier version by construction.
+ */
+export const KEYWORD_CLASSIFIER_VERSION = 'keyword-classifier.v4' as const;
+/** v4 (WP-045 a4): escalation phrases matched the way every earlier double matched them. */
+export const AI_SCREEN_DOUBLE_VERSION = 'ai-screen-double.v4' as const;
 export const EMERGENCY_LINE =
   'If this is an emergency call 911 or go to the nearest emergency room.' as const;
 

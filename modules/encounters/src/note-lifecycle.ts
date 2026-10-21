@@ -4,6 +4,7 @@ import type {
   NoteState,
   SoapBody,
 } from './clinical-contracts.double.js';
+import type { DowntimeWriteGuard } from './downtime.js';
 
 export type NoteEvent =
   | { readonly kind: 'opened'; readonly noteId: string }
@@ -50,7 +51,11 @@ export class EncounterNoteService {
   private readonly notes = new Map<string, EncounterNote>();
   private seq = 0;
 
+  /** writeGuard is the downtime online-write guard; every write path checks it first. */
+  public constructor(private readonly writeGuard?: DowntimeWriteGuard) {}
+
   public openDraft(scope: ClinicalScope, soap: SoapBody, authorRef: string): EncounterNote {
+    this.writeGuard?.assertWritable();
     this.refuseEmpty(soap);
     const note: EncounterNote = {
       scope,
@@ -91,6 +96,7 @@ export class EncounterNoteService {
   }
 
   public approveForTransmission(noteId: string, reviewerRef: string): EncounterNote {
+    this.writeGuard?.assertWritable();
     const note = this.require(noteId);
     if (note.state !== 'proposal-draft' && note.state !== 'amendment-pending') {
       throw new EncounterNoteError(
@@ -112,6 +118,7 @@ export class EncounterNoteService {
     assignedClinicianRef: string,
     evidence: AthenaAttestation | null,
   ): EncounterNote {
+    this.writeGuard?.assertWritable();
     const note = this.require(noteId);
     if (!sameScope(note.scope, expected)) {
       throw new EncounterNoteError('attestation blocked: wrong patient or encounter');
@@ -147,6 +154,7 @@ export class EncounterNoteService {
   }
 
   public amend(noteId: string, reason: string, soap: SoapBody, authorRef: string): EncounterNote {
+    this.writeGuard?.assertWritable();
     const signed = this.require(noteId);
     this.refuseEmpty(soap);
     if (signed.state !== 'signed-in-authority') {

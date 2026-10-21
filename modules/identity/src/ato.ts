@@ -123,29 +123,75 @@ export interface AtoLockdownResult {
   readonly notification: AtoNotificationDirective;
 }
 
+/** The containment half of a lockdown, committed before any notification is attempted. */
+export interface CommittedAtoLockdown {
+  readonly lockdown: AccountLockdown;
+  readonly sessions: readonly AuthSession[];
+}
+
 /**
- * Fire the lockdown (REQ-ID-029 AC-1/AC-3): every active session for the
- * person revokes, high-risk actions freeze, the triggering signals are
- * recorded verbatim on the case, and the member is notified over a verified
- * channel with the exception-1 fallback.
+ * Owned follow-up when no trusted channel can carry the ATO notice (REQ-ID-029
+ * AC-1 + exception 1): the lockdown still holds; a person on the supervised
+ * manual path must reach the member out of band.
  */
-export function raiseAtoLockdown(
+export interface AtoNotificationFollowUp {
+  readonly kind: 'ato-notification-no-trusted-channel';
+  readonly tenantId: TenantId;
+  readonly personId: PersonId;
+  readonly lockdownId: string;
+  readonly route: 'supervised-manual';
+  readonly ownerRole: 'identity-security';
+  readonly reason: string;
+}
+
+export type AtoNotificationOutcome =
+  | { readonly status: 'sent'; readonly directive: AtoNotificationDirective }
+  | { readonly status: 'follow-up-required'; readonly followUp: AtoNotificationFollowUp };
+
+export interface CommittedAtoLockdownResult extends CommittedAtoLockdown {
+  readonly notification: AtoNotificationOutcome;
+}
+
+/**
+ * Thrown by the legacy `raiseAtoLockdown` when no trusted channel exists. It
+ * carries the already-committed lockdown and revoked sessions, so a caller that
+ * catches it never loses containment. Prefer `raiseAtoLockdownCommitted`.
+ */
+export class AtoNotificationFailClosedError extends AuthnInvariantError {
+  public constructor(
+    message: string,
+    public readonly committed: CommittedAtoLockdown,
+    public readonly followUp: AtoNotificationFollowUp,
+  ) {
+    super(message);
+    this.name = 'AtoNotificationFailClosedError';
+  }
+}
+
+export interface AtoLockdownOptions {
+  /**
+   * Called with the lockdown and revoked sessions BEFORE a notification channel
+   * is chosen, so persistence never depends on notification.
+   */
+  readonly onCommit?: (committed: CommittedAtoLockdown) => void;
+}
+
+function commitAtoLockdown(
   lockdownId: string,
   tenantId: TenantId,
   personId: PersonId,
   signals: readonly AtoSignal[],
   sessions: readonly AuthSession[],
-  associations: readonly EndpointAssociation[],
-  recentlyChangedEndpointIds: readonly string[],
   synthetic: boolean,
-): AtoLockdownResult {
+): CommittedAtoLockdown {
   if (signals.length === 0) {
     throw new AuthnInvariantError(
       `lockdown ${lockdownId} requires the triggering signals — the forensic record fails closed`,
     );
   }
+  // Tenant AND person: a lockdown never reaches another tenant's session.
   const revoked = sessions.map((session) =>
-    session.personId === personId && session.status === 'active'
+    session.personId === personId && session.tenantId === tenantId && session.status === 'active'
       ? { ...session, status: 'revoked' as const, revokedReason: `ato-lockdown:${lockdownId}` }
       : session,
   );
@@ -162,7 +208,98 @@ export function raiseAtoLockdown(
       synthetic,
     },
     sessions: revoked,
-    notification: selectNotificationChannel(associations, personId, recentlyChangedEndpointIds),
+  };
+}
+
+/**
+ * Fire the lockdown and never lose it (REQ-ID-029 AC-1/AC-3): containment —
+ * session revocation, frozen high-risk actions, the verbatim signal record — is
+ * committed first; notification is decided afterwards, and a missing trusted
+ * channel becomes an owned supervised-manual follow-up, never an abort.
+ */
+export function raiseAtoLockdownCommitted(
+  lockdownId: string,
+  tenantId: TenantId,
+  personId: PersonId,
+  signals: readonly AtoSignal[],
+  sessions: readonly AuthSession[],
+  associations: readonly EndpointAssociation[],
+  recentlyChangedEndpointIds: readonly string[],
+  synthetic: boolean,
+  options: AtoLockdownOptions = {},
+): CommittedAtoLockdownResult {
+  const committed = commitAtoLockdown(lockdownId, tenantId, personId, signals, sessions, synthetic);
+  options.onCommit?.(committed);
+  try {
+    return {
+      ...committed,
+      notification: {
+        status: 'sent',
+        directive: selectNotificationChannel(associations, personId, recentlyChangedEndpointIds),
+      },
+    };
+  } catch (error) {
+    if (!(error instanceof AuthnInvariantError)) throw error;
+    return {
+      ...committed,
+      notification: {
+        status: 'follow-up-required',
+        followUp: {
+          kind: 'ato-notification-no-trusted-channel',
+          tenantId,
+          personId,
+          lockdownId,
+          route: 'supervised-manual',
+          ownerRole: 'identity-security',
+          reason: error.message,
+        },
+      },
+    };
+  }
+}
+
+/**
+ * Fire the lockdown (REQ-ID-029 AC-1/AC-3): every active session for the
+ * person in this tenant revokes, high-risk actions freeze, the triggering
+ * signals are recorded verbatim on the case, and the member is notified over a
+ * verified channel with the exception-1 fallback. Containment is committed
+ * (via `onCommit`) before notification; with no trusted channel this throws an
+ * `AtoNotificationFailClosedError` that still carries the committed lockdown.
+ * New callers use `raiseAtoLockdownCommitted`, which never throws for that case.
+ */
+export function raiseAtoLockdown(
+  lockdownId: string,
+  tenantId: TenantId,
+  personId: PersonId,
+  signals: readonly AtoSignal[],
+  sessions: readonly AuthSession[],
+  associations: readonly EndpointAssociation[],
+  recentlyChangedEndpointIds: readonly string[],
+  synthetic: boolean,
+  options: AtoLockdownOptions = {},
+): AtoLockdownResult {
+  const result = raiseAtoLockdownCommitted(
+    lockdownId,
+    tenantId,
+    personId,
+    signals,
+    sessions,
+    associations,
+    recentlyChangedEndpointIds,
+    synthetic,
+    options,
+  );
+  if (result.notification.status === 'follow-up-required') {
+    throw new AtoNotificationFailClosedError(
+      result.notification.followUp.reason,
+      { lockdown: result.lockdown, sessions: result.sessions },
+      result.notification.followUp,
+    );
+  }
+  return {
+    lockdown: result.lockdown,
+    sessions: result.sessions,
+    notification: result.notification.directive,
   };
 }
 

@@ -48,7 +48,19 @@ function consent(personRef: string): CanSendInput {
 }
 
 const campaign = { campaignId: 'camp-a', segmentId: 'segment-core' };
-const template = { templateId: 'tmpl-1', body: 'Synthetic panel reminder' };
+const template = {
+  templateId: 'tmpl-1',
+  body: 'Synthetic panel reminder {{unsubscribe_url}} {{postal_address}}',
+};
+// H-19: a named-segment campaign needs its segment, and a marketing send needs CAN-SPAM context.
+const h19Segment = {
+  rule: { segmentId: 'segment-core', criteria: { plan_tier: ['core'] } },
+  profile: { plan_tier: 'core' },
+};
+const h19CanSpam = {
+  unsubscribeUrl: 'https://example.test/u/synthetic',
+  postalAddress: '1 Synthetic Way, Reno NV',
+};
 
 describe('WP-072 marketing suppression', () => {
   it('a partition-fuzz case fails closed and does not send', () => {
@@ -56,6 +68,8 @@ describe('WP-072 marketing suppression', () => {
       member: member('member-synthetic-1'),
       campaign,
       template,
+      segment: h19Segment,
+      canSpam: h19CanSpam,
       consent: consent('member-synthetic-1'),
       address: 'member-synthetic-1@example.test',
       suppressions: [],
@@ -67,6 +81,8 @@ describe('WP-072 marketing suppression', () => {
       member: member('member-synthetic-1'),
       campaign,
       template,
+      segment: h19Segment,
+      canSpam: h19CanSpam,
       consent: consent('member-synthetic-1'),
       address: 'member-synthetic-1@example.test',
       suppressions: [],
@@ -81,6 +97,8 @@ describe('WP-072 marketing suppression', () => {
       member: member('member-synthetic-1'),
       campaign,
       template,
+      segment: h19Segment,
+      canSpam: h19CanSpam,
       consent: consent('member-synthetic-1'),
       address: 'member-synthetic-1@example.test',
       suppressions: [{ address: 'Member-Synthetic-1@example.test' }],
@@ -108,6 +126,8 @@ describe('WP-072 marketing suppression', () => {
       member: second.member,
       campaign,
       template,
+      segment: h19Segment,
+      canSpam: h19CanSpam,
       consent: consent('member-synthetic-2'),
       address: bounce.suppressedAddress,
       suppressions: [{ address: bounce.suppressedAddress }],
@@ -118,6 +138,8 @@ describe('WP-072 marketing suppression', () => {
       member: second.member,
       campaign,
       template,
+      segment: h19Segment,
+      canSpam: h19CanSpam,
       consent: consent('member-synthetic-2'),
       address: 'two@example.test',
       suppressions: [{ address: bounce.suppressedAddress }],

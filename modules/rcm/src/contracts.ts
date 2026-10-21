@@ -71,8 +71,14 @@ export interface Wp056LedgerFixture {
   readonly postings: readonly Wp056LedgerPosting[];
 }
 
+/**
+ * Shadow journal for WP-056 postings made by shadow-mode remits. It is never
+ * the live M19 ledger: shadow postings must not reach live money (ADR-011).
+ * ShadowStore refuses any port whose `journal` is not 'shadow'.
+ */
 export interface Wp056LedgerPort {
   readonly packageId: typeof WP056_PACKAGE_ID;
+  readonly journal: 'shadow';
   record(posting: Wp056LedgerPosting): Wp056LedgerPosting;
   postings(): readonly Wp056LedgerPosting[];
 }

@@ -56,6 +56,7 @@ export function wp056PlaceholderPort(fixture: Wp056LedgerFixture): Wp056LedgerPo
   const recorded: Wp056LedgerPosting[] = [...fixture.postings];
   return {
     packageId: WP056_PACKAGE_ID,
+    journal: 'shadow',
     record(posting: Wp056LedgerPosting): Wp056LedgerPosting {
       if (posting.packageId !== WP056_PACKAGE_ID) {
         throw new RcmShadowError('WP056_PORT', 'posting packageId must be WP-056');

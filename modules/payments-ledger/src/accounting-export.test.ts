@@ -17,6 +17,8 @@ describe('WP-059 bounded accounting export', () => {
       correlationId: 'corr-1',
       idempotencyKey: 'key-1',
       rail: 'cash',
+      // Rework 1: a journal carries its accounting instant; undated journals are refused.
+      occurredAt: '2026-01-15T12:00:00.000Z',
       lines: [
         {
           accountRef: 'cash',
