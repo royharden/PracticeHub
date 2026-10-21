@@ -11,7 +11,7 @@
     "lint:e2e": "eslint playwright.config.ts e2e --max-warnings=0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "typecheck:e2e": "tsc -p e2e/tsconfig.json --noEmit",
-    "test": "vitest run --passWithNoTests --exclude e2e/**",
+    "test": "vitest run --passWithNoTests --exclude \"e2e/**\"",
     "test:e2e": "playwright test",
     "test:e2e:coverage": "playwright test e2e/journey-coverage.test.ts",
     "test:e2e:parity": "node e2e/provider-parity-acceptance.mjs"
